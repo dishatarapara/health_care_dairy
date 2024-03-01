@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../Common/bottom_button.dart';
-import '../ConstFile/constColors.dart';
-import '../ConstFile/constFonts.dart';
-import '../Controller/unit_controller.dart';
-import 'home_screen.dart';
+import '../../Common/bottom_button.dart';
+import '../../ConstFile/constColors.dart';
+import '../../ConstFile/constFonts.dart';
+import '../../ConstFile/constPreferences.dart';
+import '../../Controller/unit_controller.dart';
+import '../../Controller/weight_controller.dart';
+import '../home_screen.dart';
 
 class UnitScreen extends StatefulWidget {
   const UnitScreen({super.key});
@@ -17,6 +19,25 @@ class UnitScreen extends StatefulWidget {
 
 class _UnitScreenState extends State<UnitScreen> {
   UnitController unitController = Get.put(UnitController());
+  WeightController weightController = Get.put(WeightController());
+  @override
+  void initState(){
+    getPref();
+    super.initState();
+  }
+
+  void getPref() async{
+    var otherUnit = await ConstPreferences().getOtherUnit();
+    print("otherunit "+otherUnit.toString());
+    if (otherUnit != null) {
+      weightController.newVal.value = otherUnit;
+      await ConstPreferences().saveOtherUnit(otherUnit);
+    } else {
+      await ConstPreferences().saveOtherUnit(true);
+      // Handle the case where otherUnit is null, maybe provide a default value or handle the error.
+    }
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +50,7 @@ class _UnitScreenState extends State<UnitScreen> {
         padding: const EdgeInsets.all(9.0),
         child: NextButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen(),
-                )
-            );
+            Get.to(() => HomeScreen());
           },
           btnName: "NEXT",
         ),
@@ -122,7 +138,7 @@ class _UnitScreenState extends State<UnitScreen> {
                 activeFgColor: ConstColour.appColor,
                 inactiveBgColor: ConstColour.bgColor,
                 inactiveFgColor: ConstColour.textColor,
-                initialLabelIndex: 0,
+                initialLabelIndex: unitController.glucoseLevel.value ? 0 : 1,
                 totalSwitches: 2,
                 labels: ['mmol/L', 'mg/dL'],
                 customTextStyles: [
@@ -132,6 +148,9 @@ class _UnitScreenState extends State<UnitScreen> {
                   )
                 ],
                 radiusStyle: true,
+                onToggle: (index) {
+                  unitController.saveGlucoseLevel(index == 0);
+                },
               ),
               // child: Padding(
               //   padding: EdgeInsets.only(
@@ -215,10 +234,12 @@ class _UnitScreenState extends State<UnitScreen> {
                     width: deviceWidth * 0.3,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                      color: unitController.selectIndex.value == 1 ? ConstColour.bgColor : ConstColour.buttonColor,
+                   //   color: unitController.selectIndex.value == 1 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      color: weightController.newVal.value == false ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await ConstPreferences().saveOtherUnit(true);
                         unitController.selectIndex.value = 2;
                       },
                       child: Padding(
@@ -233,7 +254,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: 'MATRIC',
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: unitController.selectIndex.value == 1 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: weightController.newVal.value == false ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.bold
                                 ),
                               ),
@@ -241,7 +262,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: ' kg',
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: unitController.selectIndex.value == 1 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: weightController.newVal.value == false ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.regular
                                 ),
                               ),
@@ -256,10 +277,11 @@ class _UnitScreenState extends State<UnitScreen> {
                     width: deviceWidth * 0.25,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                      color: unitController.selectIndex.value == 2 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      color: weightController.newVal.value == true ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await ConstPreferences().saveOtherUnit(false);
                         unitController.selectIndex.value = 1;
                       },
                       child: Padding(
@@ -274,7 +296,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: 'US',
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: unitController.selectIndex.value == 2 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: weightController.newVal.value == true ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.bold
                                 ),
                               ),
@@ -282,7 +304,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: ' lbs',
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: unitController.selectIndex.value == 2 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: weightController.newVal.value == true ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.regular
                                 ),
                               ),
@@ -346,7 +368,8 @@ class _UnitScreenState extends State<UnitScreen> {
                       color: unitController.bodyIndex.value == 3 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        //await ConstPreferences().saveOtherUnit(true);
                         unitController.bodyIndex.value = 4;
                       },
                       child: Padding(
@@ -387,7 +410,8 @@ class _UnitScreenState extends State<UnitScreen> {
                       color: unitController.bodyIndex.value == 4 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                       // await ConstPreferences().saveOtherUnit(false);
                         unitController.bodyIndex.value = 3;
                       },
                       child: Padding(

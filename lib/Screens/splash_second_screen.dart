@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Screens/Setting/unit_screen.dart';
+import 'package:health_care_dairy/Screens/login_screen.dart';
+import 'package:health_care_dairy/Screens/register_screen.dart';
 
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
+import '../ConstFile/constPreferences.dart';
 import '../Controller/splash_screen_controller.dart';
 import 'home_screen.dart';
 
@@ -19,11 +23,13 @@ class _SplashSecondScreenState extends State<SplashSecondScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
+    getuid();
     super.initState();
+   // IntroScreenFlag(false);
     _controller = PageController();
   }
 
+  var id;
   int _currentPage = 0;
 
   AnimatedContainer _buildDots({
@@ -132,9 +138,11 @@ class _SplashSecondScreenState extends State<SplashSecondScreen> {
                     children: [
                       TextButton(
                           onPressed: () {
+                            IntroScreenFlag(true);
                             Navigator.push(
                                 context, MaterialPageRoute(
-                              builder: (context) => HomeScreen(),
+                              builder: (context) => id == null ? LoginScreen() : HomeScreen(),
+                                //  LoginScreen(),
                             ));
                           },
                           child: Text(
@@ -149,9 +157,11 @@ class _SplashSecondScreenState extends State<SplashSecondScreen> {
                       TextButton(
                           onPressed: () {
                             _currentPage + 1 == splashScreenController.contents.length
-                                ? Navigator.push(
+                                ?
+                            Navigator.push(
                                 context, MaterialPageRoute(
-                              builder: (context) => HomeScreen()))
+                              builder: (context) =>  id != null ? HomeScreen() : LoginScreen()
+                            ))
                                 : _controller.nextPage(
                                 duration: Duration(milliseconds: 200),
                                 curve: Curves.easeIn
@@ -218,5 +228,11 @@ class _SplashSecondScreenState extends State<SplashSecondScreen> {
         ],
       ),
     );
+  }
+  Future<void> getuid() async{
+     id = await ConstPreferences().getUserId('UserId');
+  }
+  Future<bool?> IntroScreenFlag(bool flag) async{
+      await ConstPreferences().setIntroScreenFlag('IntroScreenFlag',flag);
   }
 }

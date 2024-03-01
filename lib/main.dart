@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'ConstFile/constColors.dart';
 import 'Screens/splash_screen.dart';
-import 'Screens/splash_second_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,7 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle( SystemUiOverlayStyle(
       statusBarColor: ConstColour.appColor,
     ));
 
@@ -23,9 +21,10 @@ class MyApp extends StatelessWidget {
       title: 'Healthcare Diary',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: false),
-      home: const SplashScreen(),
+      home: SplashScreen(),
       // home: const SplashSecondScreen(),
       // home: const HomeScreen(),
     );
+
   }
 }

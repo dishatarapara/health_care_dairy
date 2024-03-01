@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/ConstFile/constPreferences.dart';
+import 'package:health_care_dairy/Screens/Setting/setting_screen.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
-import '../ConstFile/constColors.dart';
-import '../ConstFile/constFonts.dart';
-import '../Controller/unit_controller.dart';
-import 'home_screen.dart';
+import '../../ConstFile/constColors.dart';
+import '../../ConstFile/constFonts.dart';
+import '../../Controller/unit_controller.dart';
 
 class UnitSecondScreen extends StatefulWidget {
   const UnitSecondScreen({super.key});
@@ -16,6 +17,17 @@ class UnitSecondScreen extends StatefulWidget {
 
 class _UnitSecondScreenState extends State<UnitSecondScreen> {
   UnitController unitController = Get.put(UnitController());
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getPref();
+  }
+
+  void getPref() async{
+    await ConstPreferences().saveOtherUnit(true);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,11 +41,7 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
         elevation: 0.0,
         leading: IconButton(
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => HomeScreen()),
-            );
+            Get.to(() => SettingScreen());
           },
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
@@ -95,7 +103,7 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                 activeFgColor: ConstColour.appColor,
                 inactiveBgColor: ConstColour.bgColor,
                 inactiveFgColor: ConstColour.textColor,
-                initialLabelIndex: 0,
+                initialLabelIndex: unitController.glucoseLevel.value ? 0 : 1,
                 totalSwitches: 2,
                 labels: ['mmol/L', 'mg/dL'],
                 customTextStyles: [
@@ -105,6 +113,9 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                   )
                 ],
                 radiusStyle: true,
+                onToggle: (index) {
+                  unitController.saveGlucoseLevel(index == 0);
+                },
               ),
               // child: Padding(
               //   padding: EdgeInsets.only(
@@ -191,7 +202,9 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                       color: unitController.selectIndex.value == 1 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await ConstPreferences().saveOtherUnit(true);
+                        print("true 262");
                         unitController.selectIndex.value = 2;
                       },
                       child: Padding(
@@ -232,7 +245,9 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                       color: unitController.selectIndex.value == 2 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                        await ConstPreferences().saveOtherUnit(false);
+                        print("false 151");
                         unitController.selectIndex.value = 1;
                       },
                       child: Padding(
@@ -319,7 +334,8 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                       color: unitController.bodyIndex.value == 3 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                       // await ConstPreferences().saveOtherUnit(true);
                         unitController.bodyIndex.value = 4;
                       },
                       child: Padding(
@@ -360,7 +376,8 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
                       color: unitController.bodyIndex.value == 4 ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
+                      //  await ConstPreferences().saveOtherUnit(false);
                         unitController.bodyIndex.value = 3;
                       },
                       child: Padding(

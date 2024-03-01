@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:health_care_dairy/Screens/home_screen.dart';
+import 'package:health_care_dairy/Screens/login_screen.dart';
 import 'package:health_care_dairy/Screens/splash_second_screen.dart';
 
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
+import '../ConstFile/constPreferences.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -12,17 +15,35 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  var id;
+  var isflag;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration(seconds: 3),
-        () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SplashSecondScreen(),))
-    );
+   // var flag = ConstPreferences().isIntroScreenFlag('IntroScreenFlag');
+    IntroScreenFlag();
+
+  }
+  Future<void> IntroScreenFlag() async{
+    id = await ConstPreferences().getUserId('UserId');
+    isflag = await ConstPreferences().isIntroScreenFlag('IntroScreenFlag');
+    if(isflag == true){
+      Future.delayed(Duration(seconds: 3),
+              () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => id == null ? LoginScreen() : HomeScreen(),))
+      );
+    }else{
+      Future.delayed(Duration(seconds: 3),
+              () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SplashSecondScreen(),))
+      );
+    }
   }
 
   @override
@@ -31,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
     var deviceWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: ConstColour.bgColor,
+      backgroundColor: ConstColour.appColor,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -59,4 +80,5 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
+
 }
