@@ -28,16 +28,29 @@ class _BloodSugarState extends State<BloodSugar> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    bloodSugarController.updateCatId(widget.id.toString());
-    print("sugarscreen catid"+widget.id.toString());
-    setState(() {
-      bloodSugarController.getCategoryList();
-    });
+    // bloodSugarController.updateCatId(widget.id.toString());
+    // print("sugarscreen catid"+widget.id.toString());
+    // setState(() {
+    //   bloodSugarController.getCategoryList();
+    // });
     // setState(() {
     //   bloodSugarController.updateCatId(widget.id.toString());
     //   bloodSugarController.categoryIdDetails();
     // //  bloodSugarLists.addAll(bloodSugarController.bloodSugarLists.value);
     // });
+    loadBodySugarData();
+  }
+
+  Future<void> loadBodySugarData() async {
+    await Future.delayed(Duration(seconds: 5));
+
+    setState(() {
+      bloodSugarController.isLoading.value = false;
+    });
+    bloodSugarController.updateCatId(widget.id.toString());
+    print("sugarscreen catid"+widget.id.toString());
+    // weightController.setPref();
+    bloodSugarController.getCategoryList();
   }
 
   @override
@@ -72,19 +85,24 @@ class _BloodSugarState extends State<BloodSugar> {
         // ],
       ),
       backgroundColor: ConstColour.bgColor,
-      body: RefreshIndicator(
-        color: ConstColour.buttonColor,
-        onRefresh: () async {
-          await bloodSugarController.getCategoryList();
-        },
-        child: Obx(
-          () => SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            controller: ScrollController(),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Visibility(
-                visible: bloodSugarController.isLoading.value,
+      body: Obx(() {
+        if(bloodSugarController.isLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: ConstColour.buttonColor,
+            ),
+          );
+        } else {
+          return RefreshIndicator(
+            color: ConstColour.buttonColor,
+            onRefresh: () async {
+              await bloodSugarController.getCategoryList();
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              controller: ScrollController(),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
                     Container(
@@ -92,8 +110,13 @@ class _BloodSugarState extends State<BloodSugar> {
                           color: ConstColour.appColor
                       ),
                       child: bloodSugarController.bloodSugarLists.isEmpty
-                          ? Center(child: CircularProgressIndicator(
-                        color: ConstColour.buttonColor,
+                          ? Center(child: Text(
+                        "No Record Found",
+                        style: TextStyle(
+                          fontSize: 30,
+                          color: ConstColour.textColor,
+                          fontFamily: ConstFont.regular,
+                        ),
                       ))
                           : ListView.builder(
                         reverse: true,
@@ -210,109 +233,109 @@ class _BloodSugarState extends State<BloodSugar> {
                   ],
                 ),
               ),
+              // Padding(
+              //   padding: const EdgeInsets.all(8.0),
+              //   child: Visibility(
+              //     visible: bloodSugarController.isLoading.value,
+              //     child: Center(
+              //       child: CircularProgressIndicator(
+              //         color: ConstColour.buttonColor,
+              //       ),
+              //     ),
+              //     replacement: RefreshIndicator(
+              //       onRefresh: () {
+              //         return navigateToAddPage();
+              //       },
+              //       child: Visibility(
+              //         // visible: bloodSugarController,
+              //         replacement: Center(
+              //             child: Text(
+              //               "No Todo Item",
+              //               style: Theme.of(context).textTheme.headline2,
+              //             ),
+              //         ),
+              //         child: ListView.builder(
+              //           itemBuilder: (context, index) {
+              //             return Padding(
+              //               padding: const EdgeInsets.all(8.0),
+              //               child: Visibility(
+              //                 visible: bloodSugarController.isLoading.value,
+              //                 child: Column(
+              //                   children: [
+              //                     Container(
+              //                       decoration: BoxDecoration(
+              //                           color: ConstColour.appColor
+              //                       ),
+              //                       child: ListTile(
+              //                         title: Text(
+              //                           "Before breakfast",
+              //                           style: TextStyle(
+              //                               fontSize: 20,
+              //                               color: ConstColour.textColor,
+              //                               fontFamily: ConstFont.regular
+              //                           ),
+              //                         ),
+              //                         subtitle: Row(
+              //                           children: [
+              //                             Text(
+              //                               "10/02/2024",
+              //                               style: TextStyle(
+              //                                   fontSize: 16,
+              //                                   color: ConstColour.greyTextColor,
+              //                                   fontFamily: ConstFont.regular
+              //                               ),
+              //                             ),
+              //                             Padding(
+              //                               padding: EdgeInsets.only(left: deviceWidth * 0.03),
+              //                               child: Text(
+              //                                 "05:47pm",
+              //                                 style: TextStyle(
+              //                                     fontSize: 16,
+              //                                     color: ConstColour.greyTextColor,
+              //                                     fontFamily: ConstFont.regular
+              //                                 ),
+              //                               ),
+              //                             ),
+              //                           ],
+              //                         ),
+              //                         trailing: RichText(
+              //                           text: TextSpan(
+              //                             children: <TextSpan>[
+              //                               TextSpan(
+              //                                 text: '585',
+              //                                 style: TextStyle(
+              //                                     fontSize: 28,
+              //                                     color: ConstColour.textColor,
+              //                                     fontFamily: ConstFont.bold
+              //                                 ),
+              //                               ),
+              //                               TextSpan(
+              //                                 text: '  mg/dL',
+              //                                 style: TextStyle(
+              //                                     fontSize: 12,
+              //                                     color: ConstColour.greyTextColor,
+              //                                     fontFamily: ConstFont.regular
+              //                                 ),
+              //                               ),
+              //                             ],
+              //                           ),
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ],
+              //                 ),
+              //               ),
+              //             );
+              //           },
+              //         ),
+              //       ),
+              //     ),
+              //   ),
+              // ),
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(8.0),
-            //   child: Visibility(
-            //     visible: bloodSugarController.isLoading.value,
-            //     child: Center(
-            //       child: CircularProgressIndicator(
-            //         color: ConstColour.buttonColor,
-            //       ),
-            //     ),
-            //     replacement: RefreshIndicator(
-            //       onRefresh: () {
-            //         return navigateToAddPage();
-            //       },
-            //       child: Visibility(
-            //         // visible: bloodSugarController,
-            //         replacement: Center(
-            //             child: Text(
-            //               "No Todo Item",
-            //               style: Theme.of(context).textTheme.headline2,
-            //             ),
-            //         ),
-            //         child: ListView.builder(
-            //           itemBuilder: (context, index) {
-            //             return Padding(
-            //               padding: const EdgeInsets.all(8.0),
-            //               child: Visibility(
-            //                 visible: bloodSugarController.isLoading.value,
-            //                 child: Column(
-            //                   children: [
-            //                     Container(
-            //                       decoration: BoxDecoration(
-            //                           color: ConstColour.appColor
-            //                       ),
-            //                       child: ListTile(
-            //                         title: Text(
-            //                           "Before breakfast",
-            //                           style: TextStyle(
-            //                               fontSize: 20,
-            //                               color: ConstColour.textColor,
-            //                               fontFamily: ConstFont.regular
-            //                           ),
-            //                         ),
-            //                         subtitle: Row(
-            //                           children: [
-            //                             Text(
-            //                               "10/02/2024",
-            //                               style: TextStyle(
-            //                                   fontSize: 16,
-            //                                   color: ConstColour.greyTextColor,
-            //                                   fontFamily: ConstFont.regular
-            //                               ),
-            //                             ),
-            //                             Padding(
-            //                               padding: EdgeInsets.only(left: deviceWidth * 0.03),
-            //                               child: Text(
-            //                                 "05:47pm",
-            //                                 style: TextStyle(
-            //                                     fontSize: 16,
-            //                                     color: ConstColour.greyTextColor,
-            //                                     fontFamily: ConstFont.regular
-            //                                 ),
-            //                               ),
-            //                             ),
-            //                           ],
-            //                         ),
-            //                         trailing: RichText(
-            //                           text: TextSpan(
-            //                             children: <TextSpan>[
-            //                               TextSpan(
-            //                                 text: '585',
-            //                                 style: TextStyle(
-            //                                     fontSize: 28,
-            //                                     color: ConstColour.textColor,
-            //                                     fontFamily: ConstFont.bold
-            //                                 ),
-            //                               ),
-            //                               TextSpan(
-            //                                 text: '  mg/dL',
-            //                                 style: TextStyle(
-            //                                     fontSize: 12,
-            //                                     color: ConstColour.greyTextColor,
-            //                                     fontFamily: ConstFont.regular
-            //                                 ),
-            //                               ),
-            //                             ],
-            //                           ),
-            //                         ),
-            //                       ),
-            //                     ),
-            //                   ],
-            //                 ),
-            //               ),
-            //             );
-            //           },
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ),
-        ),
-      ),
+          );
+        }
+      }),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
         child: FloatingActionButton(

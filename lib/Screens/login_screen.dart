@@ -29,6 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
     IntroScreenFlag(true);
     loginController.emailController.clear();
     loginController.passController.clear();
+    loginController.emailController.text = "pinuasodariya10@gmail.com";
+    loginController.passController.text = "12345678";
   }
   Future<bool?> IntroScreenFlag(bool flag) async{
     await ConstPreferences().setIntroScreenFlag('IntroScreenFlag',flag);
@@ -43,7 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return WillPopScope(
       onWillPop: () async{
         SystemNavigator.pop();
-        return false; },
+        return false;
+        },
       child: Scaffold(
         backgroundColor: ConstColour.appColor,
         body: SingleChildScrollView(

@@ -8,6 +8,7 @@ import '../../Common/bottom_button.dart';
 import '../../Common/snackbar.dart';
 import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
+import '../../ConstFile/constPreferences.dart';
 import '../../Controller/body_temperature_controller.dart';
 import '../../Controller/date_time_controller.dart';
 
@@ -270,16 +271,16 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
           Padding(
             padding: EdgeInsets.only(top: deviceHeight * 0.01),
             child: NextButton(
-              onPressed: () {
+              onPressed: () async {
                 if (bodyTemperatureController.temperatureController.text.isEmpty) {
                   Utils().snackBar('Body Temperature', "Please Enter Body Temperature");
                 } else {
                   double temperature = 0;
-
-                  if(unitController.getGlucoseLevelPreference()) { // Fahrenheit  to Celsius
-                    temperature = (double.tryParse(bodyTemperatureController.temperatureController.text) ?? 0 - 32) * 5 / 9;
+                  var isFahrenheit = await ConstPreferences().getBodyTemperature();
+                  if(isFahrenheit == true) { // Fahrenheit  to Celsius
+                    temperature = double.parse(bodyTemperatureController.temperatureController.text);
                   }else{
-                    temperature = (double.tryParse(bodyTemperatureController.temperatureController.text) ?? 0);
+                    temperature = (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9;
                   }
                   var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
                   var time = dateTimeController.formattedTime.value.isEmpty

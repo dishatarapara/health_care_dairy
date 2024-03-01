@@ -7,6 +7,7 @@ import 'package:health_care_dairy/Screens/Body_Temperature/edit_body_temperature
 
 import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
+import '../../ConstFile/constPreferences.dart';
 import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/body_temperature_controller.dart';
 import '../home_screen.dart';
@@ -29,15 +30,42 @@ class _BodyTemperatureState extends State<BodyTemperature> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    // bloodSugarController.updateCatId(widget.id.toString());
+    // bodyTemperatureController.updateCatId(widget.id.toString());
+    // print("bodyTemperaturescreen catid"+widget.id.toString());
+    //
+    // setState(() {
+    //   bloodSugarController.getCategoryList();
+    // });
+    setState(() {
+      setBodyPref();
+    });
+    loadBodyTemperatureData();
+  }
+
+  void setBodyPref() async {
+    var bodyTemperature = await ConstPreferences().getBodyTemperature();
+    print("bodyTemperature "+bodyTemperature.toString());
+    if (bodyTemperature != null) {
+      bodyTemperatureController.newValue.value = bodyTemperature;
+    } else {
+      // Handle the case where otherUnit is null, maybe provide a default value or handle the error.
+    }
+  }
+
+  Future<void> loadBodyTemperatureData() async {
+    await Future.delayed(Duration(seconds: 5));
+    if (!mounted) return;
+
+    setState(() {
+      bloodSugarController.isLoading.value = false;
+    });
     bloodSugarController.updateCatId(widget.id.toString());
     bodyTemperatureController.updateCatId(widget.id.toString());
     print("bodyTemperaturescreen catid"+widget.id.toString());
-
-    setState(() {
-      bloodSugarController.getCategoryList();
-    });
-
+    bloodSugarController.getCategoryList();
   }
+
   @override
   Widget build(BuildContext context) {
     var deviceHeight = MediaQuery.of(context).size.height;
@@ -64,19 +92,24 @@ class _BodyTemperatureState extends State<BodyTemperature> {
         ),
       ),
       backgroundColor: ConstColour.bgColor,
-      body: RefreshIndicator(
-        color: ConstColour.buttonColor,
-        onRefresh: () async {
-          await bloodSugarController.getCategoryList();
-        },
-        child: Obx(
-              () => SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            controller: ScrollController(),
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Visibility(
-                visible: bloodSugarController.isLoading.value,
+      body: Obx(() {
+        if(bloodSugarController.isLoading.value) {
+          return Center(
+            child: CircularProgressIndicator(
+              color: ConstColour.buttonColor,
+            ),
+          );
+        } else {
+          return RefreshIndicator(
+            color: ConstColour.buttonColor,
+            onRefresh: () async {
+              await bloodSugarController.getCategoryList();
+            },
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              controller: ScrollController(),
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
                     Container(
@@ -100,7 +133,7 @@ class _BodyTemperatureState extends State<BodyTemperature> {
                               bodyTemperatureController.temperatureId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
                               // bloodSugarController.getEditBloodSugarList(widget.id.toString());
                               Get.to(() => UpdateBodyTemperatureScreen(
-                                  catId: bloodSugarController.bloodSugarLists[index].id.toString(),
+                                catId: bloodSugarController.bloodSugarLists[index].id.toString(),
                               ));
                             },
                             leading: Stack(
@@ -143,12 +176,14 @@ class _BodyTemperatureState extends State<BodyTemperature> {
                                 children: <TextSpan>[
                                   TextSpan(
                                     // text: bloodSugarController.bloodSugarLists[index].bodyTemperature.toString(),
-                              //       text: '${unitController.bodyIndex.value == 4 ?
-                              // bloodSugarController.bloodSugarLists[index].bodyTemperature :
-                              // (bloodSugarController.bloodSugarLists[index].bodyTemperature * 9 / 5) + 32}',
+                                    //       text: '${unitController.bodyIndex.value == 4 ?
+                                    // bloodSugarController.bloodSugarLists[index].bodyTemperature :
+                                    // (bloodSugarController.bloodSugarLists[index].bodyTemperature * 9 / 5) + 32}',
                                     text: convertBodyTemperature(
-                                        bloodSugarController.bloodSugarLists[index].bodyTemperature,
-                                        unitController.getGlucoseLevelPreference()),
+                                      bloodSugarController.bloodSugarLists[index].bodyTemperature,
+                                      bodyTemperatureController.newValue.value,
+                                      // unitController.getGlucoseLevelPreference()
+                                    ),
                                     style: TextStyle(
                                         fontSize: 28,
                                         color: ConstColour.textColor,
@@ -156,7 +191,8 @@ class _BodyTemperatureState extends State<BodyTemperature> {
                                     ),
                                   ),
                                   TextSpan(
-                                    text: " ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}",
+                                    // text: " ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}",
+                                    text: " ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}",
                                     style: TextStyle(
                                         fontSize: 12,
                                         color: ConstColour.greyTextColor,
@@ -174,8 +210,8 @@ class _BodyTemperatureState extends State<BodyTemperature> {
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        }},
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -197,13 +233,15 @@ class _BodyTemperatureState extends State<BodyTemperature> {
   }
 
   String convertBodyTemperature(double value, bool temperature) {
-    if (temperature) {
+    if (temperature == false) {
     // °F = (9/5 × °C) + 32.
     // °C = (°F - 32) × 5/9
       double convertedValue = (9 / 5 * value) + 32; // Celsius to Fahrenheit
+      print(convertedValue.toString() + "value");
       // double convertedValue = (value - 32) * 5 / 9; // Fahrenheit to Celsius
       return convertedValue.toStringAsFixed(1);
     } else {
+      print(value.toString()+"else call");
       return value.toStringAsFixed(1);
     }
   }

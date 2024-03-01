@@ -24,6 +24,8 @@ class BodyTemperatureController extends GetxController {
   DateTimeController dateTimeController = Get.put(DateTimeController());
   RxString catId = ''.obs;
   RxInt temperatureId = 0.obs;
+  RxBool newValue = false.obs;
+
   void updateCatId(String id) {
     catId.value = id.toString();
     debugPrint("hgkjgjhghjghj  $id");

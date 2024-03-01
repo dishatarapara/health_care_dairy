@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Controller/body_temperature_controller.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
 import '../../Common/bottom_button.dart';
@@ -20,22 +21,33 @@ class UnitScreen extends StatefulWidget {
 class _UnitScreenState extends State<UnitScreen> {
   UnitController unitController = Get.put(UnitController());
   WeightController weightController = Get.put(WeightController());
+  BodyTemperatureController bodyTemperatureController = Get.put(BodyTemperatureController());
+
   @override
   void initState(){
-    getPref();
+    setState(() {
+      getPref();
+      getBodyPref();
+    });
+
     super.initState();
   }
 
   void getPref() async{
-    var otherUnit = await ConstPreferences().getOtherUnit();
-    print("otherunit "+otherUnit.toString());
-    if (otherUnit != null) {
-      weightController.newVal.value = otherUnit;
-      await ConstPreferences().saveOtherUnit(otherUnit);
-    } else {
-      await ConstPreferences().saveOtherUnit(true);
-      // Handle the case where otherUnit is null, maybe provide a default value or handle the error.
-    }
+    print("otherunit "+weightController.newVal.value.toString());
+      await ConstPreferences().saveOtherUnit(weightController.newVal.value);
+      var otherUnitval = await ConstPreferences().getOtherUnit();
+      weightController.newVal.value = otherUnitval!;
+      print("otherval "+otherUnitval.toString());
+
+  }
+
+  void getBodyPref() async{
+    print("bodyTemperature "+bodyTemperatureController.newValue.value.toString());
+    await ConstPreferences().saveBodyTemperature(bodyTemperatureController.newValue.value);
+    var val = await ConstPreferences().getBodyTemperature();
+    weightController.newVal.value = val!;
+    print("val "+val.toString());
 
   }
 
@@ -234,12 +246,13 @@ class _UnitScreenState extends State<UnitScreen> {
                     width: deviceWidth * 0.3,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                   //   color: unitController.selectIndex.value == 1 ? ConstColour.bgColor : ConstColour.buttonColor,
+                 //     color: unitController.selectIndex.value == 1 ? ConstColour.bgColor : ConstColour.buttonColor,
                       color: weightController.newVal.value == false ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
                       onTap: () async {
                         await ConstPreferences().saveOtherUnit(true);
+                        weightController.newVal.value = true;
                         unitController.selectIndex.value = 2;
                       },
                       child: Padding(
@@ -283,6 +296,7 @@ class _UnitScreenState extends State<UnitScreen> {
                       onTap: () async {
                         await ConstPreferences().saveOtherUnit(false);
                         unitController.selectIndex.value = 1;
+                        weightController.newVal.value = false;
                       },
                       child: Padding(
                         padding: EdgeInsets.only(
@@ -365,11 +379,13 @@ class _UnitScreenState extends State<UnitScreen> {
                     width: deviceWidth * 0.35,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                      color: unitController.bodyIndex.value == 3 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      // color: unitController.bodyIndex.value == 3 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      color: bodyTemperatureController.newValue.value == false ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
                       onTap: () async {
-                        //await ConstPreferences().saveOtherUnit(true);
+                        await ConstPreferences().saveBodyTemperature(true);
+                        bodyTemperatureController.newValue.value = true;
                         unitController.bodyIndex.value = 4;
                       },
                       child: Padding(
@@ -384,7 +400,8 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: 'Celsius',
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: unitController.bodyIndex.value == 3 ? ConstColour.textColor : ConstColour.bgColor,
+                                    // color: unitController.bodyIndex.value == 3 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: bodyTemperatureController.newValue.value == false ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.bold
                                 ),
                               ),
@@ -392,8 +409,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: ' ℃',
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: unitController.bodyIndex.value == 3 ? ConstColour.textColor : ConstColour.bgColor,
-                                    fontFamily: ConstFont.regular
+                                    color: bodyTemperatureController.newValue.value == false ? ConstColour.textColor : ConstColour.bgColor,                                    fontFamily: ConstFont.regular
                                 ),
                               ),
                             ],
@@ -407,12 +423,14 @@ class _UnitScreenState extends State<UnitScreen> {
                     width: deviceWidth * 0.35,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
-                      color: unitController.bodyIndex.value == 4 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      // color: unitController.bodyIndex.value == 4 ? ConstColour.bgColor : ConstColour.buttonColor,
+                      color: bodyTemperatureController.newValue.value == true ? ConstColour.bgColor : ConstColour.buttonColor,
                     ),
                     child: GestureDetector(
                       onTap: () async {
-                       // await ConstPreferences().saveOtherUnit(false);
+                        await ConstPreferences().saveBodyTemperature(false);
                         unitController.bodyIndex.value = 3;
+                        bodyTemperatureController.newValue.value = false;
                       },
                       child: Padding(
                         padding: EdgeInsets.only(
@@ -426,7 +444,8 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: 'Fahrenheit',
                                 style: TextStyle(
                                     fontSize: 16,
-                                    color: unitController.bodyIndex.value == 4 ? ConstColour.textColor : ConstColour.bgColor,
+                                    // color: unitController.bodyIndex.value == 4 ? ConstColour.textColor : ConstColour.bgColor,
+                                    color: bodyTemperatureController.newValue.value == true ? ConstColour.textColor : ConstColour.bgColor,
                                     fontFamily: ConstFont.bold
                                 ),
                               ),
@@ -434,8 +453,7 @@ class _UnitScreenState extends State<UnitScreen> {
                                 text: ' ºf',
                                 style: TextStyle(
                                     fontSize: 11,
-                                    color: unitController.bodyIndex.value == 4 ? ConstColour.textColor : ConstColour.bgColor,
-                                    fontFamily: ConstFont.regular
+                                    color: bodyTemperatureController.newValue.value == true ? ConstColour.textColor : ConstColour.bgColor,                                    fontFamily: ConstFont.regular
                                 ),
                               ),
                             ],

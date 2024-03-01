@@ -13,14 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle( SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: ConstColour.appColor,
     ));
 
     return GetMaterialApp(
       title: 'Healthcare Diary',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(useMaterial3: false),
+      theme: ThemeData(
+          textSelectionTheme: TextSelectionThemeData(
+            selectionHandleColor: ConstColour.buttonColor,
+          ),
+          useMaterial3: false),
       home: SplashScreen(),
       // home: const SplashSecondScreen(),
       // home: const HomeScreen(),
