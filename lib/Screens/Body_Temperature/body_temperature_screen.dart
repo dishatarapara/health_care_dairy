@@ -62,6 +62,11 @@ class _BodyTemperatureState extends State<BodyTemperature> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+            IconButton(
+                onPressed: () => bloodSugarController.showDialogBox(context),
+                icon: Image.asset("assets/Icons/filter.png")),
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(

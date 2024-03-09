@@ -59,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: deviceHeight * 0.2,
                       width: deviceWidth * 0.6,
                       child: Image.asset(
-                        "assets/Images/regi.png",
+                        "assets/images/regi.png",
                         fit: BoxFit.cover,
                       ),
                     ),

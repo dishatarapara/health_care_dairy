@@ -148,7 +148,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   Padding(
                                     padding: EdgeInsets.only(top: deviceHeight * 0.03),
                                     child: Image.asset(
-                                        'assets/Images/notification_icon.png',
+                                        'assets/images/notifications_setting.png',
                                       fit: BoxFit.cover,
                                       height: deviceHeight * 0.08,
                                     ),

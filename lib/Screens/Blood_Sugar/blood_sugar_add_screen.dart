@@ -348,7 +348,7 @@ class _BloodSugarAddScreenState extends State<BloodSugarAddScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.03),
+              padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.02),
               child: Center(
                 child: Text(
                   "MEASURED TYPE",

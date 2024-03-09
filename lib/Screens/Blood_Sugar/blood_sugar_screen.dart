@@ -3,11 +3,13 @@ import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constColors.dart';
 import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
 import 'package:health_care_dairy/Controller/date_time_controller.dart';
+import 'package:health_care_dairy/Controller/filter_Controller.dart';
 import 'package:health_care_dairy/Controller/unit_controller.dart';
 import 'package:health_care_dairy/Screens/Blood_Sugar/blood_sugar_add_screen.dart';
 import 'package:health_care_dairy/Screens/Blood_Sugar/edit_blood_sugar_screen.dart';
 
 
+import '../../Common/bottom_button.dart';
 import '../../ConstFile/constFonts.dart';
 import '../home_screen.dart';
 
@@ -22,6 +24,7 @@ class BloodSugar extends StatefulWidget {
 class _BloodSugarState extends State<BloodSugar> {
   UnitController unitController = Get.put(UnitController());
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
+  FilterController filterController = Get.put(FilterController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
 
   @override
@@ -65,11 +68,11 @@ class _BloodSugarState extends State<BloodSugar> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {},
-        //       icon: Image.asset("assets/Icons/filter.png"))
-        // ],
+        actions: [
+          IconButton(
+              onPressed: () => bloodSugarController.showDialogBox(context),
+              icon: Image.asset("assets/Icons/filter.png")),
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(
@@ -348,3 +351,4 @@ class _BloodSugarState extends State<BloodSugar> {
     }
   }
 }
+

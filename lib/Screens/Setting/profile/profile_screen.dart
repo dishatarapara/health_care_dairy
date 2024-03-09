@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Screens/Setting/setting_screen.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../../Common/snackbar.dart';
+
 import '../../../ConstFile/constColors.dart';
 import '../../../ConstFile/constFonts.dart';
+import '../../../ConstFile/constPreferences.dart';
 import '../../../Controller/image_controller.dart';
 import '../../../Controller/register_controller.dart';
 
@@ -21,43 +23,57 @@ class Profilescreen extends StatefulWidget {
 }
 
 class _ProfilescreenState extends State<Profilescreen> {
-  ImagePickerController imagePickerController = Get.put(ImagePickerController());
-  RegisterController registerController = Get.put(RegisterController());
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   registerController.firstNameController.clear();
-  //   registerController.emailController.clear();
-  // }
+  @override
+  void initState() {
+    super.initState();
+    loadImage();
+  }
 
-  // String? name;
-  // String? email;
 
-  String? userProfile;
+
+  String? _imagepath;
 
   void getImageGallery() async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.gallery);
+
     if (image != null) {
-      imagePickerController.imagePath.value = image.path.toString();
+      setState(() {
+        _imagepath = image.path;
+      });
     }
   }
 
   void getImageCamera() async {
     final picker = ImagePicker();
     final image = await picker.pickImage(source: ImageSource.camera);
+
     if (image != null) {
-      imagePickerController.imagePath.value = image.path.toString();
+      setState(() {
+        _imagepath = image.path;
+      });
     }
   }
-
+  void removePicture() async {
+    ConstPreferences().clearPreferences();
+    // SharedPreferences preferences = await SharedPreferences.getInstance();
+    // preferences.remove("imagepath");
+    setState(() {
+      _imagepath = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    var deviceHeight = MediaQuery.of(context).size.height;
-    var deviceWidth = MediaQuery.of(context).size.width;
+    var deviceHeight = MediaQuery
+        .of(context)
+        .size
+        .height;
+    var deviceWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     return Scaffold(
         appBar: AppBar(
@@ -90,8 +106,10 @@ class _ProfilescreenState extends State<Profilescreen> {
                           children: [
                             CircleAvatar(
                               radius: 50,
-                              backgroundImage:
-                              AssetImage('assets/images/profile.png'),
+                              backgroundImage: _imagepath != null
+                                  ? FileImage(
+                                  File(_imagepath!)) as ImageProvider<Object>?
+                                  : AssetImage("assets/images/profile2.png"),
                               child:
                               Padding(
                                 padding: EdgeInsets.only(
@@ -140,6 +158,22 @@ class _ProfilescreenState extends State<Profilescreen> {
                                                     ),
                                                   ),
                                                 ),
+                                                Card(
+                                                  child: ListTile(
+                                                    title:
+                                                    const Text("Remove profile"),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      removePicture();
+                                                    },
+                                                    leading: const Icon(
+                                                      Icons
+                                                          .remove,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+
+                                                )
                                               ],
                                             ),
                                           ),
@@ -175,11 +209,6 @@ class _ProfilescreenState extends State<Profilescreen> {
                       left: deviceWidth * 0.03,
                       right: deviceWidth * 0.03),
                   child: TextFormField(
-                    // cursorColor: ConstColour.textColor,
-                    // autovalidateMode: AutovalidateMode.onUserInteraction,
-                    // keyboardType: TextInputType.text,
-                    // autocorrect: true,
-                    // controller: registerController.firstNameController,
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: "Username",
@@ -226,11 +255,6 @@ class _ProfilescreenState extends State<Profilescreen> {
                       left: deviceWidth * 0.03,
                       right: deviceWidth * 0.03),
                   child: TextFormField(
-                    // keyboardType: TextInputType.emailAddress,
-                    // autovalidateMode: AutovalidateMode.onUserInteraction,
-                    // controller: registerController.emailController,
-                    // cursorColor: ConstColour.textColor,
-                    // autocorrect: true,
                     decoration: InputDecoration(
                       isDense: true,
                       hintText: "Email Id",
@@ -282,12 +306,30 @@ class _ProfilescreenState extends State<Profilescreen> {
                             minimumSize:
                             Size(deviceWidth * 1.0, deviceHeight * 0.06),
                             backgroundColor: ConstColour.buttonColor),
-                        onPressed: () async {})
+
+                        onPressed: () {
+                          saveImage(_imagepath);
+                          Get.to(() => SettingScreen());
+                        })
                 )
               ]),
         )
 
     );
   }
+
+  void saveImage(String? path) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString("imagepath", path ?? "");
+  }
+
+
+  void loadImage() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      _imagepath = preferences.getString("imagepath");
+    });
+  }
+
 }
 

@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constColors.dart';
 import 'package:health_care_dairy/Controller/setting_screen_controller.dart';
 import 'package:health_care_dairy/Screens/Setting/notification/notification_screen.dart';
+import 'package:health_care_dairy/Screens/Setting/profile/profile_screen.dart';
 import 'package:health_care_dairy/Screens/home_screen.dart';
 import 'package:health_care_dairy/Screens/Setting/unit_second_screen.dart';
 import 'package:intl/intl.dart';
@@ -104,6 +105,34 @@ class _SettingScreenState extends State<SettingScreen> {
                       children: [
                         InkWell(
                           onTap: () {
+                            Get.to(() => Profilescreen());
+                          },
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: ConstColour.settingIconColor,
+                              radius: 20,
+                              child: Image.asset(
+                                "assets/Icons/profile.png",
+                                fit: BoxFit.cover,
+                                height: deviceHeight * 0.02,
+                              ),
+                            ),
+                            title: Text(
+                                "Profile",
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: ConstFont.bold,
+                                )
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios,
+                              size: 20,
+                              color: ConstColour.textColor,
+                            ),
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
                             Get.to(() => NotificationScreen());
                           },
                           child: ListTile(
@@ -111,7 +140,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                  "assets/Images/notifications_setting.png",
+                                  "assets/images/notifications_setting.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -137,7 +166,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/lock.png",
+                                "assets/images/lock.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -171,7 +200,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/date.png",
+                                "assets/images/date.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -208,7 +237,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/time.png",
+                                "assets/images/time.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -246,7 +275,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/unit_formate.png",
+                                "assets/images/unit_formate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -283,7 +312,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/number_formate.png",
+                                "assets/images/number_formate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -320,7 +349,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/backup_setting.png",
+                                "assets/images/backup_setting.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -336,7 +365,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                     )
                                 ),
                                 Image.asset(
-                                    "assets/Images/premium.png",
+                                    "assets/images/premium.png",
                                   fit: BoxFit.cover,
                                   height: deviceHeight * 0.03,
                                 )
@@ -388,7 +417,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/share.png",
+                                "assets/images/share.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -414,7 +443,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/rate.png",
+                                "assets/images/rate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -440,7 +469,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/privacypolicy.png",
+                                "assets/images/privacypolicy.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -466,7 +495,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/Images/terms_of_service.png",
+                                "assets/images/terms_of_service.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
