@@ -7,6 +7,7 @@ import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_oxygen_controller.dart';
 import '../../Controller/blood_sugar_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 import 'blood_oxygen_second_screen.dart';
 
@@ -60,6 +61,17 @@ class _BloodOxygenState extends State<BloodOxygen> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => DiscriptionScreen(
+                    title:'Blood Oxygen Saturation',
+                    description: 'Oxygen saturation is the fraction of oxygen-saturated hemoglobin relative to total hemoglobin(unsaturated + saturated) in the blood.The human body requires and regulates a very precise and specific balance of oxygen in the blood \n\n in medicine,oxygen saturation, commonly referred to as sats,measures the percentage of hemoglobin binding sites in the bloodstream occupied by oxygen',
+                    detailedDescription: 'Normal arterial blood oxygen saturation levels in humans are 95-100 percent.  \n\n  If the level is below 90 percent,it is  considered low and called hypoxemia.'
+                    ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(

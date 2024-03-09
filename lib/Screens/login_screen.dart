@@ -29,8 +29,6 @@ class _LoginScreenState extends State<LoginScreen> {
     IntroScreenFlag(true);
     loginController.emailController.clear();
     loginController.passController.clear();
-    loginController.emailController.text = "pinuasodariya10@gmail.com";
-    loginController.passController.text = "12345678";
   }
   Future<bool?> IntroScreenFlag(bool flag) async{
     await ConstPreferences().setIntroScreenFlag('IntroScreenFlag',flag);
@@ -75,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.03),
                     child: Center(
@@ -88,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           overflow: TextOverflow.ellipsis),
                     ),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.03),
                     child: Text(
@@ -99,7 +97,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: ConstColour.textColor,),
                         overflow: TextOverflow.ellipsis),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.01),
                     child: TextFormField(
@@ -144,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // },
                     ),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: const Text(
@@ -155,7 +153,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: ConstColour.textColor,),
                         overflow: TextOverflow.ellipsis),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.01),
                     child: TextFormField(
@@ -200,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // },
                     ),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: Row(
@@ -215,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-      
+
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: ElevatedButton(
@@ -232,7 +230,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           minimumSize: Size(deviceWidth * 1.0, deviceHeight * 0.06),
                           backgroundColor: ConstColour.buttonColor
                       ),
-      
+
                       onPressed: () async {
                         if (loginController.emailController.text.isEmpty) {
                           Utils().snackBar('Email', "Enter valid email ");
@@ -260,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                     ),
                   ),
-      
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -285,7 +283,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 15,
                                 color: ConstColour.buttonColor
                             ),
-                          )
+                          ),
                       ),
                     ],
                   )

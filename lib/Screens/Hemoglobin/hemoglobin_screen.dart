@@ -8,6 +8,7 @@ import 'package:health_care_dairy/Screens/Hemoglobin/edit_hemoglobin_screen.dart
 import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_sugar_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 import 'hemoglobin_second_screen.dart';
 
@@ -61,6 +62,18 @@ class _HemoglobinState extends State<Hemoglobin> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => DiscriptionScreen(
+                    title: 'Hemoglobin',
+                    description: 'Hemoglobin,or haemoglobin,abbreviated Hb or Hgd,is the iron-containing oxygen-transport metalloprotein in the red blood cells of almost all vertebrates as well as the tissues of some invertebrates.Hemoglobin in blood carries oxygen from the lungs or gills to the rest of the body.  \n\n Hemoglobin functions by binding and transporting oxygen from the capillaries in the lungs to all of the tissues of the body back to yhe lungs.',
+                    detailedDescription: '• Normal Hemoglobin : \n Male: 13.8 to 17.2 grams per deciliter(g/dl) or 138 to 172 grams per liter(g/l). \n Female: 12.1 to 15.1g/dL or 121 to 151g/L.  \n\n\n • Lower than normal results : \n If Lower then normal have some form of anemia. \n - Iron deficiency \n - Vitamin B-12 deficiency \n - Folate deficiency \n - Bleeding \n - Kidney disease \n - Liver disease \n -Hypothyroidism \n - Thalassemia.  \n\n\n • Higher than normal results : if higher then normal , may be the result of: \n - Polycythemia vera \n - Lung disease \n -Dehydration \n -Living at a high altitude \n -Heavy smoking \n -Burns \n -Excessive vomiting \n -Exterme physical exercise.'
+                  )
+                );
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(

@@ -10,6 +10,7 @@ import '../../ConstFile/constFonts.dart';
 import '../../ConstFile/constPreferences.dart';
 import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/body_temperature_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 
 class BodyTemperature extends StatefulWidget {
@@ -90,6 +91,17 @@ class _BodyTemperatureState extends State<BodyTemperature> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => DiscriptionScreen(
+                  title: 'Body Temperature',
+                  description: 'Normal human body-temperature ( normothermia,euthermia) is the typical temperture range found in humans.  \n\n\n Human body temperature varies,it depends on gender,age time of day,  exertion level,health status(such as illness and menstruation),what part of the body the measuremen is taken at, state of consciousness(waking,sleeping,sedated),and emotions',
+                  detailedDescription: '•Hot : \n -above 38°C(100.4°F) \n\n •Normal : \n 36.5-37.5°C(97.7-99.5°F)is typically reported range for normal body temperature. \n\n •Cold : \n 24-26°C(75.2-78.8°F)or less however,some patients have been known to survive with body temperature as low as13.7°C(56.7°F).',
+                ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: Obx(() {

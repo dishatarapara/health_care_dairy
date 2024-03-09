@@ -7,8 +7,8 @@ import 'package:health_care_dairy/Controller/unit_controller.dart';
 import 'package:health_care_dairy/Screens/Blood_Sugar/blood_sugar_add_screen.dart';
 import 'package:health_care_dairy/Screens/Blood_Sugar/edit_blood_sugar_screen.dart';
 
-
 import '../../ConstFile/constFonts.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 
 class BloodSugar extends StatefulWidget {
@@ -69,7 +69,7 @@ class _BloodSugarState extends State<BloodSugar> {
               fontFamily: ConstFont.regular,
               fontWeight: FontWeight.w800,
               overflow: TextOverflow.ellipsis
-          ),
+              ),
         ),
         leading: IconButton(
           onPressed: () {
@@ -78,11 +78,17 @@ class _BloodSugarState extends State<BloodSugar> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
-        // actions: [
-        //   IconButton(
-        //       onPressed: () {},
-        //       icon: Image.asset("assets/Icons/filter.png"))
-        // ],
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() =>  DiscriptionScreen(
+                  title: 'Blood Sugar',
+                  description: 'The blood sugar level, blood sugar concentration, or blood glucose level is the measure of concentration of glucose present in the blood of humans or other animals. \n\n Approximately 4 grams of glucose, a simple sugar, is present in the blood of a 70 kg (154 lb) human at all times.',
+                  detailedDescription:'• Normal Blood Sugar :\n- 4.4 to 6.1 mmol/L (79 to 110 mg/dL) \n\n • High Blood Sugar :\n- 16.7 mmol/L (300 mg/dL) \n\n • Low Blood Sugar :\n- below 70 mg/dL (3.9 mmol/L).',
+                    ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: Obx(() {

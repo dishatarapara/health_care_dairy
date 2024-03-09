@@ -11,6 +11,7 @@ import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/weight_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 
 class Weight extends StatefulWidget {
@@ -54,7 +55,7 @@ class _WeightState extends State<Weight> {
   }
 
   Future<void> loadData() async {
-    await Future.delayed(Duration(seconds: 5));
+    await Future.delayed(const Duration(seconds: 5));
 
     setState(() {
       bloodSugarController.isLoading.value = false;
@@ -73,7 +74,7 @@ class _WeightState extends State<Weight> {
       appBar: AppBar(
         backgroundColor: ConstColour.appColor,
         elevation: 0.0,
-        title: Text(
+        title: const Text(
           "Weight",
           style: TextStyle(
               color: ConstColour.textColor,
@@ -84,16 +85,28 @@ class _WeightState extends State<Weight> {
         ),
         leading: IconButton(
           onPressed: () {
-            Get.to(() => HomeScreen());
+            Get.to(() => const HomeScreen());
+
           },
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => const DiscriptionScreen(
+                    title:'Human Weight',
+                    description: 'Human body weight refers to a persons mass or weight.Body weight is measured in kilograms, a measure of mass, throughout the world in countries that use the Metric system,although in some countries such as the United States it is measured in pounds,or as in the United Kingdom,stones and pounds.',
+                    detailedDescription:'Most hospitals,even in the United States, now use kilograms for calculations,but use kilograms and pounds together for other purpose. \n\n\n Average adult human weight by continent from about 60 kg (130 lb) in Asia and Africa to about 80 kg(180 lb) in North America, with men on average weighing more than women.'
+                ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: Obx(() {
         if(bloodSugarController.isLoading.value) {
-          return Center(
+          return const Center(
             child: CircularProgressIndicator(
               color: ConstColour.buttonColor,
             ),
@@ -112,11 +125,11 @@ class _WeightState extends State<Weight> {
                 child: Column(
                   children: [
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                           color: ConstColour.appColor
                       ),
                       child: bloodSugarController.bloodSugarLists.isEmpty
-                          ? Center(
+                          ? const Center(
                         child: Text(
                           "No data available",
                           style: TextStyle(
@@ -155,7 +168,7 @@ class _WeightState extends State<Weight> {
                               children: [
                                 Text(
                                   bloodSugarController.bloodSugarLists[index].dateTime,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontSize: 16,
                                       color: ConstColour.greyTextColor,
                                       fontFamily: ConstFont.regular
@@ -165,7 +178,7 @@ class _WeightState extends State<Weight> {
                                   padding: EdgeInsets.only(left: deviceWidth * 0.03),
                                   child: Text(
                                     bloodSugarController.bloodSugarLists[index].time.toString(),
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 16,
                                         color: ConstColour.greyTextColor,
                                         fontFamily: ConstFont.regular
@@ -187,7 +200,7 @@ class _WeightState extends State<Weight> {
                                       // weightController.isKGSelected!.value,
                                       weightController.newVal.value,
                                     ),
-                                    style:  TextStyle(
+                                    style:  const TextStyle(
                                         fontSize: 28,
                                         color: ConstColour.textColor,
                                         fontFamily: ConstFont.bold
@@ -196,7 +209,7 @@ class _WeightState extends State<Weight> {
                                   TextSpan(
                                     // text:' ${unitController.selectIndex.value == 2 ? 'kg' : 'lbs'}',
                                     text:' ${weightController.newVal.value == true ? 'kg' : 'lbs'}',
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontSize: 12,
                                         color: ConstColour.greyTextColor,
                                         fontFamily: ConstFont.regular
@@ -220,7 +233,7 @@ class _WeightState extends State<Weight> {
         padding: const EdgeInsets.all(8.0),
         child: FloatingActionButton(
           onPressed: navigateToAddPage,
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
           backgroundColor: ConstColour.buttonColor,
         ),
       ),
@@ -232,7 +245,7 @@ class _WeightState extends State<Weight> {
     dateTimeController.formattedTime.value = dateTimeController.formatTimeOfDay(TimeOfDay.now());
     weightController.bodyWeightController.text = "";
     weightController.weightCommentController.text = "";
-    Get.to(() => WeightAddScreen());
+    Get.to(() => const WeightAddScreen());
   }
 
   // String convertWeightValue(double value, bool weight) {

@@ -8,6 +8,7 @@ import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_pressure_controller.dart';
 import '../../Controller/blood_sugar_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 
 class BloodPressure extends StatefulWidget {
@@ -59,6 +60,17 @@ class _BloodPressureState extends State<BloodPressure> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => DiscriptionScreen(
+                  title: 'Blood pressure',
+                  description: 'Blood pressure (BP) is the pressure of circulating blood against the walls of blood vessels. \n\nBlood Pressure one of the vital signs - together with respiratory rate, heart rate, oxygen saturation, and body temperature - that healthcare professionals use in evaluating a patients health.\n\nBlood pressure below 120/80 mm Hg is considered to be normal.',
+                  detailedDescription: '• Normal Blood Pressure : \n- 127/79 mmHg in men \n - 122/77 mmHg in women \n\n  • High Blood Pressure : \n- Range 140/90 mm Hg \n\n  • Low Blood Pressure : \n- 90/60 mm Hg or below.',
+                ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(

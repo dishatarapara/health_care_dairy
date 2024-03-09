@@ -6,6 +6,7 @@ import 'package:health_care_dairy/Screens/medication/edit_medication_screen.dart
 import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_sugar_controller.dart';
+import '../discription.dart';
 import '../home_screen.dart';
 import 'medication_second_screen.dart';
 
@@ -59,6 +60,17 @@ class _MedicationState extends State<Medication> {
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() =>  DiscriptionScreen(
+                  title: 'Medication',
+                  description: 'A dosage form that contains one or more active and/or inactive ingredients. ',
+                  detailedDescription:'• A substance (other than food) intended to affect the structure or any function of the body.\n\n • A substance recognized by an official pharmacopeia or formulary. \n\n • A substance intended for use in the diagnosis, cure, mitigation, treatment, or prevention of disease.',
+                ));
+              },
+              icon: Image.asset("assets/Icons/information.png"))
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
       body: RefreshIndicator(
