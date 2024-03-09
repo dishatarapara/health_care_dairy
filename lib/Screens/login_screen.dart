@@ -67,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: deviceHeight * 0.2,
                         width: deviceWidth * 0.6,
                         child: Image.asset(
-                          "assets/Images/img.png",
+                          "assets/images/line.png",
                           fit: BoxFit.cover,
                         ),
                       ),

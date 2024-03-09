@@ -67,6 +67,7 @@ class _UpdateWeightScreenState extends State<UpdateWeightScreen> {
             icon: Icon(Icons.arrow_back),
             color: ConstColour.textColor,
           ),
+
         ),
         backgroundColor: ConstColour.bgColor,
         body: Obx(() => weightController.updateWeightList.isEmpty
