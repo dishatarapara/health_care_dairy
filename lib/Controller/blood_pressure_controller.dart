@@ -43,126 +43,144 @@ class BloodPressureController extends GetxController {
   RxInt pressureId = 0.obs;
 
   Future<void> BloodPressureList(String date, String systolic, String diastolic, String pulesrate, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-    var body = jsonEncode({
-      "Id" : 0,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : date.toString(),
-      "BloodGlucose" : "",
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : systolic.toString(),
-      "DiastolicPressure" : diastolic.toString(),
-      "PulseRate" : pulesrate.toString(),
-      "Hand" : selectedRadio.value == 1 ? true : false,
-      "BodyTemperature" : "",
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : "",
-      "SelectDataTypeId" : 0,
-      "Dosage" : 0,
-      "TimesAndDay" : 0,
-      "Color" : "",
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
+      // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+      var body = jsonEncode({
+        "Id" : 0,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : date.toString(),
+        "BloodGlucose" : "",
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : systolic.toString(),
+        "DiastolicPressure" : diastolic.toString(),
+        "PulseRate" : pulesrate.toString(),
+        "Hand" : selectedRadio.value == 1 ? true : false,
+        "BodyTemperature" : "",
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : "",
+        "SelectDataTypeId" : 0,
+        "Dosage" : 0,
+        "TimesAndDay" : 0,
+        "Color" : "",
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(
-      Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(
+        Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("BloodPressureList Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("BloodPressureList Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("BloodPressureList Error");
+        }
       } else {
-        debugPrint("BloodPressureList Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> UpdatebloodPressureList(int id, String date, String systolic, String diastolic, String pulesrate, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    var body = jsonEncode({
-      "Id" : id,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : date.toString(),
-      "BloodGlucose" : "",
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : systolic,
-      "DiastolicPressure" : diastolic,
-      "PulseRate" : pulesrate,
-      "Hand" : selectedRadio.value == 1 ? true : false,
-      "BodyTemperature" : "",
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : "",
-      "SelectDataTypeId" : 0,
-      "Dosage" : 0,
-      "TimesAndDay" : 0,
-      "Color" : "",
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
+      var body = jsonEncode({
+        "Id" : id,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : date.toString(),
+        "BloodGlucose" : "",
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : systolic,
+        "DiastolicPressure" : diastolic,
+        "PulseRate" : pulesrate,
+        "Hand" : selectedRadio.value == 1 ? true : false,
+        "BodyTemperature" : "",
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : "",
+        "SelectDataTypeId" : 0,
+        "Dosage" : 0,
+        "TimesAndDay" : 0,
+        "Color" : "",
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(
-      Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(
+        Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("Update Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("Update Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("Update Error");
+        }
       } else {
-        debugPrint("Update Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> getUpdateBloodPressureList(String id) async {
@@ -182,6 +200,7 @@ class BloodPressureController extends GetxController {
         var dateFormate = DateFormat('dd/MM/yyyy');
         var dateTime = dateFormate.parse(updateBloodPressureList[0].dateTime.toString());
         dateTimeController.selectedDate.value = dateTime;
+        dateTimeController.selectedTime.value = dateTimeController.stringToTime(updateBloodPressureList[0].time.toString());
         dateTimeController.formattedTime.value = updateBloodPressureList[0].time.toString();
         systolicPressureController.text = updateBloodPressureList[0].systolicPressure.toString();
         diastolicPressureController.text = updateBloodPressureList[0].diastolicPressure.toString();

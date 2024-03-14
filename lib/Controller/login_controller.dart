@@ -50,7 +50,7 @@ class LoginController extends GetxController {
 
       } else {
         var error = responseData.message.toString();
-        Utils().snackBar(response.body, error.toString());
+        Utils().errorSnackBar(response.body, error.toString());
         debugPrint("Error");
       }
     } else {}

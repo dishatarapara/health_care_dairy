@@ -22,6 +22,7 @@ class HemoglobinScreen extends StatefulWidget {
 }
 
 class _HemoglobinScreenState extends State<HemoglobinScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   UnitController unitController = Get.put(UnitController());
   A1CController a1cController = Get.put(A1CController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
@@ -89,7 +90,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                           Text(
                             'Date',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -132,7 +133,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                           Text(
                             'Time',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -177,7 +178,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                           Text(
                             'Measurement Type',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -229,7 +230,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                         //     ),
                         //   ),
                         Container(
-                            width: deviceWidth * 0.25,
+                            width: deviceWidth * 0.26,
                             child:DropdownButton(
                               underline: SizedBox(),
                               isExpanded: true,
@@ -246,7 +247,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                                   child: Text(
                                     'Select type',
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 17,
                                       fontFamily: ConstFont.bold,
                                       color: Colors.black,
                                     ),
@@ -298,7 +299,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                         Text(
                           'Average Sugar Concentration',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -325,7 +326,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                                   keyboardType: TextInputType.number,
                                   decoration: InputDecoration(
                                     border: InputBorder.none,
-                                    hintText: a1cController.selectedMeasurementType?.name == null ? "A1C" : a1cController.selectedMeasurementType?.name.toString(),
+                                    hintText: a1cController.selectedMeasurementType?.name == null ? "eAG" : a1cController.selectedMeasurementType?.name.toString(),
                                     hintStyle: TextStyle(
                                         fontSize: 20,
                                         color: ConstColour.greyTextColor,
@@ -362,7 +363,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                         Text(
                           'Comments',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -402,28 +403,82 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () {
-                if (a1cController.averageSugarController.text.isEmpty) {
-                  Utils().snackBar('A1C', "Please Enter A1C");
-                } else {
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty
-                      ? formatter.format(current_Datetime)
-                      : dateTimeController.formattedTime.value;
-                  a1cController.HemoglobinList(
-                      date.toString(),
-                      a1cController.averageSugarController.text,
-                      a1cController.a1cCommentController.text,
-                      time.toString());
-                  // bloodSugarController.BloodSugarList();
-                }
-                // Get.to(() => Hemoglobin());
-                // bloodSugarController.BloodSugarList();
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try{
+                    if (a1cController.averageSugarController.text.isEmpty) {
+                      Utils().snackBar('A1C', "Please Enter A1C");
+                      return;
+                    }
+                    var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                    var time = dateTimeController.formattedTime.value.isEmpty
+                        ? formatter.format(current_Datetime)
+                        : dateTimeController.formattedTime.value;
+                    await a1cController.HemoglobinList(
+                        date.toString(),
+                        a1cController.averageSugarController.text,
+                        // bloodGlucose.toStringAsFixed(2),
+                        a1cController.a1cCommentController.text,
+                        time.toString());
+                  } catch(e) {
+                    debugPrint("Error: $e");
+                  }
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            ),
+            // NextButton(
+            //   onPressed: () {
+            //     if (a1cController.averageSugarController.text.isEmpty) {
+            //       Utils().snackBar('A1C', "Please Enter A1C");
+            //     } else {
+            //       // double bloodGlucose = 0;
+            //       // if(unitController.getGlucoseLevelPreference()) { // mg/dl
+            //       //   bloodGlucose = double.parse(a1cController.averageSugarController.text) * 18;
+            //       // }else{
+            //       //   bloodGlucose = double.parse(a1cController.averageSugarController.text);
+            //       // }
+            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+            //       var time = dateTimeController.formattedTime.value.isEmpty
+            //           ? formatter.format(current_Datetime)
+            //           : dateTimeController.formattedTime.value;
+            //       a1cController.HemoglobinList(
+            //           date.toString(),
+            //           a1cController.averageSugarController.text,
+            //           // bloodGlucose.toStringAsFixed(2),
+            //           a1cController.a1cCommentController.text,
+            //           time.toString());
+            //       // bloodSugarController.BloodSugarList();
+            //     }
+            //     // Get.to(() => Hemoglobin());
+            //     // bloodSugarController.BloodSugarList();
+            //   },
+            //   btnName: "Save",
+            // ),
           )
         ],
       )),

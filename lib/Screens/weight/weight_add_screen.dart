@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constPreferences.dart';
+import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
 import 'package:health_care_dairy/Controller/unit_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,7 @@ class WeightAddScreen extends StatefulWidget {
 }
 
 class _WeightAddScreenState extends State<WeightAddScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   WeightController weightController = Get.put(WeightController());
   UnitController unitController = Get.put(UnitController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
@@ -79,7 +81,7 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
                           Text(
                             'Date',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -122,7 +124,7 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
                           Text(
                             'Time',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -164,7 +166,7 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
                         Text(
                           'Weight',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -205,7 +207,8 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
                                     left: deviceWidth * 0.03
                                 ),
                                 child: Text(
-                                  ' ${unitController.selectIndex.value == 2 ? 'kg' : 'lbs'}',
+                                  // ' ${unitController.selectIndex.value == 2 ? 'kg' : 'lbs'}',
+                                  ' ${weightController.newVal.value == true ? 'kg' : 'lbs'}',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: ConstColour.greyTextColor,
@@ -228,7 +231,7 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
                         Text(
                           'Comments',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -268,44 +271,107 @@ class _WeightAddScreenState extends State<WeightAddScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () async{
-                if (weightController.bodyWeightController.text.isEmpty) {
-                  Utils().snackBar('Weight', "Please Enter Weight");
-                } else {
-                  double weight = 0;
-                  var iskg = await ConstPreferences().getOtherUnit();
-                  if(iskg == true) { // kg to lbs
-                    weight = double.parse(weightController.bodyWeightController.text); // lbs
-                    // 1 kg / 0.45359237 = 2.2046226218488 lbs
-                  } else { // lbs to kg
-                    weight = double.parse(weightController.bodyWeightController.text) / 2.2046; // kg
-                    // 1 lbs = 1 x 0.45359237 kg
-                  }
-                  // if(unitController.getGlucoseLevelPreference()) { // kg
-                  //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
-                  // }else{
-                  //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
-                  //   weight = double.parse(weightController.convertWeightValue(weight, true));
-                  // }
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty
-                    ? formatter.format(current_Datetime)
-                    : dateTimeController.formattedTime.value;
-                weightController.WeightList(
-                  date.toString(),
-                    // weightController.bodyWeightController.text,
-                    weight.toStringAsFixed(2),
-                    weightController.weightCommentController.text,
-                    time.toString());
-                  // bloodSugarController.BloodSugarList();
-                }
-                // Get.to(() => Weight());
-                // bloodSugarController.BloodSugarList();
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    if (weightController.bodyWeightController.text.isEmpty) {
+                      Utils().snackBar('Weight', "Please Enter Weight");
+                      return;
+                    }
+                  // else {
+                    double weight = 0;
+                    var iskg = await ConstPreferences().getOtherUnit();
+                    if(iskg == true) { // kg to lbs
+                      weight = double.parse(weightController.bodyWeightController.text); // lbs
+                      // 1 kg / 0.45359237 = 2.2046226218488 lbs
+                    } else { // lbs to kg
+                      weight = double.parse(weightController.bodyWeightController.text) / 2.2046; // kg
+                      // 1 lbs = 1 x 0.45359237 kg
+                    }
+                    // if(unitController.getGlucoseLevelPreference()) { // kg
+                    //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
+                    // }else{
+                    //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
+                    //   weight = double.parse(weightController.convertWeightValue(weight, true));
+                    // }
+                    var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                    var time = dateTimeController.formattedTime.value.isEmpty
+                        ? formatter.format(current_Datetime)
+                        : dateTimeController.formattedTime.value;
+                    await weightController.WeightList(
+                        date.toString(),
+                        // weightController.bodyWeightController.text,
+                        weight.toStringAsFixed(2),
+                        weightController.weightCommentController.text,
+                        time.toString());
+                    } catch(e) {
+                    debugPrint("Error: $e");
+                  }
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            )
+            // NextButton(
+            //   onPressed: () async{
+            //     if (weightController.bodyWeightController.text.isEmpty) {
+            //       Utils().snackBar('Weight', "Please Enter Weight");
+            //     } else {
+            //       double weight = 0;
+            //       var iskg = await ConstPreferences().getOtherUnit();
+            //       if(iskg == true) { // kg to lbs
+            //         weight = double.parse(weightController.bodyWeightController.text); // lbs
+            //         // 1 kg / 0.45359237 = 2.2046226218488 lbs
+            //       } else { // lbs to kg
+            //         weight = double.parse(weightController.bodyWeightController.text) / 2.2046; // kg
+            //         // 1 lbs = 1 x 0.45359237 kg
+            //       }
+            //       // if(unitController.getGlucoseLevelPreference()) { // kg
+            //       //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
+            //       // }else{
+            //       //   weight = (double.tryParse(weightController.bodyWeightController.text) ?? 0);
+            //       //   weight = double.parse(weightController.convertWeightValue(weight, true));
+            //       // }
+            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+            //       var time = dateTimeController.formattedTime.value.isEmpty
+            //         ? formatter.format(current_Datetime)
+            //         : dateTimeController.formattedTime.value;
+            //     weightController.WeightList(
+            //       date.toString(),
+            //         // weightController.bodyWeightController.text,
+            //         weight.toStringAsFixed(2),
+            //         weightController.weightCommentController.text,
+            //         time.toString());
+            //       // bloodSugarController.BloodSugarList();
+            //     }
+            //     // Get.to(() => Weight());
+            //     // bloodSugarController.BloodSugarList();
+            //   },
+            //   btnName: "Save",
+            // ),
           )
         ],
       )),

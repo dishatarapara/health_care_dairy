@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Common/bottom_button.dart';
 import 'package:health_care_dairy/Controller/login_controller.dart';
 import 'package:health_care_dairy/Screens/register_screen.dart';
 
@@ -29,6 +30,8 @@ class _LoginScreenState extends State<LoginScreen> {
     IntroScreenFlag(true);
     loginController.emailController.clear();
     loginController.passController.clear();
+    loginController.emailController.text = "pinuasodariya10@gmail.com";
+    loginController.passController.text = "12345678";
   }
   Future<bool?> IntroScreenFlag(bool flag) async{
     await ConstPreferences().setIntroScreenFlag('IntroScreenFlag',flag);
@@ -41,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     var deviceWidth = MediaQuery.of(context).size.width;
 
     return WillPopScope(
-      onWillPop: () async{
+      onWillPop: () async {
         SystemNavigator.pop();
         return false;
         },
@@ -67,13 +70,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: deviceHeight * 0.2,
                         width: deviceWidth * 0.6,
                         child: Image.asset(
-                          "assets/images/line.png",
+                          "assets/Images/login.png",
                           fit: BoxFit.cover,
                         ),
                       ),
                     ),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.03),
                     child: Center(
@@ -86,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           overflow: TextOverflow.ellipsis),
                     ),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.03),
                     child: Text(
@@ -97,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: ConstColour.textColor,),
                         overflow: TextOverflow.ellipsis),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.01),
                     child: TextFormField(
@@ -142,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // },
                     ),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: const Text(
@@ -153,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: ConstColour.textColor,),
                         overflow: TextOverflow.ellipsis),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.01),
                     child: TextFormField(
@@ -198,7 +201,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // },
                     ),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: Row(
@@ -213,52 +216,69 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
                   ),
-
+      
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
-                    child: ElevatedButton(
-                      child: Text(
-                        "Login",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.white,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(50)),
-                          minimumSize: Size(deviceWidth * 1.0, deviceHeight * 0.06),
-                          backgroundColor: ConstColour.buttonColor
-                      ),
-
-                      onPressed: () async {
-                        if (loginController.emailController.text.isEmpty) {
-                          Utils().snackBar('Email', "Enter valid email ");
-                        } else if (loginController.passController.text.isEmpty) {
-                          Utils().snackBar('Password', "Enter valid password ");
-                        } else {
-                          loginController.login(
-                              loginController.emailController.text,
-                              loginController.passController.text);
-                        }
-                        // if (_formkey.currentState!.validate()) {
-                        //   email = loginController.emailController.text;
-                        //   password = loginController.passController.text;
-                        //
-                        //   if(loginController.emailController.text.isEmpty &&
-                        //   loginController.passController.text.isEmpty) {
-                        //     setState(() {
-                        //       Utils().snackBar('',
-                        //           "Enter valid email & password");
-                        //     });
-                        //   } else {
-                        //     loginController.login(email!, password!);
-                        //   }
-                        // }
+                    child: Center(
+                      child: NextButton(
+                        onPressed: () async {
+                          if (loginController.emailController.text.isEmpty) {
+                            Utils().errorSnackBar('Email', "Enter valid email ");
+                          } else
+                          if (loginController.passController.text.isEmpty) {
+                            Utils().errorSnackBar('Password', "Enter valid password ");
+                          } else {
+                            loginController.login(
+                                loginController.emailController.text,
+                                loginController.passController.text);
+                          }
                         },
-                    ),
+                        btnName: "Login",
+                      ),
+                    )
+                    // ElevatedButton(
+                    //   child: Text(
+                    //     "Login",
+                    //     style: TextStyle(
+                    //       fontSize: 20,
+                    //       color: Colors.white,
+                    //     ),
+                    //   ),
+                    //   style: ElevatedButton.styleFrom(
+                    //       shape: RoundedRectangleBorder(
+                    //           borderRadius: BorderRadius.circular(50)),
+                    //       minimumSize: Size(deviceWidth * 1.0, deviceHeight * 0.06),
+                    //       backgroundColor: ConstColour.buttonColor
+                    //   ),
+                    //
+                    //   onPressed: () async {
+                    //     if (loginController.emailController.text.isEmpty) {
+                    //       Utils().errorSnackBar('Email', "Enter valid email ");
+                    //     } else if (loginController.passController.text.isEmpty) {
+                    //       Utils().errorSnackBar('Password', "Enter valid password ");
+                    //     } else {
+                    //       loginController.login(
+                    //           loginController.emailController.text,
+                    //           loginController.passController.text);
+                    //     }
+                    //     // if (_formkey.currentState!.validate()) {
+                    //     //   email = loginController.emailController.text;
+                    //     //   password = loginController.passController.text;
+                    //     //
+                    //     //   if(loginController.emailController.text.isEmpty &&
+                    //     //   loginController.passController.text.isEmpty) {
+                    //     //     setState(() {
+                    //     //       Utils().snackBar('',
+                    //     //           "Enter valid email & password");
+                    //     //     });
+                    //     //   } else {
+                    //     //     loginController.login(email!, password!);
+                    //     //   }
+                    //     // }
+                    //     },
+                    // ),
                   ),
-
+      
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -283,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontSize: 15,
                                 color: ConstColour.buttonColor
                             ),
-                          ),
+                          )
                       ),
                     ],
                   )

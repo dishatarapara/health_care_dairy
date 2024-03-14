@@ -3,7 +3,9 @@ import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constColors.dart';
 import 'package:health_care_dairy/Controller/setting_screen_controller.dart';
 import 'package:health_care_dairy/Screens/Setting/notification/notification_screen.dart';
+import 'package:health_care_dairy/Screens/Setting/privacy/privacy_policy.dart';
 import 'package:health_care_dairy/Screens/Setting/profile/profile_screen.dart';
+import 'package:health_care_dairy/Screens/Setting/terms/TermsAndService.dart';
 import 'package:health_care_dairy/Screens/home_screen.dart';
 import 'package:health_care_dairy/Screens/Setting/unit_second_screen.dart';
 import 'package:intl/intl.dart';
@@ -21,7 +23,16 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
+  DateTimeController dateTimeController = Get.put(DateTimeController());
   SettingScreenController settingScreenController = Get.put(SettingScreenController());
+
+  DateFormat formatter = DateFormat('h:mm a');
+  DateTime current_Datetime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      DateTime.now().hour,
+      DateTime.now().minute);
 
   bool isSwitched = false;
 
@@ -105,7 +116,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       children: [
                         InkWell(
                           onTap: () {
-                            Get.to(() => Profilescreen());
+                            Get.to(() => ProfileScreen());
                           },
                           child: ListTile(
                             leading: CircleAvatar(
@@ -113,6 +124,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               radius: 20,
                               child: Image.asset(
                                 "assets/Icons/profile.png",
+                                color: ConstColour.settingColor,
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -140,7 +152,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                  "assets/images/notifications_setting.png",
+                                  "assets/Images/notifications_setting.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -159,14 +171,50 @@ class _SettingScreenState extends State<SettingScreen> {
                             ),
                           ),
                         ),
+                        // InkWell(
+                        //   onTap: () => toggleSwitch,
+                        //   child: ListTile(
+                        //     leading: CircleAvatar(
+                        //       backgroundColor: ConstColour.settingIconColor,
+                        //       radius: 20,
+                        //       child: Image.asset(
+                        //         "assets/Images/lock.png",
+                        //         fit: BoxFit.cover,
+                        //         height: deviceHeight * 0.02,
+                        //       ),
+                        //     ),
+                        //     title: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         Text(
+                        //             "System App Lock",
+                        //             style: TextStyle(
+                        //               fontSize: 20,
+                        //               fontFamily: ConstFont.bold,
+                        //             )
+                        //         ),
+                        //         Transform.scale(
+                        //           scale: 1,
+                        //           child: Switch(
+                        //               value: isSwitched,
+                        //               onChanged: toggleSwitch,
+                        //             activeColor: ConstColour.buttonColor,
+                        //           ),
+                        //         )
+                        //       ],
+                        //     ),
+                        //   ),
+                        // ),
                         InkWell(
-                          onTap: () => toggleSwitch,
+                          onTap: () {
+                            settingScreenController.showDateFormat();
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/lock.png",
+                                "assets/Images/date.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -175,41 +223,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                    "System App Lock",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: ConstFont.bold,
-                                    )
-                                ),
-                                Transform.scale(
-                                  scale: 1,
-                                  child: Switch(
-                                      value: isSwitched,
-                                      onChanged: toggleSwitch,
-                                    activeColor: ConstColour.buttonColor,
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {},
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: ConstColour.settingIconColor,
-                              radius: 20,
-                              child: Image.asset(
-                                "assets/images/date.png",
-                                fit: BoxFit.cover,
-                                height: deviceHeight * 0.02,
-                              ),
-                            ),
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    "Date Formate",
+                                    "Date Format",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontFamily: ConstFont.bold,
@@ -231,13 +245,15 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            settingScreenController.showTimeFormat();
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/time.png",
+                                "assets/Images/time.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -246,13 +262,15 @@ class _SettingScreenState extends State<SettingScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                    "Time Formate",
+                                    "Time Format",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontFamily: ConstFont.bold,
                                     )
                                 ),
-                                Text('',
+                                Text(dateTimeController.formattedTime.value.isEmpty
+                                    ? formatter.format(current_Datetime)
+                                    : dateTimeController.formattedTime.value,
                                     style: TextStyle(
                                       fontSize: 15,
                                     )
@@ -275,7 +293,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/unit_formate.png",
+                                "assets/Images/unit_formate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -284,7 +302,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                    "Unit Formate",
+                                    "Unit Format",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontFamily: ConstFont.bold,
@@ -306,13 +324,15 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            settingScreenController.showNumberFormat();
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/number_formate.png",
+                                "assets/Images/number_formate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -321,7 +341,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                    "Number Formate",
+                                    "Number Format",
                                     style: TextStyle(
                                       fontSize: 20,
                                       fontFamily: ConstFont.bold,
@@ -349,7 +369,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               backgroundColor: ConstColour.settingIconColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/backup_setting.png",
+                                "assets/Images/backup_setting.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -365,7 +385,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                     )
                                 ),
                                 Image.asset(
-                                    "assets/images/premium.png",
+                                    "assets/Images/premium.png",
                                   fit: BoxFit.cover,
                                   height: deviceHeight * 0.03,
                                 )
@@ -411,13 +431,17 @@ class _SettingScreenState extends State<SettingScreen> {
                     child: Column(
                       children: [
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            String contentToShare =
+                                'MySugar: Track Blood Sugar, Blood Pressure Keeps track of blood sugar level and other health factors - medication, weight - Track your blood glucose levels by time. \n • Daily reminders to get a notification at times you specify every day \n • Statistics (averages per week, per month, all time)';
+                            settingScreenController.shareWithFriends(contentToShare);
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/share.png",
+                                "assets/Images/share.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -437,13 +461,15 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            settingScreenController.showRateUsDialogBox();
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/rate.png",
+                                "assets/Images/rate.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -463,13 +489,16 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            // final url ='https://appworldinfotech.com/privacy_policy/index.html';
+                            Get.to(() => PrivacyAndPolicyScreen());
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/privacypolicy.png",
+                                "assets/Images/privacypolicy.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),
@@ -489,13 +518,16 @@ class _SettingScreenState extends State<SettingScreen> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {},
+                          onTap: () {
+                            // final url ='https://appworldinfotech.com/termsofservices/index.html';
+                            Get.to(() => TermsOfServiceScreen());
+                          },
                           child: ListTile(
                             leading: CircleAvatar(
                               backgroundColor: ConstColour.bodyTembgColor,
                               radius: 20,
                               child: Image.asset(
-                                "assets/images/terms_of_service.png",
+                                "assets/Images/terms_of_service.png",
                                 fit: BoxFit.cover,
                                 height: deviceHeight * 0.02,
                               ),

@@ -26,8 +26,6 @@ class UnitController extends GetxController {
     glucoseLevel.value = value;
   }
 
-
-
   bool getGlucoseLevelPreference() {
     return glucoseLevel.value;
   }

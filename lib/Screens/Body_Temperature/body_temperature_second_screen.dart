@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
 import 'package:health_care_dairy/Controller/unit_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,7 @@ class BodyTemperatureScreen extends StatefulWidget {
 }
 
 class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   UnitController unitController = Get.put(UnitController());
   BodyTemperatureController bodyTemperatureController = Get.put(BodyTemperatureController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
@@ -79,7 +81,7 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
                           Text(
                             'Date',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -122,7 +124,7 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
                           Text(
                             'Time',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -165,7 +167,7 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
                         Text(
                           'Body Temperature',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -206,7 +208,8 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
                                     left: deviceWidth * 0.03
                                 ),
                                 child: Text(
-                                  ' ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}',
+                                  ' ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}',
+                                  // ' ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}',
                                   style: TextStyle(
                                       fontSize: 16,
                                       color: ConstColour.greyTextColor,
@@ -229,7 +232,7 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
                         Text(
                           'Comments',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -269,35 +272,91 @@ class _BodyTemperatureScreenState extends State<BodyTemperatureScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () async {
-                if (bodyTemperatureController.temperatureController.text.isEmpty) {
-                  Utils().snackBar('Body Temperature', "Please Enter Body Temperature");
-                } else {
-                  double temperature = 0;
-                  var isFahrenheit = await ConstPreferences().getBodyTemperature();
-                  if(isFahrenheit == true) { // Fahrenheit  to Celsius
-                    temperature = double.parse(bodyTemperatureController.temperatureController.text);
-                  }else{
-                    temperature = (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9;
-                  }
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty
-                      ? formatter.format(current_Datetime)
-                      : dateTimeController.formattedTime.value;
-                  bodyTemperatureController.BodyTemperatureList(
-                    date.toString(),
-                      // bodyTemperatureController.temperatureController.text,
-                      temperature.toStringAsFixed(2),
-                      bodyTemperatureController.temperatureCommentController.text,
-                      time.toString());
-                  // bloodSugarController.BloodSugarList();
-                }
-                // Get.to(() => BodyTemperature());
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    if (bodyTemperatureController.temperatureController.text.isEmpty) {
+                      Utils().snackBar('Body Temperature', "Please Enter Body Temperature");
+                      return;
+                    }
+                    // else {
+                    double temperature = 0;
+                    var isFahrenheit = await ConstPreferences().getBodyTemperature();
+                    if(isFahrenheit == true) { // Fahrenheit  to Celsius
+                      temperature = double.parse(bodyTemperatureController.temperatureController.text);
+                    } else {
+                      temperature = (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9;
+                    }
+                    var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                    var time = dateTimeController.formattedTime.value.isEmpty
+                        ? formatter.format(current_Datetime)
+                        : dateTimeController.formattedTime.value;
+                    await bodyTemperatureController.BodyTemperatureList(
+                        date.toString(),
+                        // bodyTemperatureController.temperatureController.text,
+                        temperature.toStringAsFixed(2),
+                        bodyTemperatureController.temperatureCommentController.text,
+                        time.toString());
+                    // bloodSugarController.BloodSugarList();
+                    } catch(e) {
+                    debugPrint("Error: $e");
+                  }
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            )
+            // NextButton(
+            //   onPressed: () async {
+            //     if (bodyTemperatureController.temperatureController.text.isEmpty) {
+            //       Utils().snackBar('Body Temperature', "Please Enter Body Temperature");
+            //     } else {
+            //       double temperature = 0;
+            //       var isFahrenheit = await ConstPreferences().getBodyTemperature();
+            //       if(isFahrenheit == true) { // Fahrenheit  to Celsius
+            //         temperature = double.parse(bodyTemperatureController.temperatureController.text);
+            //       }else{
+            //         temperature = (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9;
+            //       }
+            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+            //       var time = dateTimeController.formattedTime.value.isEmpty
+            //           ? formatter.format(current_Datetime)
+            //           : dateTimeController.formattedTime.value;
+            //       bodyTemperatureController.BodyTemperatureList(
+            //         date.toString(),
+            //           // bodyTemperatureController.temperatureController.text,
+            //           temperature.toStringAsFixed(2),
+            //           bodyTemperatureController.temperatureCommentController.text,
+            //           time.toString());
+            //       // bloodSugarController.BloodSugarList();
+            //     }
+            //     // Get.to(() => BodyTemperature());
+            //   },
+            //   btnName: "Save",
+            // ),
           )
         ],
       )),

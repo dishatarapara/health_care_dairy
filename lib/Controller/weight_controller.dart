@@ -53,127 +53,156 @@ class WeightController extends GetxController {
 
   Future<void> WeightList(
       String date, String weight, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId = int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId = int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-    var body = jsonEncode({
-      "Id": 0,
-      "UserId": userId,
-      "Cat_Id": categoryId,
-      "DateTime": date.toString(),
-      "BloodGlucose": 0.0,
-      "MeasuredTypeId": 0,
-      "SystolicPressure": 0,
-      "DiastolicPressure": 0,
-      "PulseRate": 0,
-      "Hand": "",
-      "BodyTemperature": "",
-      "BloodOxygenSaturation": 0,
-      "MeasurementTypeId": 0,
-      "AverageSugarConcentration": "",
-      "Weight": weight,
-      "MedicationName": "",
-      "SelectDataTypeId": 0,
-      "Dosage": 0,
-      "TimesAndDay": 0,
-      "Color": "",
-      "Comments": comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
+      // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+      var body = jsonEncode({
+        "Id": 0,
+        "UserId": userId,
+        "Cat_Id": categoryId,
+        "DateTime": date.toString(),
+        "BloodGlucose": 0.0,
+        "MeasuredTypeId": 0,
+        "SystolicPressure": 0,
+        "DiastolicPressure": 0,
+        "PulseRate": 0,
+        "Hand": "",
+        "BodyTemperature": "",
+        "BloodOxygenSaturation": 0,
+        "MeasurementTypeId": 0,
+        "AverageSugarConcentration": "",
+        "Weight": weight,
+        "MedicationName": "",
+        "SelectDataTypeId": 0,
+        "Dosage": 0,
+        "TimesAndDay": 0,
+        "Color": "",
+        "Comments": comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(
-      Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(
+        Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("WeightList Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("WeightList Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("WeightList Error");
+        }
       } else {
-        debugPrint("WeightList Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> UpdateweightList(
       int id, String date, String weight, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId = int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId = int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    var body = jsonEncode({
-      "Id": id,
-      "UserId": userId,
-      "Cat_Id": categoryId,
-      "DateTime": date.toString(),
-      "BloodGlucose": 0.0,
-      "MeasuredTypeId": 0,
-      "SystolicPressure": 0,
-      "DiastolicPressure": 0,
-      "PulseRate": 0,
-      "Hand": "",
-      "BodyTemperature": "",
-      "BloodOxygenSaturation": 0,
-      "MeasurementTypeId": 0,
-      "AverageSugarConcentration": "",
-      "Weight": weight,
-      "MedicationName": "",
-      "SelectDataTypeId": 0,
-      "Dosage": 0,
-      "TimesAndDay": 0,
-      "Color": "",
-      "Comments": comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(
-      Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
-
-    var data = response.body;
-    debugPrint(data.toString());
-
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
-
-      if (messageCode == 1) {
-        debugPrint("Update Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
-      } else {
-        debugPrint("Update Error");
+      String unitWeight;
+      String unitWeightValue;
+      var iskg = await ConstPreferences().getOtherUnit();
+      if(iskg == true) { // kg to lbs
+        unitWeight = 'lbs';
+        unitWeightValue = weight.toString(); // lbs
+      } else { // lbs to kg
+        unitWeight = 'kg';
+        unitWeightValue = (double.parse(weight) / 2.2046).toString(); // kg
       }
-    } else {}
+
+      var body = jsonEncode({
+        "Id": id,
+        "UserId": userId,
+        "Cat_Id": categoryId,
+        "DateTime": date.toString(),
+        "BloodGlucose": 0.0,
+        "MeasuredTypeId": 0,
+        "SystolicPressure": 0,
+        "DiastolicPressure": 0,
+        "PulseRate": 0,
+        "Hand": "",
+        "BodyTemperature": "",
+        "BloodOxygenSaturation": 0,
+        "MeasurementTypeId": 0,
+        "AverageSugarConcentration": "",
+        "Weight": unitWeightValue,
+        "MedicationName": "",
+        "SelectDataTypeId": 0,
+        "Dosage": 0,
+        "TimesAndDay": 0,
+        "Color": "",
+        "Comments": comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
+
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(
+        Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
+
+      var data = response.body;
+      debugPrint(data.toString());
+
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
+
+        if (messageCode == 1) {
+          debugPrint("Update Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("Update Error");
+        }
+      } else {
+        debugPrint("API Error: ${response.statusCode}");
+      }
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> getUpdateWeightList(String id) async {
@@ -192,12 +221,23 @@ class WeightController extends GetxController {
         updateWeightList.clear();
         updateWeightList.addAll(responseData.data);
         var dateFormate = DateFormat('dd/MM/yyyy');
-        var dateTime =
-            dateFormate.parse(updateWeightList[0].dateTime.toString());
+        var dateTime = dateFormate.parse(updateWeightList[0].dateTime.toString());
         dateTimeController.selectedDate.value = dateTime;
-        dateTimeController.formattedTime.value =
-            updateWeightList[0].time.toString();
-        bodyWeightController.text = updateWeightList[0].weight.toString();
+        dateTimeController.selectedTime.value = dateTimeController.stringToTime(updateWeightList[0].time.toString());
+        dateTimeController.formattedTime.value = updateWeightList[0].time.toString();
+
+        String unitWeight;
+        String unitWeightValue;
+        var iskg = await ConstPreferences().getOtherUnit();
+        if(iskg == true) { // kg to lbs
+          unitWeight = 'lbs';
+          unitWeightValue = updateWeightList[0].weight.toStringAsFixed(1); // lbs
+        } else { // lbs to kg
+          unitWeight = 'kg';
+          unitWeightValue = (updateWeightList[0].weight * 2.2046).toStringAsFixed(1); // kg
+        }
+        bodyWeightController.text = unitWeightValue;
+        // bodyWeightController.text = updateWeightList[0].weight.toString();
         weightCommentController.text = updateWeightList[0].comments.toString();
         debugPrint("EditCategoryDetail Successfully");
       } else {

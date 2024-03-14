@@ -43,7 +43,7 @@ class _UnitSecondScreenState extends State<UnitSecondScreen> {
     print("bodyTemperature "+bodyTemperatureController.newValue.value.toString());
     await ConstPreferences().saveBodyTemperature(bodyTemperatureController.newValue.value);
     var val = await ConstPreferences().getBodyTemperature();
-    weightController.newVal.value = val!;
+    bodyTemperatureController.newValue.value = val!;
     print("val "+val.toString());
   }
 

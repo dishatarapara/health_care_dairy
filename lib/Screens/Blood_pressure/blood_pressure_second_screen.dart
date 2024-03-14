@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constPreferences.dart';
+import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
 import 'package:health_care_dairy/Controller/date_time_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -19,6 +20,7 @@ class BloodPressureScreen extends StatefulWidget {
 }
 
 class _BloodPressureScreenState extends State<BloodPressureScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   BloodPressureController bloodPressureController = Get.put(BloodPressureController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
   DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
@@ -86,7 +88,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                           Text(
                             'Date',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -129,7 +131,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                           Text(
                             'Time',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -172,7 +174,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                         Text(
                           'Systolic Pressure',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -236,7 +238,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                         Text(
                           'Diastolic Pressure',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -300,7 +302,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                         Text(
                           'Pulse Rate',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -357,7 +359,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                                 Text(
                                   "Left Hand",
                                   style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 18,
                                       fontFamily: ConstFont.regular,
                                       color: bloodPressureController.selectedRadio.value == 1
                                           ? ConstColour.textColor
@@ -388,7 +390,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                                 Text(
                                   "Right Hand",
                                   style: TextStyle(
-                                      fontSize: 15,
+                                      fontSize: 18,
                                       fontFamily: ConstFont.regular,
                                       color: bloodPressureController.selectedRadio.value == 0
                                           ? ConstColour.textColor
@@ -410,7 +412,7 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
                         Text(
                           'Comments',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -449,30 +451,82 @@ class _BloodPressureScreenState extends State<BloodPressureScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () {
-                if (bloodPressureController.systolicPressureController.text.isEmpty) {
-                  Utils().snackBar('Systolic Pressure', "Please Enter Systolic Pressure");
-                }else if (bloodPressureController.diastolicPressureController.text.isEmpty) {
-                  Utils().snackBar('Diastolic Pressure', "Please Enter Diastolic Pressure");
-                } else {
-                  // bloodSugarController.BloodSugarList();
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                  bloodPressureController.BloodPressureList(
-                    date.toString(),
-                      bloodPressureController.systolicPressureController.text,
-                      bloodPressureController.diastolicPressureController.text,
-                      bloodPressureController.pulesRateController.text,
-                      bloodPressureController.pressureCommentController.text,
-                      time.toString());
-                }
-                // bloodSugarController.BloodSugarList();
-                // Get.to(() => BloodPressure());
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    if (bloodPressureController.systolicPressureController.text.isEmpty) {
+                      Utils().snackBar('Systolic Pressure', "Please Enter Systolic Pressure");
+                      return;
+                    } else if (bloodPressureController.diastolicPressureController.text.isEmpty) {
+                      Utils().snackBar('Diastolic Pressure', "Please Enter Diastolic Pressure");
+                      return;
+                    }
+                    // else {
+                      // bloodSugarController.BloodSugarList();
+                      var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                      var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+                      await bloodPressureController.BloodPressureList(
+                          date.toString(),
+                          bloodPressureController.systolicPressureController.text,
+                          bloodPressureController.diastolicPressureController.text,
+                          bloodPressureController.pulesRateController.text,
+                          bloodPressureController.pressureCommentController.text,
+                          time.toString());
+                    // }
+                  } catch(error) {
+                    debugPrint("Error: $error");
+                  }
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            )
+            // NextButton(
+            //   onPressed: () {
+            //     if (bloodPressureController.systolicPressureController.text.isEmpty) {
+            //       Utils().snackBar('Systolic Pressure', "Please Enter Systolic Pressure");
+            //     }else if (bloodPressureController.diastolicPressureController.text.isEmpty) {
+            //       Utils().snackBar('Diastolic Pressure', "Please Enter Diastolic Pressure");
+            //     } else {
+            //       // bloodSugarController.BloodSugarList();
+            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+            //       var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+            //       bloodPressureController.BloodPressureList(
+            //         date.toString(),
+            //           bloodPressureController.systolicPressureController.text,
+            //           bloodPressureController.diastolicPressureController.text,
+            //           bloodPressureController.pulesRateController.text,
+            //           bloodPressureController.pressureCommentController.text,
+            //           time.toString());
+            //     }
+            //     // bloodSugarController.BloodSugarList();
+            //     // Get.to(() => BloodPressure());
+            //   },
+            //   btnName: "Save",
+            // ),
           ),
         ],
       ),

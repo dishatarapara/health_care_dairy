@@ -158,4 +158,8 @@ class DateTimeController extends GetxController {
     return formatter.format(datetime);
   }
 
+  TimeOfDay stringToTime(String timeOfDay) {
+    final DateFormat formatter = DateFormat('h:mm a');
+    return TimeOfDay.fromDateTime(formatter.parse(timeOfDay));
+  }
 }

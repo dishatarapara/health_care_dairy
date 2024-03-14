@@ -471,26 +471,73 @@ class _UpdateBloodPressureScreenState extends State<UpdateBloodPressureScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: deviceHeight * 0.01),
-              child: NextButton(
-                onPressed: () {
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                  bloodPressureController.UpdatebloodPressureList(
-                      bloodPressureController.pressureId.value,
-                      date.toString(),
-                      bloodPressureController.systolicPressureController.text,
-                      bloodPressureController.diastolicPressureController.text,
-                      bloodPressureController.pulesRateController.text,
-                      bloodPressureController.pressureCommentController.text,
-                      time.toString()
-                  );
-                  // bloodPressureController.BloodPressureList(time.toString());
-                  // bloodSugarController.BloodSugarList();
-                  // Get.to(() => BloodPressure());
-                },
-                btnName: "Save",
+              padding: EdgeInsets.only(
+                  top: deviceHeight * 0.01,
+                  left: deviceWidth * 0.02,
+                  right: deviceWidth * 0.02
               ),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                      backgroundColor: ConstColour.buttonColor
+                  ),
+                  onPressed: () async {
+                    try {
+                      var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                      var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+                      await bloodPressureController.UpdatebloodPressureList(
+                          bloodPressureController.pressureId.value,
+                          date.toString(),
+                          bloodPressureController.systolicPressureController.text,
+                          bloodPressureController.diastolicPressureController.text,
+                          bloodPressureController.pulesRateController.text,
+                          bloodPressureController.pressureCommentController.text,
+                          time.toString()
+                      );
+                    } catch(error) {
+                      debugPrint(" Error: $error");
+                    }
+                    // bloodPressureController.BloodPressureList(time.toString());
+                    // bloodSugarController.BloodSugarList();
+                    // Get.to(() => BloodPressure());
+                  },
+                  child: bloodSugarController.isLoading.value
+                      ? Center(
+                    child: CircularProgressIndicator(
+                      color: ConstColour.appColor,
+                    ),
+                  )
+                      : Text(
+                    "Save",
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  )
+              )
+              // NextButton(
+              //   onPressed: () {
+              //     var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+              //     var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+              //     bloodPressureController.UpdatebloodPressureList(
+              //         bloodPressureController.pressureId.value,
+              //         date.toString(),
+              //         bloodPressureController.systolicPressureController.text,
+              //         bloodPressureController.diastolicPressureController.text,
+              //         bloodPressureController.pulesRateController.text,
+              //         bloodPressureController.pressureCommentController.text,
+              //         time.toString()
+              //     );
+              //     // bloodPressureController.BloodPressureList(time.toString());
+              //     // bloodSugarController.BloodSugarList();
+              //     // Get.to(() => BloodPressure());
+              //   },
+              //   btnName: "Save",
+              // ),
             ),
           ],
         ),

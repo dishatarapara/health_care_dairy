@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Common/bottom_button.dart';
 import 'package:health_care_dairy/Screens/Setting/unit_screen.dart';
 import 'package:health_care_dairy/Screens/login_screen.dart';
 
@@ -59,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       height: deviceHeight * 0.2,
                       width: deviceWidth * 0.6,
                       child: Image.asset(
-                        "assets/images/regi.png",
+                        "assets/Images/register.png",
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -186,57 +187,76 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 Padding(
                   padding: EdgeInsets.only(top: deviceHeight * 0.02),
-                  child: ElevatedButton(
-                    child: Text(
-                      "Next",
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
+                  child: Center(
+                    child: NextButton(
+                      onPressed: () async {
+                        if (registerController.firstNameController.text.isEmpty) {
+                          Utils().errorSnackBar('Username', "Enter valid Username ");
+                        } else if (registerController.emailController.text.isEmpty) {
+                          Utils().errorSnackBar('Email', "Enter valid email ");
+                        } else if (registerController.passwordController.text.isEmpty) {
+                          Utils().errorSnackBar('Password', "Enter valid password ");
+                        } else {
+                          registerController.register(
+                              registerController.firstNameController.text,
+                              registerController.emailController.text,
+                              registerController.passwordController.text);
+                        }
+                      },
+                      btnName: "Next",
                     ),
-                    style: ElevatedButton.styleFrom(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(50)),
-                        minimumSize:
-                            Size(deviceWidth * 1.0, deviceHeight * 0.06),
-                        backgroundColor: ConstColour.buttonColor),
-                    onPressed: () async {
-                      if (registerController.firstNameController.text.isEmpty) {
-                        Utils().snackBar('Username', "Enter valid Username ");
-                      } else if (registerController
-                          .emailController.text.isEmpty) {
-                        Utils().snackBar('Email', "Enter valid email ");
-                      } else if (registerController
-                          .passwordController.text.isEmpty) {
-                        Utils().snackBar('Password', "Enter valid password ");
-                      } else {
-                        registerController.register(
-                            registerController.firstNameController.text,
-                            registerController.emailController.text,
-                            registerController.passwordController.text);
-                      }
-                      // if (_formkey.currentState!.validate()) {
-                      //   name = registerController.firstNameController.text;
-                      //   email = registerController.emailController.text;
-                      //   password = registerController.passwordController.text;
-                      //
-                      //   if(registerController.firstNameController.text.isEmpty &&
-                      //       registerController.emailController.text.isEmpty &&
-                      //       registerController.passwordController.text.isEmpty) {
-                      //     setState(() {
-                      //       Utils().toastMessage(
-                      //           "Enter valid Username & email & password");
-                      //     });
-                      //   } else {
-                      //     registerController.register(name!, email!, password!);
-                      //   }
-                      //
-                      //   setState(() {
-                      //     validate = false;
-                      //   });
-                      // }
-                    },
-                  ),
+                  )
+                  // ElevatedButton(
+                  //   child: Text(
+                  //     "Next",
+                  //     style: TextStyle(
+                  //       fontSize: 20,
+                  //       color: Colors.white,
+                  //     ),
+                  //   ),
+                  //   style: ElevatedButton.styleFrom(
+                  //       shape: RoundedRectangleBorder(
+                  //           borderRadius: BorderRadius.circular(50)),
+                  //       minimumSize:
+                  //           Size(deviceWidth * 1.0, deviceHeight * 0.06),
+                  //       backgroundColor: ConstColour.buttonColor),
+                  //   onPressed: () async {
+                  //     if (registerController.firstNameController.text.isEmpty) {
+                  //       Utils().errorSnackBar('Username', "Enter valid Username ");
+                  //     } else if (registerController
+                  //         .emailController.text.isEmpty) {
+                  //       Utils().errorSnackBar('Email', "Enter valid email ");
+                  //     } else if (registerController
+                  //         .passwordController.text.isEmpty) {
+                  //       Utils().errorSnackBar('Password', "Enter valid password ");
+                  //     } else {
+                  //       registerController.register(
+                  //           registerController.firstNameController.text,
+                  //           registerController.emailController.text,
+                  //           registerController.passwordController.text);
+                  //     }
+                  //     // if (_formkey.currentState!.validate()) {
+                  //     //   name = registerController.firstNameController.text;
+                  //     //   email = registerController.emailController.text;
+                  //     //   password = registerController.passwordController.text;
+                  //     //
+                  //     //   if(registerController.firstNameController.text.isEmpty &&
+                  //     //       registerController.emailController.text.isEmpty &&
+                  //     //       registerController.passwordController.text.isEmpty) {
+                  //     //     setState(() {
+                  //     //       Utils().toastMessage(
+                  //     //           "Enter valid Username & email & password");
+                  //     //     });
+                  //     //   } else {
+                  //     //     registerController.register(name!, email!, password!);
+                  //     //   }
+                  //     //
+                  //     //   setState(() {
+                  //     //     validate = false;
+                  //     //   });
+                  //     // }
+                  //   },
+                  // ),
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

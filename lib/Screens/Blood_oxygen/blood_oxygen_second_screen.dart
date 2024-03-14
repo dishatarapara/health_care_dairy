@@ -8,6 +8,7 @@ import '../../Common/snackbar.dart';
 import '../../ConstFile/constColors.dart';
 import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_oxygen_controller.dart';
+import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/date_time_controller.dart';
 
 class BloodOxygenScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class BloodOxygenScreen extends StatefulWidget {
 }
 
 class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   BloodOxygenController bloodOxygenController = Get.put(BloodOxygenController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
   DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
@@ -76,7 +78,7 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
                           Text(
                             'Date',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -119,7 +121,7 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
                           Text(
                             'Time',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -160,7 +162,7 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
                         Text(
                           'Blood Oxygen Saturation',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -224,7 +226,7 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
                         Text(
                           'Comments',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -264,25 +266,73 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () {
-                if (bloodOxygenController.oxygenController.text.isEmpty) {
-                  Utils().snackBar('Blood Oxygen Saturation', "Please Enter Blood Oxygen Saturation");
-                } else {
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                  bloodOxygenController.BloodOxygenList(
-                      date.toString(),
-                      bloodOxygenController.oxygenController.text,
-                      bloodOxygenController.oxygenCommentController.text,
-                      time.toString());
-                }
-                // bloodSugarController.BloodSugarList();
-                // Get.to(() => BloodOxygen());
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    if (bloodOxygenController.oxygenController.text.isEmpty) {
+                      Utils().snackBar('Blood Oxygen Saturation', "Please Enter Blood Oxygen Saturation");
+                      return;
+                    }
+                    // else {
+                      var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                      var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+                      await bloodOxygenController.BloodOxygenList(
+                          date.toString(),
+                          bloodOxygenController.oxygenController.text,
+                          bloodOxygenController.oxygenCommentController.text,
+                          time.toString());
+                    // }
+                  } catch(error) {
+                    debugPrint("Error: $error");
+                  }
+                  // bloodSugarController.BloodSugarList();
+                  // Get.to(() => BloodOxygen());
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            )
+            // NextButton(
+            //   onPressed: () {
+            //     if (bloodOxygenController.oxygenController.text.isEmpty) {
+            //       Utils().snackBar('Blood Oxygen Saturation', "Please Enter Blood Oxygen Saturation");
+            //     } else {
+            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+            //       var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+            //       bloodOxygenController.BloodOxygenList(
+            //           date.toString(),
+            //           bloodOxygenController.oxygenController.text,
+            //           bloodOxygenController.oxygenCommentController.text,
+            //           time.toString());
+            //     }
+            //     // bloodSugarController.BloodSugarList();
+            //     // Get.to(() => BloodOxygen());
+            //   },
+            //   btnName: "Save",
+            // ),
           )
         ],
       )),
