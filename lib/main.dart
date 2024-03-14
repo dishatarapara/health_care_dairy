@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
       statusBarColor: ConstColour.appColor,
     ));
 
@@ -25,8 +26,9 @@ class MyApp extends StatelessWidget {
             selectionHandleColor: ConstColour.buttonColor,
           ),
           useMaterial3: false),
-      home: SplashScreen(),
-      // home: const SplashSecondScreen(),
+      home: const SplashScreen(),
+      // home:  MyAppsss(),
+      // home:  MultiSelectionDeleteDemo(),
       // home: const HomeScreen(),
     );
 

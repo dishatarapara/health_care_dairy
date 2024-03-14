@@ -36,7 +36,7 @@ class RegisterController extends GetxController {
         Get.to(() => LoginScreen());
       } else {
         var error = responseData.message.toString();
-        Utils().snackBar(response.body, error.toString());
+        Utils().errorSnackBar(response.body, error.toString());
         debugPrint("Error");
       }
     } else {}

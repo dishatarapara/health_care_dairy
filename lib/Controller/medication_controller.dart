@@ -49,123 +49,141 @@ class MedicationController extends GetxController {
   // ];
 
   Future<void> MedicationList(String medicationName, String dosage, String timesAndDay, String comment) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    var body = jsonEncode({
-      "Id" : 0,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : "",
-      "BloodGlucose" : 0.0,
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : 0,
-      "DiastolicPressure" : 0,
-      "PulseRate" : 0,
-      "Hand" : "",
-      "BodyTemperature" : "",
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : medicationName.toString(),
-      "SelectDataTypeId" : selectedDataTypeId.value.toString(),
-      "Dosage" : dosage.toString(),
-      "TimesAndDay" : timesAndDay.toString(),
-      "Color" : selectedColor.toString(),
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": ""
-    });
+      var body = jsonEncode({
+        "Id" : 0,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : "",
+        "BloodGlucose" : 0.0,
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : 0,
+        "DiastolicPressure" : 0,
+        "PulseRate" : 0,
+        "Hand" : "",
+        "BodyTemperature" : "",
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : medicationName.toString(),
+        "SelectDataTypeId" : selectedDataTypeId.value.toString(),
+        "Dosage" : dosage.toString(),
+        "TimesAndDay" : timesAndDay.toString(),
+        "Color" : selectedColor.toString(),
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": ""
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("MedicationList Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("MedicationList Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("MedicationList Error");
+        }
       } else {
-        debugPrint("MedicationList Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> UpdateMedicationList(int id, String medicationName, String dosage, String timesAndDay, String comment) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    var body = jsonEncode({
-      "Id" : id,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : "",
-      "BloodGlucose" : 0.0,
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : 0,
-      "DiastolicPressure" : 0,
-      "PulseRate" : 0,
-      "Hand" : "",
-      "BodyTemperature" : "",
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : medicationName.toString(),
-      "SelectDataTypeId" : selectedDataTypeId.value.toString(),
-      "Dosage" : dosage.toString(),
-      "TimesAndDay" : timesAndDay.toString(),
-      "Color" : selectedColor.toString(),
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": ""
-    });
+      var body = jsonEncode({
+        "Id" : id,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : "",
+        "BloodGlucose" : 0.0,
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : 0,
+        "DiastolicPressure" : 0,
+        "PulseRate" : 0,
+        "Hand" : "",
+        "BodyTemperature" : "",
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : medicationName.toString(),
+        "SelectDataTypeId" : selectedDataTypeId.value.toString(),
+        "Dosage" : dosage.toString(),
+        "TimesAndDay" : timesAndDay.toString(),
+        "Color" : selectedColor.toString(),
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": ""
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("Update Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("Update Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("Update Error");
+        }
       } else {
-        debugPrint("Update Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(error) {
+      debugPrint("API Error: $error");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> getUpdateMedicationList(String id) async {

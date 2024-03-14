@@ -10,7 +10,12 @@ import '../../ConstFile/constFonts.dart';
 import '../../ConstFile/constPreferences.dart';
 import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/body_temperature_controller.dart';
+import '../../Controller/delete_controller.dart';
+import '../../Controller/filter_controller.dart';
+import '../../model/get_category_model.dart';
+import '../discription_screen.dart';
 import '../home_screen.dart';
+import '../loader.dart';
 
 class BodyTemperature extends StatefulWidget {
   final String id;
@@ -21,6 +26,8 @@ class BodyTemperature extends StatefulWidget {
 }
 
 class _BodyTemperatureState extends State<BodyTemperature> {
+  FilterController filterController = Get.put(FilterController());
+  DeleteController deleteController = Get.put(DeleteController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
   UnitController unitController = Get.put(UnitController());
   BodyTemperatureController bodyTemperatureController = Get.put(BodyTemperatureController());
@@ -54,16 +61,17 @@ class _BodyTemperatureState extends State<BodyTemperature> {
   }
 
   Future<void> loadBodyTemperatureData() async {
-    await Future.delayed(Duration(seconds: 5));
-    if (!mounted) return;
+    await Future.delayed(Duration(seconds: 3));
+    if (mounted) {
+      setState(() {
+        bloodSugarController.isLoading.value = false;
+      });
 
-    setState(() {
-      bloodSugarController.isLoading.value = false;
-    });
-    bloodSugarController.updateCatId(widget.id.toString());
-    bodyTemperatureController.updateCatId(widget.id.toString());
-    print("bodyTemperaturescreen catid"+widget.id.toString());
-    bloodSugarController.getCategoryList();
+      bloodSugarController.updateCatId(widget.id.toString());
+      bodyTemperatureController.updateCatId(widget.id.toString());
+      print("bodyTemperaturescreen catid" + widget.id.toString());
+      bloodSugarController.getCategoryList();
+    }
   }
 
   @override
@@ -74,144 +82,393 @@ class _BodyTemperatureState extends State<BodyTemperature> {
       appBar: AppBar(
         backgroundColor: ConstColour.appColor,
         elevation: 0.0,
-        title: Text(
-          "Body Temperature",
-          style: TextStyle(
-              color: ConstColour.textColor,
-              fontFamily: ConstFont.regular,
-              fontWeight: FontWeight.w800,
-              overflow: TextOverflow.ellipsis
+        title: Obx(
+          () => Text(deleteController.flag.value == true
+              ? "${deleteController.selectedIndices.length} selected"
+              : "Body Temperature",
+            style: TextStyle(
+                color: ConstColour.textColor,
+                fontFamily: ConstFont.regular,
+                fontWeight: FontWeight.w800,
+                overflow: TextOverflow.ellipsis
+            ),
           ),
         ),
         leading: IconButton(
           onPressed: () {
-            Get.to(() => HomeScreen());
+            Get.back();
+            // Get.to(() => HomeScreen());
           },
           icon: Icon(Icons.arrow_back),
           color: ConstColour.textColor,
         ),
+        actions: [
+          IconButton(
+              onPressed: () {
+                Get.to(() => DiscriptionScreen(
+                  title: 'Body Temperature',
+                  description: 'Normal human body-temperature (normothermia, euthermia) is the typical temperture range found in humans.  \n\n\nHuman body temperature varies, it depends on gender,age,time of day,exertion level,health status (such as illness and menstruation), what part of the body the measuremen is taken at, state of consciousness(waking,sleeping,sedated),and emotions',
+                  detailedDescription: '• Hot : \n   - above 38°C(100.4°F) \n\n• Normal : \n   36.5-37.5°C (97.7-99.5°F) is typically reported range for normal body temperature. \n\n• Cold : \n   24-26°C (75.2-78.8°F) or less however, some patients have been known to survive with body temperature as low as 13.7°C (56.7°F).',
+                ));
+              },
+              icon: Image.asset("assets/Icons/information.png")),
+          Obx(() =>  IconButton(
+              onPressed: () {
+                if(deleteController.flag.value == true) {
+                  deleteController.flag.value = false;
+                  deleteController.deleteDialog("Are you sure, you want to delete this Body Temperature Record?");
+                } else {
+                  filterController.showDialogBox();
+                }
+              },
+              icon: deleteController.flag.value == true
+                  ? Icon(Icons.delete,
+                  color: ConstColour.textColor
+              )
+                  : Image.asset(
+                "assets/Icons/filter.png",
+                width: deviceWidth * 0.07,
+                height: deviceHeight * 0.03,)
+          ),
+          )
+        ],
       ),
       backgroundColor: ConstColour.bgColor,
-      body: Obx(() {
-        if(bloodSugarController.isLoading.value) {
-          return Center(
-            child: CircularProgressIndicator(
-              color: ConstColour.buttonColor,
-            ),
-          );
-        } else {
-          return RefreshIndicator(
-            color: ConstColour.buttonColor,
-            onRefresh: () async {
-              await bloodSugarController.getCategoryList();
-            },
-            child: SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              controller: ScrollController(),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: ConstColour.appColor
-                      ),
-                      child: bloodSugarController.bloodSugarLists.isEmpty
-                          ? Center(
-                        child: CircularProgressIndicator(
-                          color: ConstColour.buttonColor,
+      body: Obx(() => RefreshIndicator(
+        color: ConstColour.buttonColor,
+        onRefresh: () async {
+          await bloodSugarController.getCategoryList();
+        },
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          controller: ScrollController(),
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Column(
+              children: [
+                bloodSugarController.bloodSugarLists.isEmpty
+                ? ((bloodSugarController.isLoading.value == true))
+                    ? Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "No Record Found",
+                        style: TextStyle(
+                            fontSize: 30,
+                            color: ConstColour.textColor,
+                            fontFamily: ConstFont.regular
                         ),
                       )
-                          : ListView.builder(
-                        reverse: true,
-                        controller: ScrollController(),
-                        shrinkWrap: true,
-                        itemCount: bloodSugarController.bloodSugarLists.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            onTap: () {
-                              bodyTemperatureController.temperatureId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
-                              // bloodSugarController.getEditBloodSugarList(widget.id.toString());
-                              Get.to(() => UpdateBodyTemperatureScreen(
-                                catId: bloodSugarController.bloodSugarLists[index].id.toString(),
-                              ));
-                            },
-                            leading: Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Image.asset(
-                                    "assets/Icons/line.png",
-                                  ),
-                                  Image.asset(
-                                    "assets/Icons/circle.png",
-                                    height: deviceHeight * 0.02,
-                                  ),
-                                ]
+                    ],
+                  ),
+                )
+                    : Loaders(
+                  items: 10,
+                  direction: LoaderDirection.ltr,
+                  builder: Padding(
+                    padding: EdgeInsets.only(
+                        right: deviceWidth * 0.01),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(6)),
+                            title: Container(
+                                width: deviceWidth * 0.2,
+                                height: deviceHeight * 0.005,
+                                color: Colors.grey),
+                            tileColor: Colors.grey.shade100,
+                            leading: Icon(
+                              Icons.image,
+                              size: 50,
+                              color: Colors.white,
                             ),
-                            title: Row(
-                              children: [
-                                Text(
-                                  bloodSugarController.bloodSugarLists[index].dateTime,
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: ConstColour.greyTextColor,
-                                      fontFamily: ConstFont.regular
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: deviceWidth * 0.03),
-                                  child: Text(
-                                    bloodSugarController.bloodSugarLists[index].time.toString(),
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: ConstColour.greyTextColor,
-                                        fontFamily: ConstFont.regular
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            trailing: RichText(
-                              text: TextSpan(
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    // text: bloodSugarController.bloodSugarLists[index].bodyTemperature.toString(),
-                                    //       text: '${unitController.bodyIndex.value == 4 ?
-                                    // bloodSugarController.bloodSugarLists[index].bodyTemperature :
-                                    // (bloodSugarController.bloodSugarLists[index].bodyTemperature * 9 / 5) + 32}',
-                                    text: convertBodyTemperature(
-                                      bloodSugarController.bloodSugarLists[index].bodyTemperature,
-                                      bodyTemperatureController.newValue.value,
-                                      // unitController.getGlucoseLevelPreference()
-                                    ),
-                                    style: TextStyle(
-                                        fontSize: 28,
-                                        color: ConstColour.textColor,
-                                        fontFamily: ConstFont.bold
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    // text: " ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}",
-                                    text: " ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}",
-                                    style: TextStyle(
-                                        fontSize: 12,
-                                        color: ConstColour.greyTextColor,
-                                        fontFamily: ConstFont.regular
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
+                          ),
+                        )
+                      ],
                     ),
-                  ],
+                  ),
+                )
+                    : ListView.builder(
+                  controller: ScrollController(),
+                  shrinkWrap: true,
+                  itemCount:bloodSugarController.bloodSugarLists.length ,
+                  itemBuilder: (BuildContext context, int index) {
+                    String prvIndexDate = "";
+                    String currentIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                    if(index > 0) {
+                      prvIndexDate = bloodSugarController.bloodSugarLists[(index - 1)].dateTime.substring(3);
+                    } else {
+                      prvIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                    }
+                    List<CategoryList> monthRecords = [];
+                    String monthYear = "";
+                    if(currentIndexDate != prvIndexDate) {
+                      monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                      monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                    } else {
+                      if(index == 0) {
+                        monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                        monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                      }
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        monthYear.isNotEmpty
+                            ? Padding(
+                          padding: EdgeInsets.only(
+                              top: deviceHeight * 0.01,
+                              bottom: deviceHeight * 0.01),
+                          child: Text(
+                            bloodSugarController.formatDate(monthYear),
+                            style: TextStyle(
+                                fontSize: 25,
+                                color: ConstColour.buttonColor,
+                                fontFamily: ConstFont.bold),
+                          ),
+                        ): SizedBox(),
+                        ListView.builder(
+                          reverse: false,
+                          controller: ScrollController(),
+                          shrinkWrap: true,
+                          itemCount: monthRecords.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              color: deleteController.selectedIndices.contains(index) ? ConstColour.buttonColor.withOpacity(0.5) : ConstColour.appColor,
+                              child: ListTile(
+                                onTap: () {
+                                  bodyTemperatureController.temperatureId.value = monthRecords[index].id.toInt();
+                                  // bloodSugarController.getEditBloodSugarList(widget.id.toString());
+                                  Get.to(() => UpdateBodyTemperatureScreen(
+                                    catId: monthRecords[index].id.toString(),
+                                  ));
+                                },
+                                onLongPress: () {
+                                  setState(() {
+                                    if (deleteController.selectedIndices.contains(index)) {
+                                      deleteController.selectedIndices.remove(index);
+                                      print("if");
+                                    } else {
+                                      deleteController.flag.value = true;
+                                      deleteController.selectedIndices.add(index);
+                                      print("else");
+                                    }
+                                  });
+                                },
+                                leading: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Image.asset(
+                                        "assets/Icons/line.png",
+                                      ),
+                                      Container(
+                                        width: deviceWidth * 0.07,
+                                        height: deviceHeight * 0.02,
+                                        decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            image: DecorationImage(
+                                              image: AssetImage(
+                                                "assets/Icons/circle.png",
+                                              ),)
+                                        ),
+                                      ),
+                                    ]
+                                ),
+                                title: Row(
+                                  children: [
+                                    Text(
+                                      monthRecords[index].dateTime,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: ConstColour.greyTextColor,
+                                          fontFamily: ConstFont.regular
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: deviceWidth * 0.03),
+                                      child: Text(
+                                        monthRecords[index].time.toString(),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: ConstColour.greyTextColor,
+                                            fontFamily: ConstFont.regular
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                trailing: RichText(
+                                  text: TextSpan(
+                                    children: <TextSpan>[
+                                      TextSpan(
+                                        // text: bloodSugarController.bloodSugarLists[index].bodyTemperature.toString(),
+                                        //       text: '${unitController.bodyIndex.value == 4 ?
+                                        // bloodSugarController.bloodSugarLists[index].bodyTemperature :
+                                        // (bloodSugarController.bloodSugarLists[index].bodyTemperature * 9 / 5) + 32}',
+                                        text: convertBodyTemperature(
+                                          monthRecords[index].bodyTemperature,
+                                          bodyTemperatureController.newValue.value,
+                                          // unitController.getGlucoseLevelPreference()
+                                        ),
+                                        style: TextStyle(
+                                            fontSize: 28,
+                                            color: ConstColour.textColor,
+                                            fontFamily: ConstFont.bold
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        // text: " ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}",
+                                        text: " ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}",
+                                        style: TextStyle(
+                                            fontSize: 12,
+                                            color: ConstColour.greyTextColor,
+                                            fontFamily: ConstFont.regular
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ),
+              ],
             ),
-          );
-        }},
+          ),
+        ),
+      )
+      // {
+      //   if(bloodSugarController.isLoading.value) {
+      //     return Center(
+      //       child: CircularProgressIndicator(
+      //         color: ConstColour.buttonColor,
+      //       ),
+      //     );
+      //   } else {
+      //     return RefreshIndicator(
+      //       color: ConstColour.buttonColor,
+      //       onRefresh: () async {
+      //         await bloodSugarController.getCategoryList();
+      //       },
+      //       child: SingleChildScrollView(
+      //         scrollDirection: Axis.vertical,
+      //         controller: ScrollController(),
+      //         child: Padding(
+      //           padding: const EdgeInsets.all(8.0),
+      //           child: Column(
+      //             children: [
+      //               Container(
+      //                 decoration: BoxDecoration(
+      //                     color: ConstColour.appColor
+      //                 ),
+      //                 child: bloodSugarController.bloodSugarLists.isEmpty
+      //                     ? Align(
+      //                   alignment: Alignment.center,
+      //                   child: Center(
+      //                     child: CircularProgressIndicator(
+      //                       color: ConstColour.buttonColor,
+      //                     ),
+      //                   ),
+      //                 )
+      //                     : ListView.builder(
+      //                   reverse: true,
+      //                   controller: ScrollController(),
+      //                   shrinkWrap: true,
+      //                   itemCount: bloodSugarController.bloodSugarLists.length,
+      //                   itemBuilder: (context, index) {
+      //                     return ListTile(
+      //                       onTap: () {
+      //                         bodyTemperatureController.temperatureId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
+      //                         // bloodSugarController.getEditBloodSugarList(widget.id.toString());
+      //                         Get.to(() => UpdateBodyTemperatureScreen(
+      //                           catId: bloodSugarController.bloodSugarLists[index].id.toString(),
+      //                         ));
+      //                       },
+      //                       leading: Stack(
+      //                           alignment: Alignment.center,
+      //                           children: [
+      //                             Image.asset(
+      //                               "assets/Icons/line.png",
+      //                             ),
+      //                             Image.asset(
+      //                               "assets/Icons/circle.png",
+      //                               height: deviceHeight * 0.02,
+      //                             ),
+      //                           ]
+      //                       ),
+      //                       title: Row(
+      //                         children: [
+      //                           Text(
+      //                             bloodSugarController.bloodSugarLists[index].dateTime,
+      //                             style: TextStyle(
+      //                                 fontSize: 16,
+      //                                 color: ConstColour.greyTextColor,
+      //                                 fontFamily: ConstFont.regular
+      //                             ),
+      //                           ),
+      //                           Padding(
+      //                             padding: EdgeInsets.only(left: deviceWidth * 0.03),
+      //                             child: Text(
+      //                               bloodSugarController.bloodSugarLists[index].time.toString(),
+      //                               style: TextStyle(
+      //                                   fontSize: 16,
+      //                                   color: ConstColour.greyTextColor,
+      //                                   fontFamily: ConstFont.regular
+      //                               ),
+      //                             ),
+      //                           ),
+      //                         ],
+      //                       ),
+      //                       trailing: RichText(
+      //                         text: TextSpan(
+      //                           children: <TextSpan>[
+      //                             TextSpan(
+      //                               // text: bloodSugarController.bloodSugarLists[index].bodyTemperature.toString(),
+      //                               //       text: '${unitController.bodyIndex.value == 4 ?
+      //                               // bloodSugarController.bloodSugarLists[index].bodyTemperature :
+      //                               // (bloodSugarController.bloodSugarLists[index].bodyTemperature * 9 / 5) + 32}',
+      //                               text: convertBodyTemperature(
+      //                                 bloodSugarController.bloodSugarLists[index].bodyTemperature,
+      //                                 bodyTemperatureController.newValue.value,
+      //                                 // unitController.getGlucoseLevelPreference()
+      //                               ),
+      //                               style: TextStyle(
+      //                                   fontSize: 28,
+      //                                   color: ConstColour.textColor,
+      //                                   fontFamily: ConstFont.bold
+      //                               ),
+      //                             ),
+      //                             TextSpan(
+      //                               // text: " ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}",
+      //                               text: " ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}",
+      //                               style: TextStyle(
+      //                                   fontSize: 12,
+      //                                   color: ConstColour.greyTextColor,
+      //                                   fontFamily: ConstFont.regular
+      //                               ),
+      //                             ),
+      //                           ],
+      //                         ),
+      //                       ),
+      //                     );
+      //                   },
+      //                 ),
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ),
+      //     );
+      //   }},
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -226,7 +483,15 @@ class _BodyTemperatureState extends State<BodyTemperature> {
 
   Future<void> navigateToAddPage() async {
     dateTimeController.selectedDate.value =  DateTime.now();
-    dateTimeController.formattedTime.value = dateTimeController.formatTimeOfDay(TimeOfDay.now());
+    TimeOfDay currentTime = TimeOfDay.now();
+    dateTimeController.selectedTime.value = currentTime;
+    String formattedHour = currentTime.hourOfPeriod.toString();
+    String formattedMinute = currentTime.minute.toString().padLeft(2, '0');
+    String period = currentTime.period == DayPeriod.am ? 'AM' : 'PM';
+    String formattedTime = '$formattedHour:$formattedMinute $period';
+    dateTimeController.formattedTime.value = formattedTime;
+
+    // dateTimeController.formattedTime.value = dateTimeController.formatTimeOfDay(TimeOfDay.now());
     bodyTemperatureController.temperatureController.text = "";
     bodyTemperatureController.temperatureCommentController.text = "";
     Get.to(() => BodyTemperatureScreen());
@@ -239,10 +504,10 @@ class _BodyTemperatureState extends State<BodyTemperature> {
       double convertedValue = (9 / 5 * value) + 32; // Celsius to Fahrenheit
       print(convertedValue.toString() + "value");
       // double convertedValue = (value - 32) * 5 / 9; // Fahrenheit to Celsius
-      return convertedValue.toStringAsFixed(1);
+      return convertedValue.toStringAsFixed(2);
     } else {
       print(value.toString()+"else call");
-      return value.toStringAsFixed(1);
+      return value.toStringAsFixed(2);
     }
   }
 

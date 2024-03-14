@@ -210,9 +210,10 @@ class _UpdateBodyTemperatureScreenState extends State<UpdateBodyTemperatureScree
                                     keyboardType: TextInputType.number,
                                     decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: bodyTemperatureController.temperatureController.text.isEmpty
-                                          ? "0"
-                                          : bodyTemperatureController.temperatureController.text.toString(),
+                                      hintText: "0",
+                                      // bodyTemperatureController.temperatureController.text.isEmpty
+                                      //     ? "0"
+                                      //     : bodyTemperatureController.temperatureController.text.toString(),
                                       hintStyle: TextStyle(
                                           fontSize: 20,
                                           color: ConstColour.greyTextColor,
@@ -226,7 +227,7 @@ class _UpdateBodyTemperatureScreenState extends State<UpdateBodyTemperatureScree
                                       left: deviceWidth * 0.03
                                   ),
                                   child: Text(
-                                    ' ${unitController.bodyIndex.value == 4 ? '℃' : 'ºf'}',
+                                    ' ${bodyTemperatureController.newValue.value == true ? '℃' : 'ºf'}',
                                     style: TextStyle(
                                         fontSize: 16,
                                         color: ConstColour.greyTextColor,
@@ -291,22 +292,65 @@ class _UpdateBodyTemperatureScreenState extends State<UpdateBodyTemperatureScree
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: deviceHeight * 0.01),
-              child: NextButton(
-                onPressed: () {
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                  bodyTemperatureController.UpdatebodyTemperatureList(
-                    bodyTemperatureController.temperatureId.value,
-                      date.toString(),
-                      bodyTemperatureController.temperatureController.text,
-                      bodyTemperatureController.temperatureCommentController.text,
-                      time.toString());
-                    // bloodSugarController.BloodSugarList();
+              padding: EdgeInsets.only(
+                  top: deviceHeight * 0.01,
+                  left: deviceWidth * 0.02,
+                  right: deviceWidth * 0.02
+              ),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                    var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+                    await bodyTemperatureController.UpdatebodyTemperatureList(
+                        bodyTemperatureController.temperatureId.value,
+                        date.toString(),
+                        bodyTemperatureController.temperatureController.text,
+                        bodyTemperatureController.temperatureCommentController.text,
+                        time.toString());
+                  } catch(e) {
+                    debugPrint(" Error: $e");
+                  }
+                  // bloodSugarController.BloodSugarList();
                   // Get.to(() => BodyTemperature());
                 },
-                btnName: "Save",
-              ),
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+              )
+              // NextButton(
+              //   onPressed: () {
+              //     var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+              //     var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+              //     bodyTemperatureController.UpdatebodyTemperatureList(
+              //       bodyTemperatureController.temperatureId.value,
+              //         date.toString(),
+              //         bodyTemperatureController.temperatureController.text,
+              //         bodyTemperatureController.temperatureCommentController.text,
+              //         time.toString());
+              //       // bloodSugarController.BloodSugarList();
+              //     // Get.to(() => BodyTemperature());
+              //   },
+              //   btnName: "Save",
+              // ),
             )
           ],
         )),

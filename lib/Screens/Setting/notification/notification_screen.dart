@@ -335,7 +335,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                                     child: NextButton(
                                       onPressed: () {
-                                        Navigator.pop(context);
+                                        Get.back();
+                                        // Navigator.pop(context);
                                       },
                                       btnName: "Save",
                                     ),
@@ -352,7 +353,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                             backgroundColor: ConstColour.appColor
                                         ),
                                         onPressed: () {
-                                          Navigator.pop(context);
+                                          Get.back();
+                                          // Navigator.pop(context);
                                         },
                                         child: Text(
                                             "Cancel",

@@ -25,19 +25,20 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
   DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
   DateFormat formatter = DateFormat('h:mm a');
 
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
     setState(() {
       bloodSugarController.measuredTypeList();
       dateTimeController.selectedDate.toString();
       dateTimeController.selectedTime.toString();
       bloodSugarController.getUpdateBloodSugarList(widget.catId);
     });
-  }
 
+
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,8 +75,11 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
           ),
         ),
         backgroundColor: ConstColour.bgColor,
-        body: Obx(() => bloodSugarController.updatebloodSugarList.isEmpty
-            ? Center(child: CircularProgressIndicator(color: ConstColour.buttonColor,))
+        body: Obx(() => bloodSugarController.updateBloodSugarList.isEmpty
+            ? Center(
+            child: CircularProgressIndicator(
+              color: ConstColour.buttonColor,
+            ))
             : Column(
           children: [
             Padding(
@@ -221,7 +225,9 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
                                       //     child: Text(bloodSugarController.updatebloodSugarList[0].bloodGlucose.toString(),)),
                                      //  labelText: bloodSugarController.bloodGlucoseController.value.text.isEmpty ? "0" : bloodSugarController.bloodGlucoseController.text.toString(),
                                       border: InputBorder.none,
-                                      hintText: bloodSugarController.bloodGlucoseController.text.isEmpty ? "0" : bloodSugarController.bloodGlucoseController.text.toString(),
+                                      hintText: bloodSugarController.bloodGlucoseController.value.text.isEmpty
+                                          ? "0"
+                                          :  bloodSugarController.bloodGlucoseController.value.text.toString(),
                                       hintStyle: TextStyle(
                                           fontSize: 20,
                                           color: ConstColour.greyTextColor,
@@ -330,28 +336,77 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: deviceHeight * 0.01),
-              child: NextButton(
-                onPressed: () {
-                  var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-                  var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                  bloodSugarController.UpdateList(
-                      bloodSugarController.sugarId.value,
-                      date.toString(),
-                      bloodSugarController.bloodGlucoseController.text,
-                      bloodSugarController.commentController.text,
-                      time.toString()
-                  );
-                  // bloodSugarController.BloodSugarList(
-                  //     date.toString(),
-                  //     bloodSugarController.bloodGlucoseController.text,
-                  //     bloodSugarController.measuredType.value,
-                  //     time.toString()
-                  // );
-                  //  Get.back();
-                },
-                btnName: "Save",
+              padding: EdgeInsets.only(
+                  top: deviceHeight * 0.01,
+                  left: deviceWidth * 0.02,
+                  right: deviceWidth * 0.02
               ),
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                      backgroundColor: ConstColour.buttonColor
+                  ),
+                  onPressed: () async {
+
+                    try {
+                      // bloodSugarController.isLoading.value = true;
+                      var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+                      var time = dateTimeController.formattedTime.value.isEmpty
+                          ? formatter.format(current_Datetime)
+                          : dateTimeController.formattedTime.value;
+                      await bloodSugarController.UpdateList(
+                          bloodSugarController.sugarId.value,
+                          date.toString(),
+                          bloodSugarController.bloodGlucoseController.text,
+                          bloodSugarController.commentController.text,
+                          time.toString()
+                      );
+                    } catch (error) {
+                      debugPrint(" Error: $error");
+                    }
+                    // finally {
+                    //   bloodSugarController.isLoading.value = false;
+                    // }
+                  },
+                  child: bloodSugarController.isLoading.value
+                      ? Center(
+                    child: CircularProgressIndicator(
+                      color: ConstColour.appColor,
+                    ),
+                  )
+                      : Text(
+                    "Save",
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  )
+              )
+              // NextButton(
+              //   onPressed: () {
+              //     var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+              //     var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+              //     bloodSugarController.UpdateList(
+              //         bloodSugarController.sugarId.value,
+              //         date.toString(),
+              //         bloodSugarController.bloodGlucoseController.text,
+              //         bloodSugarController.commentController.text,
+              //         time.toString()
+              //     );
+              //     // bloodSugarController.BloodSugarList(
+              //     //     date.toString(),
+              //     //     bloodSugarController.bloodGlucoseController.text,
+              //     //     bloodSugarController.measuredType.value,
+              //     //     time.toString()
+              //     // );
+              //     //  Get.back();
+              //   },
+              //   btnName: "Save",
+              // ),
             )
           ],
         ),

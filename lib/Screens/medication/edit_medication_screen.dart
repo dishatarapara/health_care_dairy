@@ -428,20 +428,60 @@ class _UpdateMedicationScreenState extends State<UpdateMedicationScreen> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(top: deviceHeight * 0.01),
-                  child: NextButton(
-                    onPressed: () {
-                      // Get.to(() => Medication());
-                      medicationController.UpdateMedicationList(
-                          medicationController.medicationId.value,
-                          medicationController.medicationNameController.text,
-                          medicationController.dosageController.text,
-                          medicationController.timeController.text,
-                          medicationController.noteController.text
-                      );
-                    },
-                    btnName: "Save",
+                  padding: EdgeInsets.only(
+                      top: deviceHeight * 0.01,
+                      left: deviceWidth * 0.02,
+                      right: deviceWidth * 0.02
                   ),
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(50)),
+                          minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                          backgroundColor: ConstColour.buttonColor
+                      ),
+                      onPressed: () async {
+                        try {
+                          medicationController.UpdateMedicationList(
+                              medicationController.medicationId.value,
+                              medicationController.medicationNameController.text,
+                              medicationController.dosageController.text,
+                              medicationController.timeController.text,
+                              medicationController.noteController.text
+                          );
+                        } catch (e) {
+                          debugPrint(" Error: $e");
+                        }
+                      },
+                      child: bloodSugarController.isLoading.value
+                          ? Center(
+                        child: CircularProgressIndicator(
+                          color: ConstColour.appColor,
+                        ),
+                      )
+                          : Text(
+                        "Save",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      )
+                  )
+                  // NextButton(
+                  //   onPressed: () {
+                  //     // Get.to(() => Medication());
+                  //     medicationController.UpdateMedicationList(
+                  //         medicationController.medicationId.value,
+                  //         medicationController.medicationNameController.text,
+                  //         medicationController.dosageController.text,
+                  //         medicationController.timeController.text,
+                  //         medicationController.noteController.text
+                  //     );
+                  //   },
+                  //   btnName: "Save",
+                  // ),
                 )
               ],
             )),

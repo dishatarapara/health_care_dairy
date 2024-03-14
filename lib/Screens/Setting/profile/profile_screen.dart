@@ -1,58 +1,60 @@
-
-
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:health_care_dairy/Screens/Setting/setting_screen.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:health_care_dairy/Controller/profile_controller.dart';
 
-import '../../../Common/snackbar.dart';
+
 import '../../../ConstFile/constColors.dart';
 import '../../../ConstFile/constFonts.dart';
-import '../../../Controller/image_controller.dart';
-import '../../../Controller/register_controller.dart';
 
-class Profilescreen extends StatefulWidget {
-  const Profilescreen({super.key});
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
 
   @override
-  State<Profilescreen> createState() => _ProfilescreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfilescreenState extends State<Profilescreen> {
-  ImagePickerController imagePickerController = Get.put(ImagePickerController());
-  RegisterController registerController = Get.put(RegisterController());
+class _ProfileScreenState extends State<ProfileScreen> {
+  ProfileController profileController = Get.put(ProfileController());
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   registerController.firstNameController.clear();
-  //   registerController.emailController.clear();
+  @override
+  void initState() {
+    super.initState();
+    profileController.loadImage();
+  }
+
+  // String? _imagepath;
+  //
+  // void getImageGallery() async {
+  //   final picker = ImagePicker();
+  //   final image = await picker.pickImage(source: ImageSource.gallery);
+  //
+  //   if (image != null) {
+  //     setState(() {
+  //       _imagepath = image.path;
+  //     });
+  //   }
   // }
-
-  // String? name;
-  // String? email;
-
-  String? userProfile;
-
-  void getImageGallery() async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      imagePickerController.imagePath.value = image.path.toString();
-    }
-  }
-
-  void getImageCamera() async {
-    final picker = ImagePicker();
-    final image = await picker.pickImage(source: ImageSource.camera);
-    if (image != null) {
-      imagePickerController.imagePath.value = image.path.toString();
-    }
-  }
-
+  //
+  // void getImageCamera() async {
+  //   final picker = ImagePicker();
+  //   final image = await picker.pickImage(source: ImageSource.camera);
+  //
+  //   if (image != null) {
+  //     setState(() {
+  //       _imagepath = image.path;
+  //     });
+  //   }
+  // }
+  // void removePicture() async {
+  //   ConstPreferences().clearPreferences();
+  //   // SharedPreferences preferences = await SharedPreferences.getInstance();
+  //   // preferences.remove("imagepath");
+  //   setState(() {
+  //     _imagepath = null;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -72,222 +74,236 @@ class _ProfilescreenState extends State<Profilescreen> {
                 overflow: TextOverflow.ellipsis
             ),
           ),
+          centerTitle: true,
           leading: IconButton(
             onPressed: () {
-              Get.to(() => SettingScreen());
+              Get.back();
+              // Get.to(() => SettingScreen());
             },
             icon: Icon(Icons.arrow_back),
             color: ConstColour.textColor,
           ),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: deviceHeight * 0.05),
-                  child: Center(
-                      child: Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 50,
-                              backgroundImage:
-                              AssetImage('assets/images/profile.png'),
-                              child:
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    top: deviceHeight * 0.08,
-                                    left: deviceWidth * 0.15),
-                                child: InkWell(
-                                  onTap: () {
-                                    showDialog<void>(
-                                      context: context,
-                                      builder: (BuildContext dialogContext) {
-                                        return AlertDialog(
-                                          content: SizedBox(
-                                            // height: deviceHeight * 0.17,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
-                                              children: [
-                                                Card(
-                                                  child: ListTile(
-                                                    title:
-                                                    const Text("Camera"),
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      getImageCamera();
-                                                    },
-                                                    leading: const Icon(
-                                                      Icons.camera_alt,
-                                                      color: Colors.black,
+        body: Obx(() => SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: deviceWidth * 0.03,
+              vertical: deviceHeight * 0.01
+            ),
+            child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: deviceHeight * 0.05),
+                    child: Center(
+                        child: Stack(
+                            children: [
+                              CircleAvatar(
+                                radius: 50,
+                                backgroundImage: profileController.imagePath.value.isNotEmpty
+                                    ? Image.file(
+                                    File(profileController.imagePath.value),
+                                  fit: BoxFit.cover,
+                                ).image
+                                    : AssetImage(
+                                    "assets/Images/profile_setting_image.png"
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      top: deviceHeight * 0.08,
+                                      left: deviceWidth * 0.15),
+                                  child: CircleAvatar(
+                                    radius: 100,
+                                    backgroundColor: ConstColour.appColor,
+                                    child: InkWell(
+                                      onTap: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext dialogContext) {
+                                            return AlertDialog(
+                                              content: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Card(
+                                                    child: ListTile(
+                                                      title: Text("Camera"),
+                                                      onTap: () {
+                                                        Get.back();
+                                                        profileController.getImageCamera();
+                                                      },
+                                                      leading: Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.black,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                                Card(
-                                                  child: ListTile(
-                                                    title:
-                                                    const Text("Gallery"),
-                                                    onTap: () {
-                                                      Navigator.pop(context);
-                                                      getImageGallery();
-                                                    },
-                                                    leading: const Icon(
-                                                      Icons
-                                                          .photo_library_rounded,
-                                                      color: Colors.black,
+                                                  Card(
+                                                    child: ListTile(
+                                                      title: Text("Gallery"),
+                                                      onTap: () {
+                                                        Get.back();
+                                                        profileController.getImageGallery();
+                                                      },
+                                                      leading: Icon(
+                                                        Icons.photo_library_rounded,
+                                                        color: Colors.black,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
+                                                  Card(
+                                                    child: ListTile(
+                                                      title: Text("Remove profile"),
+                                                      onTap: () {
+                                                        Get.back();
+                                                        profileController.removePicture();
+                                                      },
+                                                      leading: Icon(
+                                                        Icons.remove,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            );
+                                          },
                                         );
                                       },
-                                    );
-                                  },
-                                  child: Icon(
-                                    Icons.add_a_photo,
-                                    color: Colors.black,
+                                      child: Icon(
+                                        Icons.add_a_photo,
+                                        size: 20,
+                                        color: Colors.black,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ), // Add a default image
-                          ])
+                            ]
+                        )
+                    ),
                   ),
-                ),
-
-
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: deviceHeight * 0.07, right: deviceWidth * 0.75),
-                  child: Text(
-                      'Username',
+                  // Padding(
+                  //   padding: EdgeInsets.only(
+                  //       top: deviceHeight * 0.07,
+                  //       right: deviceWidth * 0.75),
+                  //   child: Text(
+                  //       'User Name',
+                  //       style: TextStyle(
+                  //         fontSize: 17,
+                  //         fontFamily: ConstFont.bold,
+                  //         color: ConstColour.textColor,),
+                  //       overflow: TextOverflow.ellipsis),
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.only(top: deviceHeight * 0.05),
+                    child: TextFormField(
+                      cursorColor: ConstColour.textColor,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      keyboardType: TextInputType.text,
+                      autocorrect: true,
+                      style: TextStyle(fontSize: 18, color: ConstColour.textColor),
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Name",
+                        hintStyle: TextStyle(fontSize: 18, color: ConstColour.textColor),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: ConstColour.textColor),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(color: ConstColour.textColor),
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please Enter User Name';
+                        }
+                        return null;
+                      },
+                    ),
+                  ),
+                  // Padding(
+                  //   padding: EdgeInsets.only(
+                  //       top: deviceHeight * 0.02, right: deviceWidth * 0.80),
+                  //   child: Text(
+                  //       'Email',
+                  //       style: TextStyle(
+                  //         fontSize: 17,
+                  //         fontFamily: ConstFont.bold,
+                  //         color: ConstColour.textColor,),
+                  //       overflow: TextOverflow.ellipsis),
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.only(top: deviceHeight * 0.02),
+                    child: TextFormField(
+                      keyboardType: TextInputType.emailAddress,
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      cursorColor: ConstColour.textColor,
+                      autocorrect: true,
                       style: TextStyle(
-                        fontSize: 17,
-                        fontFamily: ConstFont.bold,
-                        color: ConstColour.textColor,),
-                      overflow: TextOverflow.ellipsis),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: deviceHeight * 0.02,
-                      left: deviceWidth * 0.03,
-                      right: deviceWidth * 0.03),
-                  child: TextFormField(
-                    // cursorColor: ConstColour.textColor,
-                    // autovalidateMode: AutovalidateMode.onUserInteraction,
-                    // keyboardType: TextInputType.text,
-                    // autocorrect: true,
-                    // controller: registerController.firstNameController,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: "Username",
-                      hintStyle: TextStyle(
                           fontSize: 18,
                           color: ConstColour.textColor
                       ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
+                      decoration: InputDecoration(
+                        isDense: true,
+                        hintText: "Email Id",
+                        hintStyle: TextStyle(
+                            fontSize: 18,
                             color: ConstColour.textColor
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(
-                            color: ConstColour.textColor
-                        ),),
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Please Enter FirstName';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      top: deviceHeight * 0.02, right: deviceWidth * 0.80),
-                  child: Text(
-                      'Email',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontFamily: ConstFont.bold,
-                        color: ConstColour.textColor,),
-                      overflow: TextOverflow.ellipsis),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: deviceHeight * 0.02,
-                      left: deviceWidth * 0.03,
-                      right: deviceWidth * 0.03),
-                  child: TextFormField(
-                    // keyboardType: TextInputType.emailAddress,
-                    // autovalidateMode: AutovalidateMode.onUserInteraction,
-                    // controller: registerController.emailController,
-                    // cursorColor: ConstColour.textColor,
-                    // autocorrect: true,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: "Email Id",
-                      hintStyle: TextStyle(
-                          fontSize: 18,
-                          color: ConstColour.textColor
-                      ),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15)
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                            color: ConstColour.textColor
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15),
-                        borderSide: BorderSide(
-                            color: ConstColour.textColor
-                        ),),
-                    ),
-                    validator: (value) {
-                      if (value!.isEmpty ||
-                          !RegExp(
-                              r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-                              .hasMatch(value)) {
-                        return 'Please Enter Email Address';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-                Padding(
-                    padding: EdgeInsets.only(top: deviceHeight * 0.05,
-                        left: deviceWidth * 0.03,
-                        right: deviceWidth * 0.03),
-                    child: ElevatedButton(
-                        child: Text(
-                          "Save",
-                          style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: ConstColour.textColor
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(50)),
-                            minimumSize:
-                            Size(deviceWidth * 1.0, deviceHeight * 0.06),
-                            backgroundColor: ConstColour.buttonColor),
-                        onPressed: () async {})
-                )
-              ]),
-        )
-
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                              color: ConstColour.textColor
+                          ),),
+                      ),
+                      // validator: (value) {
+                      //   if (value!.isEmpty ||
+                      //       !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                      //           .hasMatch(value)) {
+                      //     return 'Please Enter Email Address';
+                      //   }
+                      //   return null;
+                      // },
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: deviceHeight * 0.05),
+                      child: ElevatedButton(
+                          child: Text(
+                            "Save",
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Colors.white,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(50)),
+                              minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                              backgroundColor: ConstColour.buttonColor
+                          ),
+                          onPressed: () {
+                            profileController.saveImage(profileController.imagePath.value);
+                            Get.back();
+                          })
+                  )
+                ]
+            ),
+          ),
+        ),)
     );
   }
 }
-

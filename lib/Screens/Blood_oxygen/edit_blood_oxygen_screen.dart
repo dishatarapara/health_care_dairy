@@ -285,22 +285,68 @@ class _UpdateBloodOxygenScreenState extends State<UpdateBloodOxygenScreen> {
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(top: deviceHeight * 0.01),
-              child: NextButton(
-                onPressed: () {
+              padding: EdgeInsets.only(
+                  top: deviceHeight * 0.01,
+                  left: deviceWidth * 0.02,
+                  right: deviceWidth * 0.02
+              ),
+              child:ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(50)),
+                      minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                      backgroundColor: ConstColour.buttonColor
+                  ),
+                  onPressed: () async {
+                    try{
                       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
                       var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-                      bloodOxygenController.UpdateOxygenList(
-                        bloodOxygenController.oxygenId.value,
-                      date.toString(),
-                      bloodOxygenController.oxygenController.text,
-                      bloodOxygenController.oxygenCommentController.text,
-                      time.toString());
+                      await bloodOxygenController.UpdateOxygenList(
+                          bloodOxygenController.oxygenId.value,
+                          date.toString(),
+                          bloodOxygenController.oxygenController.text,
+                          bloodOxygenController.oxygenCommentController.text,
+                          time.toString());
+                    } catch(error) {
+                      debugPrint(" Error: $error");
+                    }
+
                     // bloodSugarController.BloodSugarList();
-                  // Get.to(() => BloodOxygen());
-                },
-                btnName: "Save",
-              ),
+                    // Get.to(() => BloodOxygen());
+                  },
+                  child: bloodSugarController.isLoading.value
+                      ? Center(
+                    child: CircularProgressIndicator(
+                      color: ConstColour.appColor,
+                    ),
+                  )
+                      : Text(
+                    "Save",
+                    style: TextStyle(
+                        fontSize: 20,
+                        color: bloodSugarController.isLoading.value
+                            ? Colors.transparent
+                            : ConstColour.bgColor
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  )
+              )
+              // NextButton(
+              //   onPressed: () {
+              //         var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+              //         var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
+              //         bloodOxygenController.UpdateOxygenList(
+              //           bloodOxygenController.oxygenId.value,
+              //         date.toString(),
+              //         bloodOxygenController.oxygenController.text,
+              //         bloodOxygenController.oxygenCommentController.text,
+              //         time.toString());
+              //       // bloodSugarController.BloodSugarList();
+              //     // Get.to(() => BloodOxygen());
+              //   },
+              //   btnName: "Save",
+              // ),
             )
           ],
         )),

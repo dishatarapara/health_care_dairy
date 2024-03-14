@@ -35,124 +35,156 @@ class BodyTemperatureController extends GetxController {
 
 
   Future<void> BodyTemperatureList(String date, String temperature, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try {
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-    var body = jsonEncode({
-      "Id" : 0,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : date.toString(),
-      "BloodGlucose" : 0.0,
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : 0,
-      "DiastolicPressure" : 0,
-      "PulseRate" : 0,
-      "Hand" : "",
-      "BodyTemperature" : temperature.toString(),
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : "",
-      "SelectDataTypeId" : 0,
-      "Dosage" : 0,
-      "TimesAndDay" : 0,
-      "Color" : "",
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
+      // var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
+      var body = jsonEncode({
+        "Id" : 0,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : date.toString(),
+        "BloodGlucose" : 0.0,
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : 0,
+        "DiastolicPressure" : 0,
+        "PulseRate" : 0,
+        "Hand" : "",
+        "BodyTemperature" : temperature.toString(),
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : "",
+        "SelectDataTypeId" : 0,
+        "Dosage" : 0,
+        "TimesAndDay" : 0,
+        "Color" : "",
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
 
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
 
-    var data = response.body;
-    debugPrint(data.toString());
+      var data = response.body;
+      debugPrint(data.toString());
 
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
 
-      if (messageCode == 1) {
-        debugPrint("BloodTemperatureList Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+        if (messageCode == 1) {
+          debugPrint("BloodTemperatureList Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("BloodTemperatureList Error");
+        }
       } else {
-        debugPrint("BloodTemperatureList Error");
+        debugPrint("API Error: ${response.statusCode}");
       }
-    } else {}
+    } catch(e) {
+      debugPrint("API Error: $e");
+    } finally {
+      bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> UpdatebodyTemperatureList(int id, String date, String temperature, String comment, String time) async {
-    int? userId = await ConstPreferences().getUserId('UserId');
-    debugPrint("User_Id  $userId");
+    try{
+      bloodSugarController.isLoading.value = true;
+      int? userId = await ConstPreferences().getUserId('UserId');
+      debugPrint("User_Id  $userId");
 
-    int? categoryId =int.tryParse(catId.value);
-    debugPrint("Category_Id " + catId.value);
+      int? categoryId =int.tryParse(catId.value);
+      debugPrint("Category_Id " + catId.value);
 
-    var body = jsonEncode({
-      "Id" : id,
-      "UserId" : userId,
-      "Cat_Id" : categoryId,
-      "DateTime" : date.toString(),
-      "BloodGlucose" : 0.0,
-      "MeasuredTypeId" : 0,
-      "SystolicPressure" : 0,
-      "DiastolicPressure" : 0,
-      "PulseRate" : 0,
-      "Hand" : "",
-      "BodyTemperature" : temperature.toString(),
-      "BloodOxygenSaturation" : 0,
-      "MeasurementTypeId" : 0,
-      "AverageSugarConcentration" : "",
-      "Weight" : "",
-      "MedicationName" : "",
-      "SelectDataTypeId" : 0,
-      "Dosage" : 0,
-      "TimesAndDay" : 0,
-      "Color" : "",
-      "Comments" : comment.toString(),
-      "Unit": null,
-      "Time": time.toString()
-    });
-
-    var headers = {
-      'Content-Type': 'application/json',
-    };
-    var response = await http.post(Uri.parse(ConstApi.categoryDetail),
-      headers: headers,
-      body: body,
-    );
-
-    var data = response.body;
-    debugPrint(data.toString());
-
-    if (response.statusCode == 200) {
-      final responseData = insertCategoryDetailFromJson(response.body);
-      debugPrint(responseData.toString());
-      messageCode = responseData.messageCode;
-      debugPrint(messageCode.toString());
-
-      if (messageCode == 1) {
-        debugPrint("Update Successfully");
-        bloodSugarController.getCategoryList();
-        Get.back();
+      String temp;
+      String tempValue;
+      var isFahrenheit = await ConstPreferences().getBodyTemperature();
+      if (isFahrenheit == true) { // Fahrenheit to Celsius
+        temp = '℃';
+        tempValue = temperature.toString();
       } else {
-        debugPrint("Update Error");
+        temp = "ºf";
+        // (9 / 5 * value) + 32
+        // (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9
+        double celsius = ((double.parse(temperature)) - 32) * 5 / 9;
+        tempValue = celsius.toStringAsFixed(2);
       }
-    } else {}
+
+      var body = jsonEncode({
+        "Id" : id,
+        "UserId" : userId,
+        "Cat_Id" : categoryId,
+        "DateTime" : date.toString(),
+        "BloodGlucose" : 0.0,
+        "MeasuredTypeId" : 0,
+        "SystolicPressure" : 0,
+        "DiastolicPressure" : 0,
+        "PulseRate" : 0,
+        "Hand" : "",
+        "BodyTemperature" : tempValue.toString(),
+        "BloodOxygenSaturation" : 0,
+        "MeasurementTypeId" : 0,
+        "AverageSugarConcentration" : "",
+        "Weight" : "",
+        "MedicationName" : "",
+        "SelectDataTypeId" : 0,
+        "Dosage" : 0,
+        "TimesAndDay" : 0,
+        "Color" : "",
+        "Comments" : comment.toString(),
+        "Unit": null,
+        "Time": time.toString()
+      });
+
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+      var response = await http.post(Uri.parse(ConstApi.categoryDetail),
+        headers: headers,
+        body: body,
+      );
+
+      var data = response.body;
+      debugPrint(data.toString());
+
+      if (response.statusCode == 200) {
+        final responseData = insertCategoryDetailFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
+
+        if (messageCode == 1) {
+          debugPrint("Update Successfully");
+          bloodSugarController.getCategoryList();
+          Get.back();
+        } else {
+          debugPrint("Update Error");
+        }
+      } else {
+        debugPrint("API Error: ${response.statusCode}");
+      }
+    } catch(e) {
+      debugPrint("API Error: $e");
+    } finally {
+     bloodSugarController.isLoading.value = false;
+    }
   }
 
   Future<void> getUpdateBodyTemperatureList(String id) async {
@@ -172,8 +204,32 @@ class BodyTemperatureController extends GetxController {
         var dateFormate = DateFormat('dd/MM/yyyy');
         var dateTime = dateFormate.parse(updateBodyTemperatureList[0].dateTime.toString());
         dateTimeController.selectedDate.value = dateTime;
+        dateTimeController.selectedTime.value = dateTimeController.stringToTime(updateBodyTemperatureList[0].time.toString());
         dateTimeController.formattedTime.value = updateBodyTemperatureList[0].time.toString();
-        temperatureController.text = updateBodyTemperatureList[0].bodyTemperature.toString();
+
+        // var isFahrenheit = await ConstPreferences().getBodyTemperature();
+        // if (isFahrenheit == true) { // Fahrenheit to Celsius
+        //   temperatureController.text = (updateBodyTemperatureList[0].bodyTemperature).toStringAsFixed(2);
+        // } else {
+        //   double celsius = (9 / 5 * updateBodyTemperatureList[0].bodyTemperature) + 32;
+        //   temperatureController.text = celsius.toStringAsFixed(2);
+        // }
+
+        String temp;
+        String tempValue;
+        var isFahrenheit = await ConstPreferences().getBodyTemperature();
+        if (isFahrenheit == true) { // Fahrenheit to Celsius
+          temp = '℃';
+          tempValue = updateBodyTemperatureList[0].bodyTemperature.toString();
+        } else {
+          temp = "ºf";
+          // (9 / 5 * value) + 32
+          // (double.parse(bodyTemperatureController.temperatureController.text) - 32) * 5 / 9
+          double celsius = (9 / 5 * updateBodyTemperatureList[0].bodyTemperature) + 32;
+          tempValue = celsius.toStringAsFixed(2);
+        }
+        temperatureController.text = tempValue;
+        // temperatureController.text = updateBodyTemperatureList[0].bodyTemperature.toString();
         temperatureCommentController.text = updateBodyTemperatureList[0].comments.toString();
         debugPrint("EditCategoryDetail Successfully");
       } else {

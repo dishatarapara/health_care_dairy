@@ -17,6 +17,7 @@ class ConstColour {
 
   // Icon color
   static const Color settingIconColor = Color(0xffE3E3EB);
+  static const Color settingColor = Color(0xff7A789D);
 
   // text color
   static const Color textColor = Colors.black;

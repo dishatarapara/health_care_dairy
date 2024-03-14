@@ -10,4 +10,6 @@ class ConstApi {
   static String measuredTypeDetail = '${baseUrl}Get_Measured_Type';
   static String measurementType = '${baseUrl}Get_Measurement_Type';
   static String selectDataType = '${baseUrl}Get_Select_Data_Type';
+  static String deleteList = '${baseUrl}CategoryDetails_Deletes';
 }
+

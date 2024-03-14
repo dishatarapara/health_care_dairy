@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_material_color_picker/flutter_material_color_picker.dart';
 import 'package:get/get.dart';
+import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
 import 'package:health_care_dairy/Controller/medication_controller.dart';
 
 import '../../Common/bottom_button.dart';
@@ -17,6 +18,7 @@ class MedicationScreen extends StatefulWidget {
 }
 
 class _MedicationScreenState extends State<MedicationScreen> {
+  BloodSugarController bloodSugarController = Get.put(BloodSugarController());
   MedicationController medicationController = Get.put(MedicationController());
 
   @override
@@ -76,7 +78,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                         Text(
                           'Medication Name',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -127,7 +129,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                           Text(
                             'Units',
                             style: TextStyle(
-                                fontSize: 15,
+                                fontSize: 18,
                                 fontFamily: ConstFont.bold
                             ),
                           ),
@@ -162,7 +164,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                         Text(
                           'Dosage',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -214,7 +216,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                         Text(
                           'Times a day',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -327,7 +329,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                             Text(
                               'Color',
                               style: TextStyle(
-                                  fontSize: 15,
+                                  fontSize: 18,
                                   fontFamily: ConstFont.bold
                               ),
                             ),
@@ -368,7 +370,7 @@ class _MedicationScreenState extends State<MedicationScreen> {
                         Text(
                           'Note',
                           style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 18,
                               fontFamily: ConstFont.bold
                           ),
                         ),
@@ -408,26 +410,72 @@ class _MedicationScreenState extends State<MedicationScreen> {
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(top: deviceHeight * 0.01),
-            child: NextButton(
-              onPressed: () {
-                if (medicationController.medicationNameController.text.isEmpty) {
-                  Utils().snackBar('Medication Name', "Please Enter Medication Name");
-                }else if (medicationController.dosageController.text.isEmpty) {
-                  Utils().snackBar('Dosages', "Please Enter Dosages");
-                }else {
-                  medicationController.MedicationList(
-                    medicationController.medicationNameController.text,
-                    medicationController.dosageController.text,
-                    medicationController.timeController.text,
-                    medicationController.noteController.text
-                  );
-                }
-                // Get.to(() => Medication());
-                // bloodSugarController.BloodSugarList();
-              },
-              btnName: "Save",
+            padding: EdgeInsets.only(
+                top: deviceHeight * 0.01,
+                left: deviceWidth * 0.02,
+                right: deviceWidth * 0.02
             ),
+            child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(50)),
+                    minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                    backgroundColor: ConstColour.buttonColor
+                ),
+                onPressed: () async {
+                  try {
+                    if (medicationController.medicationNameController.text.isEmpty) {
+                      Utils().snackBar('Medication Name', "Please Enter Medication Name");
+                      return;
+                    }else if (medicationController.dosageController.text.isEmpty) {
+                      Utils().snackBar('Dosages', "Please Enter Dosages");
+                      return;
+                    }
+                    await medicationController.MedicationList(
+                          medicationController.medicationNameController.text,
+                          medicationController.dosageController.text,
+                          medicationController.timeController.text,
+                          medicationController.noteController.text
+                      );
+                  } catch(e) {
+                    debugPrint("Error: $e");
+                  }
+                },
+                child: bloodSugarController.isLoading.value
+                    ? Center(
+                  child: CircularProgressIndicator(
+                    color: ConstColour.appColor,
+                  ),
+                )
+                    : Text(
+                  "Save",
+                  style: TextStyle(
+                      fontSize: 20,
+                      color: bloodSugarController.isLoading.value ? Colors.transparent : ConstColour.bgColor
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                )
+            ),
+            // NextButton(
+            //   onPressed: () {
+            //     if (medicationController.medicationNameController.text.isEmpty) {
+            //       Utils().snackBar('Medication Name', "Please Enter Medication Name");
+            //     }else if (medicationController.dosageController.text.isEmpty) {
+            //       Utils().snackBar('Dosages', "Please Enter Dosages");
+            //     }else {
+            //       medicationController.MedicationList(
+            //         medicationController.medicationNameController.text,
+            //         medicationController.dosageController.text,
+            //         medicationController.timeController.text,
+            //         medicationController.noteController.text
+            //       );
+            //     }
+            //     // Get.to(() => Medication());
+            //     // bloodSugarController.BloodSugarList();
+            //   },
+            //   btnName: "Save",
+            // ),
           )
         ],
       )),
