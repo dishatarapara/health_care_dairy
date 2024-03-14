@@ -14,7 +14,9 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin{
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
   var id;
   var isflag;
 
@@ -23,28 +25,58 @@ class _SplashScreenState extends State<SplashScreen> {
     // TODO: implement initState
     super.initState();
    // var flag = ConstPreferences().isIntroScreenFlag('IntroScreenFlag');
-    IntroScreenFlag();
+   //  IntroScreenFlag();
+    _controller = AnimationController(
+        vsync: this,
+        duration: Duration(seconds: 3),
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.5, // initial scale
+      end: 1.0,   // final scale
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
 
+    _controller.forward();
+
+    _loadNextScreen();
   }
-  Future<void> IntroScreenFlag() async{
+
+  Future<void> _loadNextScreen() async {
     id = await ConstPreferences().getUserId('UserId');
     isflag = await ConstPreferences().isIntroScreenFlag('IntroScreenFlag');
-    if(isflag == true){
-      Future.delayed(Duration(seconds: 3),
-              () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => id == null ? LoginScreen() : HomeScreen(),))
+    Future.delayed(Duration(seconds: 3), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => isflag == true
+              ? (id == null ? LoginScreen() : HomeScreen())
+              : SplashSecondScreen(),
+        ),
       );
-    }else{
-      Future.delayed(Duration(seconds: 3),
-              () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => SplashSecondScreen(),))
-      );
-    }
+    });
   }
+
+  // Future<void> IntroScreenFlag() async{
+  //   id = await ConstPreferences().getUserId('UserId');
+  //   isflag = await ConstPreferences().isIntroScreenFlag('IntroScreenFlag');
+  //   if(isflag == true){
+  //     Future.delayed(Duration(seconds: 3),
+  //             () => Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder: (context) => id == null ? LoginScreen() : HomeScreen(),))
+  //     );
+  //   }else{
+  //     Future.delayed(Duration(seconds: 3),
+  //             () => Navigator.push(
+  //             context,
+  //             MaterialPageRoute(
+  //               builder: (context) => SplashSecondScreen(),))
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +89,21 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              height: deviceHeight * 0.4,
-              child: Image.asset(
-                "assets/Images/health_image.png",
-                fit: BoxFit.cover,
+            // Container(
+            //   height: deviceHeight * 0.4,
+            //   child: Image.asset(
+            //     "assets/Images/health_image.png",
+            //     fit: BoxFit.cover,
+            //   ),
+            // ),
+            ScaleTransition(
+              scale: _scaleAnimation,
+              child: Container(
+                height: deviceHeight * 0.4,
+                child: Image.asset(
+                  "assets/Images/health_image.png",
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             Padding(
@@ -81,4 +123,9 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }

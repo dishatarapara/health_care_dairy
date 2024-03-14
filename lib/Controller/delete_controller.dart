@@ -20,6 +20,29 @@ class DeleteController extends GetxController {
 
   final selectedIndices = Set<int>().obs;
 
+  // int? messageCode;
+  // Future<void> deleteApi() async {
+  //   final response = await http.post(Uri.parse(ConstApi.deleteList),
+  //       body: {
+  //         "Ids": "958"
+  //       });
+  //   var data = response.body;
+  //   debugPrint(data.toString());
+  //
+  //   if (response.statusCode == 200) {
+  //     final responseData = deleteFromJson(response.body);
+  //     debugPrint(responseData.toString());
+  //     messageCode = responseData.messageCode;
+  //     debugPrint(messageCode.toString());
+  //
+  //     if (messageCode == 1) {
+  //       selectedIndices.clear();
+  //       debugPrint("Deleted Successfully");
+  //       // Get.back();
+  //     } else {}
+  //   } else {}
+  // }
+
   void deleteSelected() {
     List<CategoryList> tempList = [];
 
