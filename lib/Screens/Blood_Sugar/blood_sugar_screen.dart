@@ -30,7 +30,6 @@ class _BloodSugarState extends State<BloodSugar> {
   DeleteController deleteController = Get.put(DeleteController());
   UnitController unitController = Get.put(UnitController());
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
-  FilterController filterController = Get.put(FilterController());
   DateTimeController dateTimeController = Get.put(DateTimeController());
 
   @override

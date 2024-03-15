@@ -10,7 +10,6 @@ import '../Common/snackbar.dart';
 import '../ConstFile/constApi.dart';
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
-import '../model/delete_model.dart';
 
 class DeleteController extends GetxController {
 
