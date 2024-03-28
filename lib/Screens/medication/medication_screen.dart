@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/medication_controller.dart';
 import 'package:health_care_dairy/Screens/medication/edit_medication_screen.dart';
@@ -8,9 +9,9 @@ import '../../ConstFile/constFonts.dart';
 import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/delete_controller.dart';
 import '../../Controller/filter_controller.dart';
-import '../discription_screen.dart';
+import '../home/discription_screen.dart';
 import '../home_screen.dart';
-import '../loader.dart';
+import '../../Common/loader.dart';
 import 'medication_second_screen.dart';
 
 class Medication extends StatefulWidget {
@@ -22,7 +23,7 @@ class Medication extends StatefulWidget {
 }
 
 class _MedicationState extends State<Medication> {
-  FilterController filterController = Get.put(FilterController());
+  // FilterController filterController = Get.put(FilterController());
   DeleteController deleteController = Get.put(DeleteController());
   MedicationController medicationController = Get.put(MedicationController());
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
@@ -38,6 +39,9 @@ class _MedicationState extends State<Medication> {
     // setState(() {
     //   bloodSugarController.getCategoryList();
     // });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      bloodSugarController.filterLists.clear();
+    });
 
     loadMedicitionData();
   }
@@ -52,8 +56,9 @@ class _MedicationState extends State<Medication> {
 
       bloodSugarController.updateCatId(widget.id.toString());
       medicationController.updateCatId(widget.id.toString());
-      print("OxygenScreen catid" + widget.id.toString());
-      bloodSugarController.getCategoryList();
+      print("medicationScreen catid" + widget.id.toString());
+      // bloodSugarController.getCategoryList();
+      medicationController.getCategoryList();
     }
   }
 
@@ -86,32 +91,38 @@ class _MedicationState extends State<Medication> {
           color: ConstColour.textColor,
         ),
         actions: [
-          IconButton(
-              onPressed: () {
-                Get.to(() =>  DiscriptionScreen(
-                  title: 'Medication',
-                  description: 'A dosage form that contains one or more active and/or inactive ingredients. ',
-                  detailedDescription:'• A substance (other than food) intended to affect the structure or any function of the body.\n\n• A substance recognized by an official pharmacopeia or formulary. \n\n • A substance intended for use in the diagnosis, cure, mitigation, treatment, or prevention of disease.',
-                ));
-              },
-              icon: Image.asset("assets/Icons/information.png")),
+          // IconButton(
+          //     onPressed: () {
+          //       Get.to(() =>  DiscriptionScreen(
+          //         title: 'Medication',
+          //         description: 'A dosage form that contains one or more active and/or inactive ingredients. ',
+          //         detailedDescription:'• A substance (other than food) intended to affect the structure or any function of the body.\n\n• A substance recognized by an official pharmacopeia or formulary. \n\n • A substance intended for use in the diagnosis, cure, mitigation, treatment, or prevention of disease.',
+          //       ));
+          //     },
+          //     icon: Image.asset("assets/Icons/information.png")),
           Obx(() =>  IconButton(
               onPressed: () {
                 if(deleteController.flag.value == true) {
                   deleteController.flag.value = false;
                   deleteController.deleteDialog("Are you sure, you want to delete this Medication Record?");
                 } else {
-                  filterController.showDialogBox();
+                  Get.to(() =>  DiscriptionScreen(
+                    title: 'Medication',
+                    description: 'A dosage form that contains one or more active and/or inactive ingredients. ',
+                    detailedDescription:'• A substance (other than food) intended to affect the structure or any function of the body.\n\n• A substance recognized by an official pharmacopeia or formulary. \n\n • A substance intended for use in the diagnosis, cure, mitigation, treatment, or prevention of disease.',
+                  ));
+                  // filterController.showDialogBox();
                 }
               },
               icon: deleteController.flag.value == true
                   ? Icon(Icons.delete,
                   color: ConstColour.textColor
               )
-                  : Image.asset(
-                "assets/Icons/filter.png",
-                width: deviceWidth * 0.07,
-                height: deviceHeight * 0.03,)
+                  : Image.asset("assets/Icons/information.png")
+              // Image.asset(
+              //   "assets/Icons/filter.png",
+              //   width: deviceWidth * 0.07,
+              //   height: deviceHeight * 0.028,)
           ),
           )
         ],
@@ -120,7 +131,7 @@ class _MedicationState extends State<Medication> {
       body: Obx(() => RefreshIndicator(
         color: ConstColour.buttonColor,
         onRefresh: () async {
-          await bloodSugarController.getCategoryList();
+          await medicationController.getCategoryList();
         },
         child: SingleChildScrollView(
           scrollDirection: Axis.vertical,
@@ -129,20 +140,29 @@ class _MedicationState extends State<Medication> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                bloodSugarController.bloodSugarLists.isEmpty
+                medicationController.bloodSugarLists.isEmpty
                     ? ((bloodSugarController.isLoading.value == true))
-                    ? Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "No Record Found",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: ConstColour.textColor,
-                            fontFamily: ConstFont.regular
+                    ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.3),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                            "assets/Icons/no_data_medication.png",
+                            height: deviceHeight * 0.1
                         ),
-                      )
-                    ],
+                        Text(
+                          "No Record Found",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ConstColour.greyTextColor,
+                              fontFamily: ConstFont.regular
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
                   ),
                 )
                     : Loaders(
@@ -180,11 +200,11 @@ class _MedicationState extends State<Medication> {
                   reverse: true,
                   controller: ScrollController(),
                   shrinkWrap: true,
-                  itemCount: bloodSugarController.bloodSugarLists.length,
+                  itemCount: medicationController.bloodSugarLists.length,
                   itemBuilder: (context, index) {
-                    String colorString =  bloodSugarController.bloodSugarLists[index].color.toString() == null
+                    String colorString =  medicationController.bloodSugarLists[index].color.toString() == null
                         ? '0xFF000000'
-                        : bloodSugarController.bloodSugarLists[index].color.toString();
+                        : medicationController.bloodSugarLists[index].color.toString();
                     RegExp regex = RegExp(r"0x[\da-f]+"); // Regular expression to match hexadecimal color values
                     String? hexColor = regex.stringMatch(colorString); // Extract the hexadecimal color value
 
@@ -193,91 +213,118 @@ class _MedicationState extends State<Medication> {
                       // Parse the hexadecimal color value into an integer
                       color = Color(int.parse(hexColor));
                     } else {}
-                    return Container(
-                      color: deleteController.selectedIndices.contains(index) ? ConstColour.buttonColor.withOpacity(0.5) : ConstColour.appColor,
-                      child: ListTile(
-                        onTap: () {
-                          medicationController.medicationId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
-                          Get.to(() => UpdateMedicationScreen(
-                            catId: bloodSugarController.bloodSugarLists[index].id.toString(),
-                          ));
-                        },
-                        onLongPress: () {
-                          setState(() {
-                            if (deleteController.selectedIndices.contains(index)) {
-                              deleteController.selectedIndices.remove(index);
-                              print("if");
-                            } else {
-                              deleteController.flag.value = true;
-                              deleteController.selectedIndices.add(index);
-                              print("else");
+                    return GestureDetector(
+                      onLongPress: () {
+                        setState(() {
+                          if(deleteController.selectedIndices.isEmpty){
+                            deleteController.flag.value = false;
+                          }
+                          if (deleteController.selectedIndices.contains(index)) {
+                            deleteController.selectedIndices.remove(index);
+                            deleteController.deleteRecordList.remove(medicationController.bloodSugarLists[index].id.toString());
+                            print("if");
+                          } else {
+                            deleteController.flag.value = true;
+                            deleteController.selectedIndices.add(index);
+                            deleteController.deleteRecordList.add(medicationController.bloodSugarLists[index].id);
+                            print("else");
+                          }
+                        });
+                      },
+                      child: Container(
+                        color: deleteController.selectedIndices.contains(index)
+                            ? ConstColour.buttonColor.withOpacity(0.5)
+                            : ConstColour.appColor,
+                        child: ListTile(
+                          selected: deleteController.selectedIndices.contains(index),
+                          onTap: () {
+                            if(deleteController.selectedIndices.isEmpty){
+                              deleteController.flag.value = false;
                             }
-                          });
-                        },
-                        leading: Stack(
-                            alignment: Alignment.center,
+                            if( deleteController.flag.value == true){
+                              if (deleteController.selectedIndices.contains(index)) {
+                                deleteController.selectedIndices.remove(index);
+                                deleteController.deleteRecordList.remove(medicationController.bloodSugarLists[index].id.toString());
+                                print("if");
+                              } else {
+                                deleteController.flag.value = true;
+                                deleteController.selectedIndices.add(index);
+                                deleteController.deleteRecordList.add(medicationController.bloodSugarLists[index].id);
+                                print("else");
+                              }
+                              setState(() {});
+                            }else{
+                              medicationController.medicationId.value = medicationController.bloodSugarLists[index].id.toInt();
+                              Get.to(() => UpdateMedicationScreen(
+                                  catId: medicationController.bloodSugarLists[index].id.toString()
+                              ));
+                            }
+                          },
+                          leading: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Image.asset(
+                                  "assets/Icons/line.png",
+                                ),
+                                Container(
+                                  width: deviceWidth * 0.07,
+                                  height: deviceHeight * 0.02,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      image: DecorationImage(
+                                        image: AssetImage(
+                                          "assets/Icons/circle.png",
+                                        ),)
+                                  ),
+                                ),
+                              ]
+                          ),
+                          title: Row(
                             children: [
-                              Image.asset(
-                                "assets/Icons/line.png",
-                              ),
                               Container(
-                                width: deviceWidth * 0.07,
                                 height: deviceHeight * 0.02,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: DecorationImage(
-                                      image: AssetImage(
-                                        "assets/Icons/circle.png",
-                                      ),)
+                                child: Image.asset(
+                                  "assets/Icons/medication.png",
+                                  fit: BoxFit.cover,
+                                  color: color,
                                 ),
                               ),
-                            ]
-                        ),
-                        title: Row(
-                          children: [
-                            Container(
-                              height: deviceHeight * 0.02,
-                              child: Image.asset(
-                                "assets/Icons/medication.png",
-                                fit: BoxFit.cover,
-                                color: color,
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: deviceWidth * 0.05),
-                              child: Text(
-                                bloodSugarController.bloodSugarLists[index].medicationName,
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: ConstColour.textColor,
-                                    fontFamily: ConstFont.bold
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        trailing: RichText(
-                          text: TextSpan(
-                            children: <TextSpan>[
-                              TextSpan(
-                                text: bloodSugarController.bloodSugarLists[index].dosage.toString(),
-                                style: TextStyle(
-                                    fontSize: 28,
-                                    color: ConstColour.textColor,
-                                    fontFamily: ConstFont.bold
-                                ),
-                              ),
-                              TextSpan(
-                                text: bloodSugarController.bloodSugarLists[index].selectDataTypeName == null
-                                    ? "Unit"
-                                    : bloodSugarController.bloodSugarLists[index].selectDataTypeName,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: ConstColour.greyTextColor,
-                                    fontFamily: ConstFont.regular
+                              Padding(
+                                padding: EdgeInsets.only(left: deviceWidth * 0.05),
+                                child: Text(
+                                  medicationController.bloodSugarLists[index].medicationName,
+                                  style: TextStyle(
+                                      fontSize: 20,
+                                      color: ConstColour.textColor,
+                                      fontFamily: ConstFont.bold
+                                  ),
                                 ),
                               ),
                             ],
+                          ),
+                          trailing: RichText(
+                            text: TextSpan(
+                              children: <TextSpan>[
+                                TextSpan(
+                                  text: medicationController.bloodSugarLists[index].dosage.toString(),
+                                  style: TextStyle(
+                                      fontSize: 28,
+                                      color: ConstColour.textColor,
+                                      fontFamily: ConstFont.bold
+                                  ),
+                                ),
+                                TextSpan(
+                                  text: medicationController.bloodSugarLists[index].selectDataTypeName == null
+                                      ? "Unit"
+                                      : medicationController.bloodSugarLists[index].selectDataTypeName,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: ConstColour.greyTextColor,
+                                      fontFamily: ConstFont.regular
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -313,7 +360,7 @@ class _MedicationState extends State<Medication> {
       //                 decoration: BoxDecoration(
       //                     color: ConstColour.appColor
       //                 ),
-      //                 child: bloodSugarController.bloodSugarLists.isEmpty
+      //                 child: medicationController.bloodSugarLists.isEmpty
       //                     ? Center(
       //                   child: Text(
       //                     "No Record Found",
@@ -328,11 +375,11 @@ class _MedicationState extends State<Medication> {
       //                   reverse: true,
       //                   controller: ScrollController(),
       //                   shrinkWrap: true,
-      //                   itemCount: bloodSugarController.bloodSugarLists.length,
+      //                   itemCount: medicationController.bloodSugarLists.length,
       //                   itemBuilder: (context, index) {
-      //                     String colorString =  bloodSugarController.bloodSugarLists[index].color.toString() == null
+      //                     String colorString =  medicationController.bloodSugarLists[index].color.toString() == null
       //                         ? '0xFF000000'
-      //                         : bloodSugarController.bloodSugarLists[index].color.toString();
+      //                         : medicationController.bloodSugarLists[index].color.toString();
       //                     RegExp regex = RegExp(r"0x[\da-f]+"); // Regular expression to match hexadecimal color values
       //                     String? hexColor = regex.stringMatch(colorString); // Extract the hexadecimal color value
       //
@@ -343,9 +390,9 @@ class _MedicationState extends State<Medication> {
       //                     } else {}
       //                     return ListTile(
       //                       onTap: () {
-      //                         medicationController.medicationId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
+      //                         medicationController.medicationId.value = medicationController.bloodSugarLists[index].id.toInt();
       //                         Get.to(() => UpdateMedicationScreen(
-      //                           catId: bloodSugarController.bloodSugarLists[index].id.toString(),
+      //                           catId: medicationController.bloodSugarLists[index].id.toString(),
       //                         ));
       //                       },
       //                       leading: Stack(
@@ -373,7 +420,7 @@ class _MedicationState extends State<Medication> {
       //                           Padding(
       //                             padding: EdgeInsets.only(left: deviceWidth * 0.05),
       //                             child: Text(
-      //                               bloodSugarController.bloodSugarLists[index].medicationName,
+      //                               medicationController.bloodSugarLists[index].medicationName,
       //                               style: TextStyle(
       //                                   fontSize: 20,
       //                                   color: ConstColour.textColor,
@@ -387,7 +434,7 @@ class _MedicationState extends State<Medication> {
       //                         text: TextSpan(
       //                           children: <TextSpan>[
       //                             TextSpan(
-      //                               text: bloodSugarController.bloodSugarLists[index].dosage.toString(),
+      //                               text: medicationController.bloodSugarLists[index].dosage.toString(),
       //                               style: TextStyle(
       //                                   fontSize: 28,
       //                                   color: ConstColour.textColor,
@@ -395,9 +442,9 @@ class _MedicationState extends State<Medication> {
       //                               ),
       //                             ),
       //                             TextSpan(
-      //                               text: bloodSugarController.bloodSugarLists[index].selectDataTypeName == null
+      //                               text: medicationController.bloodSugarLists[index].selectDataTypeName == null
       //                                   ? "Unit"
-      //                                   : bloodSugarController.bloodSugarLists[index].selectDataTypeName,
+      //                                   : medicationController.bloodSugarLists[index].selectDataTypeName,
       //                               style: TextStyle(
       //                                   fontSize: 12,
       //                                   color: ConstColour.greyTextColor,

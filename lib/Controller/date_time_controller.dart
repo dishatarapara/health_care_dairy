@@ -14,6 +14,9 @@ class DateTimeController extends GetxController {
   final Rx<DateTime> selectedDate = DateTime.now().obs;
   final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
 
+  final Rx<DateTime> selectedFromDate = DateTime.now().obs;
+  final Rx<DateTime> selectedToDate = DateTime.now().obs;
+
   // Future<void> pickDate() async {
   //   DateTime? pickedDate = await showDatePicker(
   //     context: Get.context!,
@@ -44,9 +47,7 @@ class DateTimeController extends GetxController {
   //   }
   // }
 
-  var startdate = DateTime.now().add(Duration(hours: -TimeOfDay.now().hour, minutes: -TimeOfDay.now().minute)).millisecondsSinceEpoch.obs;
-
-
+  var startDate = DateTime.now().add(Duration(hours: -TimeOfDay.now().hour, minutes: -TimeOfDay.now().minute)).millisecondsSinceEpoch.obs;
 
   Future<void> pickDate() async {
     final DateTime? pickedDate = await showDatePicker(
@@ -73,13 +74,75 @@ class DateTimeController extends GetxController {
       },
     );
     if (pickedDate != null) {
-      startdate.value = pickedDate.millisecondsSinceEpoch;
+      startDate.value = pickedDate.millisecondsSinceEpoch;
         selectedDate.value = pickedDate;
     }
     debugPrint(DateFormat('dd/MM/yyyy').format(selectedDate.value));
   }
 
+  Future<void> selectFromDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      initialDate: selectedFromDate.value,
+      firstDate: DateTime(1950),
+      lastDate: DateTime(2100),
+      initialDatePickerMode: DatePickerMode.day,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: ' ',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: ConstColour.buttonColor,
+              // header background color
+              onPrimary: Colors.white,
+              // header text color
+              onSurface: Colors.black, // body text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      startDate.value = pickedDate.millisecondsSinceEpoch;
+      selectedFromDate.value = pickedDate;
+    }
+    debugPrint(DateFormat('dd/MM/yyyy').format(selectedFromDate.value));
+  }
 
+  Future<void> selectToDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: Get.context!,
+      // initialDate: selectedToDate.value,
+      initialDate: selectedToDate.value,
+      firstDate: selectedFromDate.value,
+      // firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDatePickerMode: DatePickerMode.day,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
+      helpText: ' ',
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: ConstColour.buttonColor,
+              // header background color
+              onPrimary: Colors.white,
+              // header text color
+              onSurface: Colors.black, // body text color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (pickedDate != null) {
+      startDate.value = pickedDate.millisecondsSinceEpoch;
+      selectedToDate.value = pickedDate;
+    }
+    debugPrint(DateFormat('dd/MM/yyyy').format(selectedToDate.value));
+  }
 
   // Future<void> pickTime() async {
   //   TimeOfDay? pickedTime = await showTimePicker(

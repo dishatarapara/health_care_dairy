@@ -18,6 +18,8 @@ class ConstColour {
   // Icon color
   static const Color settingIconColor = Color(0xffE3E3EB);
   static const Color settingColor = Color(0xff7A789D);
+  static const Color pdfIconColor = Color(0xffEF7332);
+  static const Color reportIconColor = Color(0xff32BAA2);
 
   // text color
   static const Color textColor = Colors.black;

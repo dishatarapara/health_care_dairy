@@ -438,6 +438,7 @@ class _UnitScreenState extends State<UnitScreen> {
                         left: deviceWidth * 0.06,
                       ),
                         child: RichText(
+
                           text: TextSpan(
                             children: <TextSpan>[
                               TextSpan(

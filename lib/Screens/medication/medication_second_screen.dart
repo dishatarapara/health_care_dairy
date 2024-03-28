@@ -520,23 +520,29 @@ class _MedicationScreenState extends State<MedicationScreen> {
               controller: ScrollController(),
               itemCount: medicationController.selectedDataList.length,
               itemBuilder: (context, index) {
-                return InkWell(
+                final bool isSelected = medicationController.unit.value == medicationController.selectedDataList[index].name;
+                return GestureDetector(
                   onTap: () {
                     medicationController.unit.value = medicationController.selectedDataList[index].name;
                     medicationController.selectedDataTypeId.value = medicationController.selectedDataList[index].id;
                     Navigator.pop(context);
                   },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: deviceWidth * 0.02,
-                        vertical: deviceHeight * 0.01
-                    ),
-                    child: Text(
-                      medicationController.selectedDataList[index].name,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: ConstFont.regular,
-                          color: ConstColour.textColor
+                  child: Container(
+                    color: isSelected
+                        ? ConstColour.buttonColor.withOpacity(0.5)
+                        : Colors.transparent,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: deviceWidth * 0.02,
+                          vertical: deviceHeight * 0.01
+                      ),
+                      child: Text(
+                        medicationController.selectedDataList[index].name,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: ConstFont.regular,
+                            color: ConstColour.textColor
+                        ),
                       ),
                     ),
                   ),

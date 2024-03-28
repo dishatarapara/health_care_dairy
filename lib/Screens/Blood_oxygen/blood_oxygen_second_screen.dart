@@ -315,24 +315,6 @@ class _BloodOxygenScreenState extends State<BloodOxygenScreen> {
                   textAlign: TextAlign.center,
                 )
             )
-            // NextButton(
-            //   onPressed: () {
-            //     if (bloodOxygenController.oxygenController.text.isEmpty) {
-            //       Utils().snackBar('Blood Oxygen Saturation', "Please Enter Blood Oxygen Saturation");
-            //     } else {
-            //       var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
-            //       var time = dateTimeController.formattedTime.value.isEmpty ? formatter.format(current_Datetime) : dateTimeController.formattedTime.value;
-            //       bloodOxygenController.BloodOxygenList(
-            //           date.toString(),
-            //           bloodOxygenController.oxygenController.text,
-            //           bloodOxygenController.oxygenCommentController.text,
-            //           time.toString());
-            //     }
-            //     // bloodSugarController.BloodSugarList();
-            //     // Get.to(() => BloodOxygen());
-            //   },
-            //   btnName: "Save",
-            // ),
           )
         ],
       )),

@@ -36,6 +36,8 @@ class MedicationController extends GetxController {
     debugPrint("hgkjgjhghjghj  $id");
   }
 
+  RxList<CategoryList> bloodSugarLists = <CategoryList>[].obs;
+
 
   // List<String> units = <String> [
   //   "Unit",
@@ -102,7 +104,7 @@ class MedicationController extends GetxController {
 
         if (messageCode == 1) {
           debugPrint("MedicationList Successfully");
-          bloodSugarController.getCategoryList();
+          getCategoryList();
           Get.back();
         } else {
           debugPrint("MedicationList Error");
@@ -115,6 +117,40 @@ class MedicationController extends GetxController {
     } finally {
       bloodSugarController.isLoading.value = false;
     }
+  }
+
+  Future<void> getCategoryList() async {
+    int? userId = await ConstPreferences().getUserId('UserId');
+    debugPrint("User_Id  $userId");
+
+    int? categoryId =int.tryParse(catId.value);
+    var body = jsonEncode({
+      "UserId" : userId,
+      "CategoryId" : categoryId
+    });
+    var headers = {
+      'Content-Type': 'application/json',
+    };
+    final response = await http.post(Uri.parse(ConstApi.getCategory),
+        headers: headers,
+        body: body);
+    var data = response.body;
+    debugPrint(data.toString());
+
+    if (response.statusCode == 200) {
+      final responseData = categoryFromJson(response.body);
+      debugPrint(responseData.toString());
+      messageCode = responseData.messageCode;
+      debugPrint(messageCode.toString());
+
+      if (messageCode == 1) {
+        bloodSugarLists.clear();
+        bloodSugarLists.addAll(responseData.data);
+        debugPrint("Medication Successfully");
+      } else {
+        debugPrint("categoryIdDetails Error");
+      }
+    } else {}
   }
 
   Future<void> UpdateMedicationList(int id, String medicationName, String dosage, String timesAndDay, String comment) async {
@@ -171,7 +207,7 @@ class MedicationController extends GetxController {
 
         if (messageCode == 1) {
           debugPrint("Update Successfully");
-          bloodSugarController.getCategoryList();
+          getCategoryList();
           Get.back();
         } else {
           debugPrint("Update Error");
@@ -202,6 +238,12 @@ class MedicationController extends GetxController {
         updateMedicationList.addAll(responseData.data);
         medicationNameController.text = updateMedicationList[0].medicationName.toString();
         unit.value = updateMedicationList[0].selectDataTypeName.toString();
+        for(int i=0; i<selectedDataList.length; i++) {
+          if(selectedDataList[i].name.toString() == updateMedicationList[0].selectDataTypeName.toString()) {
+            medicationId.value = selectedDataList[i].id.toInt();
+          }
+        }
+        // unit.value = updateMedicationList[0].selectDataTypeName.toString();
         dosageController.text = updateMedicationList[0].dosage.toString();
         timeController.text = updateMedicationList[0].timesAndDay.toString();
         String colorString = updateMedicationList[0].color.toString();

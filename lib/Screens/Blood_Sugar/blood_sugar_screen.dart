@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constColors.dart';
 import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
@@ -13,8 +14,8 @@ import 'package:health_care_dairy/Screens/Blood_Sugar/edit_blood_sugar_screen.da
 import 'package:health_care_dairy/model/get_category_model.dart';
 
 import '../../ConstFile/constFonts.dart';
-import '../discription_screen.dart';
-import '../loader.dart';
+import '../home/discription_screen.dart';
+import '../../Common/loader.dart';
 
 class BloodSugar extends StatefulWidget {
   final String id;
@@ -43,8 +44,13 @@ class _BloodSugarState extends State<BloodSugar> {
     // setState(() {
     //   bloodSugarController.updateCatId(widget.id.toString());
     //   bloodSugarController.categoryIdDetails();
-    // //  bloodSugarLists.addAll(bloodSugarController.bloodSugarLists.value);
+    // //  bloodSugarLists.addAll(bloodSugarController.filterLists.value);
     // });
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      bloodSugarController.filterLists.clear();
+    });
+
     loadBloodSugarData();
 
   }
@@ -62,7 +68,6 @@ class _BloodSugarState extends State<BloodSugar> {
       print("sugarscreen catid" + widget.id.toString());
       // weightController.setPref();
       bloodSugarController.getCategoryList();
-
     }
   }
 
@@ -129,7 +134,7 @@ class _BloodSugarState extends State<BloodSugar> {
                     : Image.asset(
                     "assets/Icons/filter.png",
                 width: deviceWidth * 0.07,
-                height: deviceHeight * 0.03,)
+                height: deviceHeight * 0.028,)
             ),
           )
         ],
@@ -148,28 +153,29 @@ class _BloodSugarState extends State<BloodSugar> {
             child: Column(
               // crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Text(
-                //   'May, 2024',
-                //   style: TextStyle(
-                //       fontSize: 25,
-                //       color: ConstColour.buttonColor,
-                //       fontFamily: ConstFont.bold
-                //   ),
-                // ),
-                bloodSugarController.bloodSugarLists.isEmpty
+                bloodSugarController.filterLists.isEmpty
                 ? (bloodSugarController.isLoading.value == true)
-                    ? Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "No Record Found",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: ConstColour.textColor,
-                            fontFamily: ConstFont.regular
+                    ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.3),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                            "assets/Icons/no_data_blood_sugar.png",
+                            height: deviceHeight * 0.1
                         ),
-                      )
-                    ],
+                        Text(
+                          "No Record Found",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ConstColour.greyTextColor,
+                              fontFamily: ConstFont.regular
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
                   ),
                 )
                     : Loaders(
@@ -208,164 +214,368 @@ class _BloodSugarState extends State<BloodSugar> {
                   ),
                 )
                     : ListView.builder(
+                  reverse: false,
                   controller: ScrollController(),
                   shrinkWrap: true,
-                  itemCount:bloodSugarController.bloodSugarLists.length,
-                  itemBuilder: (BuildContext context, int idx) {
+                  itemCount: bloodSugarController.filterLists.length,
+                  itemBuilder: (context, index) {
                     String prvIndexDate = "";
-                    String currentIndexDate = bloodSugarController.bloodSugarLists[idx].dateTime.substring(3);
-                   if(idx > 0) {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[(idx - 1)].dateTime.substring(3);
-                   } else {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[idx].dateTime.substring(3);
-                   }
-                    List<CategoryList> monthRecords = [];
+                    String currentIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
+                    if(index > 0) {
+                      prvIndexDate = bloodSugarController.filterLists[(index - 1)].dateTime.substring(3);
+                    } else {
+                      prvIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
+                    }
+                    //  List<CategoryList> monthRecords = [];
                     String monthYear = "";
-                   if(currentIndexDate != prvIndexDate) {
-                      monthYear = bloodSugarController.bloodSugarLists[idx].dateTime.substring(3);
-                     monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                   } else {
-                     if(idx == 0) {
-                       monthYear = bloodSugarController.bloodSugarLists[idx].dateTime.substring(3);
-                       monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                     }
-                   }
+                    bool isHeader = false;
+                    if(currentIndexDate != prvIndexDate || index == 0) {
+                      isHeader =true;
+                      monthYear = bloodSugarController.filterLists[index].dateTime.substring(3);
+                      // monthRecords = bloodSugarController.filterLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                      //  bloodSugarController.filterLists.addAll(bloodSugarController.filterLists.where((record) => record.dateTime.substring(3) == monthYear).toList());
+                    }
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        monthYear.isNotEmpty
+                        isHeader
                             ? Padding(
                           padding: EdgeInsets.only(
                               top: deviceHeight * 0.01,
                               bottom: deviceHeight * 0.01),
                           child: Text(
                             bloodSugarController.formatDate(monthYear),
-                          style: TextStyle(
-                              fontSize: 25,
-                              color: ConstColour.buttonColor,
-                              fontFamily: ConstFont.bold),
+                            style: TextStyle(
+                                fontSize: 25,
+                                color: ConstColour.buttonColor,
+                                fontFamily: ConstFont.bold
+                            ),
                           ),
                         )
                             : SizedBox(),
-                        ListView.builder(
-                          reverse: false,
-                          controller: ScrollController(),
-                          shrinkWrap: true,
-                          itemCount: monthRecords.length,
-                          itemBuilder: (context, index) {
-                            return GestureDetector(
-                              onLongPress: () {
-                                setState(() {
+                        GestureDetector(
+                          onLongPress: () {
+                            // deleteController.deleteApi(monthRecords[index].id.toString());
+                            // deleteController.deleteApi(
+                            // bloodSugarController.sugarId.value.toString(),);
+                            setState(() {
+                              if(deleteController.selectedIndices.isEmpty){
+                                deleteController.flag.value = false;
+                              }
+                              if (deleteController.selectedIndices.contains(index)) {
+                                deleteController.selectedIndices.remove(index);
+                                deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
+                                print("if");
+                              } else {
+                                deleteController.flag.value = true;
+                                deleteController.selectedIndices.add(index);
+                                deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
+                                print("else");
+                              }
+                            });
+                          },
+                          child: Container(
+                            color: deleteController.selectedIndices.contains(index)
+                                ? ConstColour.buttonColor.withOpacity(0.5)
+                                : ConstColour.appColor,
+                            child: ListTile(
+                              selected: deleteController.selectedIndices.contains(index),
+                              onTap: () {
+                                if(deleteController.selectedIndices.isEmpty){
+                                  deleteController.flag.value = false;
+                                }
+                                if( deleteController.flag.value == true){
                                   if (deleteController.selectedIndices.contains(index)) {
                                     deleteController.selectedIndices.remove(index);
+                                    deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
                                     print("if");
                                   } else {
                                     deleteController.flag.value = true;
                                     deleteController.selectedIndices.add(index);
+                                    deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
                                     print("else");
                                   }
-                                });
+                                   setState(() {});
+                                }else{
+                                  bloodSugarController.sugarId.value = bloodSugarController.filterLists[index].id.toInt();
+                                  Get.to(() => UpdateBloodSugarScreen(
+                                      catId: bloodSugarController.filterLists[index].id.toString()
+                                  ));
+                                }
                               },
-                              child: Container(
-                                color: deleteController.selectedIndices.contains(index)
-                                    ? ConstColour.buttonColor.withOpacity(0.5)
-                                    : ConstColour.appColor,
-                                child: ListTile(
-                                  selected: deleteController.selectedIndices.contains(index),
-                                  onTap: () {
-                                    bloodSugarController.sugarId.value = monthRecords[index].id.toInt();
-                                    // bloodSugarController.getEditBloodSugarList(widget.id.toString());
-                                    Get.to(() => UpdateBloodSugarScreen(
-                                        catId: monthRecords[index].id.toString()
-                                    ));
-                                  },
-                                  leading: Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Image.asset(
-                                          "assets/Icons/line.png",
-                                        ),
-                                        Container(
-                                          width: deviceWidth * 0.07,
-                                          height: deviceHeight * 0.02,
-                                          decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              image: DecorationImage(
-                                                image: AssetImage(
-                                                  "assets/Icons/circle.png",
-                                                ),)
-                                          ),
-                                        ),
-                                      ]
-                                  ),
-                                  title: Text(monthRecords[index].measuredTypeName == null
-                                      ? "Before Breakfast"
-                                      : monthRecords[index].measuredTypeName,
-                                    style: TextStyle(
-                                        fontSize: 20,
-                                        color: ConstColour.textColor,
-                                        fontFamily: ConstFont.regular
+                              leading: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Image.asset(
+                                      "assets/Icons/line.png",
                                     ),
-                                  ),
-                                  subtitle: Padding(
-                                    padding: EdgeInsets.only(top: deviceHeight * 0.01),
-                                    child: Row(
-                                      children: [
-                                        Text(monthRecords[index].dateTime,
-                                          style: TextStyle(
-                                              fontSize: 16,
-                                              color: ConstColour.greyTextColor,
-                                              fontFamily: ConstFont.regular
-                                          ),
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(left: deviceWidth * 0.02),
-                                          child: Text(monthRecords[index].time.toString(),
-                                            style: TextStyle(
-                                                fontSize: 16,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                    Container(
+                                      width: deviceWidth * 0.07,
+                                      height: deviceHeight * 0.02,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              "assets/Icons/circle.png",
+                                            ),)
+                                      ),
                                     ),
-                                  ),
-                                  trailing: RichText(
-                                    text: TextSpan(
-                                      children: <TextSpan>[
-                                        TextSpan(
-                                          // text: bloodSugarController.bloodSugarLists[index].bloodGlucose.toString(),
-                                          text: convertBloodSugarValue(
-                                            monthRecords[index].bloodGlucose,
-                                            unitController.getGlucoseLevelPreference(),
-                                          ),
-                                          style: TextStyle(
-                                              fontSize: 25,
-                                              color: ConstColour.textColor,
-                                              fontFamily: ConstFont.bold
-                                          ),
-                                        ),
-                                        TextSpan(
-                                          text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: ConstColour.greyTextColor,
-                                              fontFamily: ConstFont.regular
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  ]
+                              ),
+                              title: Text(bloodSugarController.filterLists[index].measuredTypeName == null
+                                  ? "Before Breakfast"
+                                  : bloodSugarController.filterLists[index].measuredTypeName,
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: ConstColour.textColor,
+                                    fontFamily: ConstFont.regular
                                 ),
                               ),
-                            );
-                          },
+                              subtitle: Padding(
+                                padding: EdgeInsets.only(top: deviceHeight * 0.01),
+                                child: Row(
+                                  children: [
+                                    Text(bloodSugarController.filterLists[index].dateTime,
+                                      style: TextStyle(
+                                          fontSize: 16,
+                                          color: ConstColour.greyTextColor,
+                                          fontFamily: ConstFont.regular
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: deviceWidth * 0.02),
+                                      child: Text(bloodSugarController.filterLists[index].time.toString(),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: ConstColour.greyTextColor,
+                                            fontFamily: ConstFont.regular
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              trailing: RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      // text: bloodSugarController.filterLists[index].bloodGlucose.toString(),
+                                      text: convertBloodSugarValue(
+                                        bloodSugarController.filterLists[index].bloodGlucose,
+                                        unitController.getGlucoseLevelPreference(),
+                                      ),
+                                      style: TextStyle(
+                                          fontSize: 25,
+                                          color: ConstColour.textColor,
+                                          fontFamily: ConstFont.bold
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: ConstColour.greyTextColor,
+                                          fontFamily: ConstFont.regular
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     );
                   },
                 ),
+                // ListView.builder(
+                //   controller: ScrollController(),
+                //   shrinkWrap: true,
+                //   itemCount: bloodSugarController.filterLists.length,
+                //   itemBuilder: (BuildContext context, int idx) {
+                //     String prvIndexDate = "";
+                //     String currentIndexDate = bloodSugarController.filterLists[idx].dateTime.substring(3);
+                //     if(idx > 0) {
+                //       prvIndexDate = bloodSugarController.filterLists[(idx - 1)].dateTime.substring(3);
+                //     } else {
+                //       prvIndexDate = bloodSugarController.filterLists[idx].dateTime.substring(3);
+                //     }
+                //     List<CategoryList> monthRecords = [];
+                //     String monthYear = "";
+                //     bool isheader = false;
+                //     if(currentIndexDate != prvIndexDate || idx == 0) {
+                //       isheader =true;
+                //       monthYear = bloodSugarController.filterLists[idx].dateTime.substring(3);
+                //       monthRecords = bloodSugarController.filterLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                //     }
+                //     return Column(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       children: [
+                //         // monthYear.isNotEmpty
+                //         //     ? Padding(
+                //         //   padding: EdgeInsets.only(
+                //         //       top: deviceHeight * 0.01,
+                //         //       bottom: deviceHeight * 0.01),
+                //         //   child: Text(
+                //         //     bloodSugarController.formatDate(monthYear),
+                //         //     style: TextStyle(
+                //         //         fontSize: 25,
+                //         //         color: ConstColour.buttonColor,
+                //         //         fontFamily: ConstFont.bold),
+                //         //   ),
+                //         // )
+                //         //     : SizedBox(),
+                //         ListView.builder(
+                //           reverse: false,
+                //           controller: ScrollController(),
+                //           shrinkWrap: true,
+                //           itemCount: monthRecords.length,
+                //           itemBuilder: (context, index) {
+                //             if(index >= 1){
+                //               isheader = false;
+                //             }
+                //             return Column(
+                //               crossAxisAlignment: CrossAxisAlignment.start,
+                //               children: [
+                //                 isheader
+                //                     ? Padding(
+                //                   padding: EdgeInsets.only(
+                //                       top: deviceHeight * 0.01,
+                //                       bottom: deviceHeight * 0.01),
+                //                       child: Text(
+                //                         bloodSugarController.formatDate(monthYear),
+                //                         style: TextStyle(
+                //                             fontSize: 25,
+                //                             color: ConstColour.buttonColor,
+                //                             fontFamily: ConstFont.bold
+                //                         ),
+                //                       ),
+                //                     )
+                //                     : SizedBox(),
+                //                 GestureDetector(
+                //                   onTap: () {
+                //                     bloodSugarController.sugarId.value = monthRecords[index].id.toInt();
+                //                     Get.to(() => UpdateBloodSugarScreen(
+                //                         catId: monthRecords[index].id.toString()
+                //                     ));
+                //                   },
+                //                   onLongPress: () {
+                //                     // deleteController.deleteApi(monthRecords[index].id.toString());
+                //                     // deleteController.deleteApi(
+                //                     // bloodSugarController.sugarId.value.toString(),);
+                //                     setState(() {
+                //                       if (deleteController.selectedIndices.contains(index)) {
+                //                         deleteController.selectedIndices.remove(index);
+                //                         print("if");
+                //                       } else {
+                //                         deleteController.flag.value = true;
+                //                         deleteController.selectedIndices.add(index);
+                //                         print("else");
+                //                       }
+                //                     });
+                //                   },
+                //                   child: Container(
+                //                     color: deleteController.selectedIndices.contains(index)
+                //                         ? ConstColour.buttonColor.withOpacity(0.5)
+                //                         : ConstColour.appColor,
+                //                     child: ListTile(
+                //                       selected: deleteController.selectedIndices.contains(index),
+                //                       onTap: () {
+                //                         bloodSugarController.sugarId.value = monthRecords[index].id.toInt();
+                //                         Get.to(() => UpdateBloodSugarScreen(
+                //                             catId: monthRecords[index].id.toString()
+                //                         ));
+                //                       },
+                //                       leading: Stack(
+                //                           alignment: Alignment.center,
+                //                           children: [
+                //                             Image.asset(
+                //                               "assets/Icons/line.png",
+                //                             ),
+                //                             Container(
+                //                               width: deviceWidth * 0.07,
+                //                               height: deviceHeight * 0.02,
+                //                               decoration: BoxDecoration(
+                //                                   shape: BoxShape.circle,
+                //                                   image: DecorationImage(
+                //                                     image: AssetImage(
+                //                                       "assets/Icons/circle.png",
+                //                                     ),)
+                //                               ),
+                //                             ),
+                //                           ]
+                //                       ),
+                //                       title: Text(monthRecords[index].measuredTypeName == null
+                //                           ? "Before Breakfast"
+                //                           : monthRecords[index].measuredTypeName,
+                //                         style: TextStyle(
+                //                             fontSize: 20,
+                //                             color: ConstColour.textColor,
+                //                             fontFamily: ConstFont.regular
+                //                         ),
+                //                       ),
+                //                       subtitle: Padding(
+                //                         padding: EdgeInsets.only(top: deviceHeight * 0.01),
+                //                         child: Row(
+                //                           children: [
+                //                             Text(monthRecords[index].dateTime,
+                //                               style: TextStyle(
+                //                                   fontSize: 16,
+                //                                   color: ConstColour.greyTextColor,
+                //                                   fontFamily: ConstFont.regular
+                //                               ),
+                //                             ),
+                //                             Padding(
+                //                               padding: EdgeInsets.only(left: deviceWidth * 0.02),
+                //                               child: Text(monthRecords[index].time.toString(),
+                //                                 style: TextStyle(
+                //                                     fontSize: 16,
+                //                                     color: ConstColour.greyTextColor,
+                //                                     fontFamily: ConstFont.regular
+                //                                 ),
+                //                               ),
+                //                             ),
+                //                           ],
+                //                         ),
+                //                       ),
+                //                       trailing: RichText(
+                //                         text: TextSpan(
+                //                           children: <TextSpan>[
+                //                             TextSpan(
+                //                               // text: bloodSugarController.filterLists[index].bloodGlucose.toString(),
+                //                               text: convertBloodSugarValue(
+                //                                 monthRecords[index].bloodGlucose,
+                //                                 unitController.getGlucoseLevelPreference(),
+                //                               ),
+                //                               style: TextStyle(
+                //                                   fontSize: 25,
+                //                                   color: ConstColour.textColor,
+                //                                   fontFamily: ConstFont.bold
+                //                               ),
+                //                             ),
+                //                             TextSpan(
+                //                               text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
+                //                               style: TextStyle(
+                //                                   fontSize: 12,
+                //                                   color: ConstColour.greyTextColor,
+                //                                   fontFamily: ConstFont.regular
+                //                               ),
+                //                             ),
+                //                           ],
+                //                         ),
+                //                       ),
+                //                     ),
+                //                   ),
+                //                 ),
+                //               ],
+                //             );
+                //           },
+                //         ),
+                //       ],
+                //     );
+                //   },
+                // ),
               ],
             ),
           ),
@@ -395,7 +605,7 @@ class _BloodSugarState extends State<BloodSugar> {
       //                 decoration: BoxDecoration(
       //                     color: ConstColour.appColor
       //                 ),
-      //                 child: bloodSugarController.bloodSugarLists.isEmpty
+      //                 child: bloodSugarController.filterLists.isEmpty
       //                     ? Align(
       //                   alignment: Alignment.center,
       //                       child: Center(
@@ -407,14 +617,14 @@ class _BloodSugarState extends State<BloodSugar> {
       //                   reverse: true,
       //                   controller: ScrollController(),
       //                   shrinkWrap: true,
-      //                   itemCount: bloodSugarController.bloodSugarLists.length,
+      //                   itemCount: bloodSugarController.filterLists.length,
       //                   itemBuilder: (context, index) {
       //                     return ListTile(
       //                       onTap: () {
-      //                         bloodSugarController.sugarId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
+      //                         bloodSugarController.sugarId.value = bloodSugarController.filterLists[index].id.toInt();
       //                         // bloodSugarController.getEditBloodSugarList(widget.id.toString());
       //                         Get.to(() => UpdateBloodSugarScreen(
-      //                             catId: bloodSugarController.bloodSugarLists[index].id.toString()
+      //                             catId: bloodSugarController.filterLists[index].id.toString()
       //                         ));
       //                       },
       //                       onLongPress: () {
@@ -425,7 +635,7 @@ class _BloodSugarState extends State<BloodSugar> {
       //                               actions: [
       //                                 IconButton(
       //                                     onPressed: () {
-      //                                       bloodSugarController.bloodSugarLists.removeAt(index);
+      //                                       bloodSugarController.filterLists.removeAt(index);
       //                                       setState(() {
       //                                         Navigator.pop(context);
       //                                       });
@@ -450,9 +660,9 @@ class _BloodSugarState extends State<BloodSugar> {
       //                             ),
       //                           ]
       //                       ),
-      //                       title: Text(bloodSugarController.bloodSugarLists[index].measuredTypeName == null
+      //                       title: Text(bloodSugarController.filterLists[index].measuredTypeName == null
       //                           ? "Before Breakfast"
-      //                           : bloodSugarController.bloodSugarLists[index].measuredTypeName,
+      //                           : bloodSugarController.filterLists[index].measuredTypeName,
       //                         style: TextStyle(
       //                             fontSize: 20,
       //                             color: ConstColour.textColor,
@@ -465,7 +675,7 @@ class _BloodSugarState extends State<BloodSugar> {
       //                         ),
       //                         child: Row(
       //                           children: [
-      //                             Text(bloodSugarController.bloodSugarLists[index].dateTime,
+      //                             Text(bloodSugarController.filterLists[index].dateTime,
       //                               style: TextStyle(
       //                                   fontSize: 16,
       //                                   color: ConstColour.greyTextColor,
@@ -474,7 +684,7 @@ class _BloodSugarState extends State<BloodSugar> {
       //                             ),
       //                             Padding(
       //                               padding: EdgeInsets.only(left: deviceWidth * 0.02),
-      //                               child: Text(bloodSugarController.bloodSugarLists[index].time.toString(),
+      //                               child: Text(bloodSugarController.filterLists[index].time.toString(),
       //                                 style: TextStyle(
       //                                     fontSize: 16,
       //                                     color: ConstColour.greyTextColor,
@@ -489,9 +699,9 @@ class _BloodSugarState extends State<BloodSugar> {
       //                         text: TextSpan(
       //                           children: <TextSpan>[
       //                             TextSpan(
-      //                               // text: bloodSugarController.bloodSugarLists[index].bloodGlucose.toString(),
+      //                               // text: bloodSugarController.filterLists[index].bloodGlucose.toString(),
       //                               text: convertBloodSugarValue(
-      //                                 bloodSugarController.bloodSugarLists[index].bloodGlucose,
+      //                                 bloodSugarController.filterLists[index].bloodGlucose,
       //                                 unitController.getGlucoseLevelPreference(),
       //                               ),
       //                               style: TextStyle(

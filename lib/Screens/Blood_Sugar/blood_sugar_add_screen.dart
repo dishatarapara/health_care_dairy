@@ -442,42 +442,51 @@ class _BloodSugarAddScreenState extends State<BloodSugarAddScreen> {
               controller: ScrollController(),
               itemCount: bloodSugarController.measuredTypes.length,
               itemBuilder: (context, index) {
-                return InkWell(
+                final bool isSelected = bloodSugarController.measuredType.value == bloodSugarController.measuredTypes[index].name;
+                return GestureDetector(
                   onTap: () {
                     bloodSugarController.measuredType.value = bloodSugarController.measuredTypes[index].name;
                     bloodSugarController.measuredId.value = bloodSugarController.measuredTypes[index].id;
                     Navigator.pop(context);
                   },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: deviceWidth * 0.02,
-                        vertical: deviceHeight * 0.01
+                  child: Container(
+                    color: isSelected
+                        ? ConstColour.buttonColor.withOpacity(0.5)
+                        : Colors.transparent,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: deviceWidth * 0.02,
+                          vertical: deviceHeight * 0.01
+                      ),
+                      child: Text(
+                        bloodSugarController.measuredTypes[index].name,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: ConstFont.regular,
+                            color: ConstColour.textColor),
+                            // color: isSelected
+                            //     ? ConstColour.buttonColor
+                            //     : ConstColour.textColor,),
+                      ),
+                      // Row(
+                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //   children: [
+                      //     Text(
+                      //       bloodSugarController.measuredTypes[index].name,
+                      //       style: TextStyle(
+                      //           fontSize: 20,
+                      //           fontFamily: ConstFont.regular,
+                      //           color: ConstColour.textColor),
+                      //     ),
+                      //     Radio(
+                      //       value: bloodSugarController.measuredId.value = bloodSugarController.measuredTypes[index].id,
+                      //       groupValue: bloodSugarController.selectedMesuredListType.value,
+                      //       onChanged: bloodSugarController.setSelectedListType,
+                      //       activeColor: ConstColour.buttonColor,
+                      //     ),
+                      //   ],
+                      // ),
                     ),
-                    child: Text(
-                      bloodSugarController.measuredTypes[index].name,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: ConstFont.regular,
-                          color: ConstColour.textColor),
-                    ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Text(
-                    //       bloodSugarController.measuredTypes[index].name,
-                    //       style: TextStyle(
-                    //           fontSize: 20,
-                    //           fontFamily: ConstFont.regular,
-                    //           color: ConstColour.textColor),
-                    //     ),
-                    //     Radio(
-                    //       value: bloodSugarController.measuredId.value = bloodSugarController.measuredTypes[index].id,
-                    //       groupValue: bloodSugarController.selectedMesuredListType.value,
-                    //       onChanged: bloodSugarController.setSelectedListType,
-                    //       activeColor: ConstColour.buttonColor,
-                    //     ),
-                    //   ],
-                    // ),
                   ),
                 );
               },

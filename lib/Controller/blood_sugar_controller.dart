@@ -50,8 +50,8 @@ class BloodSugarController extends GetxController {
   //   print(selectedSheetRadio.value.toString());
   // }
 
-
   RxList<CategoryList> bloodSugarLists = <CategoryList>[].obs;
+  RxList<CategoryList> filterLists = <CategoryList>[].obs;
   RxList<CategoryList> updateBloodSugarList = <CategoryList>[].obs;
   RxList<MeasuredTypesList> measuredTypes = <MeasuredTypesList>[].obs;
 
@@ -189,6 +189,8 @@ class BloodSugarController extends GetxController {
       if (messageCode == 1) {
         bloodSugarLists.clear();
         bloodSugarLists.addAll(responseData.data);
+        List<CategoryList> tempList = bloodSugarLists;
+        filterLists.value = tempList;
 
         getFilterData(bloodSugarLists);
         debugPrint("categoryIdDetails Successfully");
@@ -250,7 +252,6 @@ class BloodSugarController extends GetxController {
         groupedData[monthYear]!.add(bloodSugarLists[i]);
       }
     }
-
     return groupedData.values.expand((x) => x).toList();
   }
 
@@ -424,7 +425,7 @@ class BloodSugarController extends GetxController {
             measuredId.value = measuredTypes[i].id.toInt();
           }
         }
-        // measuredType.value = updatebloodSugarList[0].measuredTypeName.toString();
+        // measuredType.value = updateBloodSugarList[0].measuredTypeName.toString();
         debugPrint("EditCategoryDetail Successfully");
       } else {
         debugPrint("EditCategoryDetail Error");

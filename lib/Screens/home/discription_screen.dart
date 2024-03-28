@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/ConstFile/constColors.dart';
-import '../ConstFile/constFonts.dart';
+import '../../ConstFile/constFonts.dart';
 
 class DiscriptionScreen extends StatefulWidget {
   final String title;

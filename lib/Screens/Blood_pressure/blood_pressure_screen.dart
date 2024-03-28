@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/date_time_controller.dart';
 import 'package:health_care_dairy/Screens/Blood_pressure/blood_pressure_second_screen.dart';
@@ -11,9 +12,9 @@ import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/delete_controller.dart';
 import '../../Controller/filter_controller.dart';
 import '../../model/get_category_model.dart';
-import '../discription_screen.dart';
+import '../home/discription_screen.dart';
 import '../home_screen.dart';
-import '../loader.dart';
+import '../../Common/loader.dart';
 
 class BloodPressure extends StatefulWidget {
   final String id;
@@ -40,6 +41,9 @@ class _BloodPressureState extends State<BloodPressure> {
     // setState(() {
     //   bloodSugarController.getCategoryList();
     // });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      bloodSugarController.filterLists.clear();
+    });
     loadBloodPressureData();
   }
 
@@ -113,7 +117,7 @@ class _BloodPressureState extends State<BloodPressure> {
                   : Image.asset(
                 "assets/Icons/filter.png",
                 width: deviceWidth * 0.07,
-                height: deviceHeight * 0.03,)
+                height: deviceHeight * 0.028,)
           ),
           )
         ],
@@ -131,20 +135,29 @@ class _BloodPressureState extends State<BloodPressure> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                bloodSugarController.bloodSugarLists.isEmpty
+                bloodSugarController.filterLists.isEmpty
                 ? ((bloodSugarController.isLoading.value == true))
-                    ? Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "No Record Found",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: ConstColour.textColor,
-                            fontFamily: ConstFont.regular
+                    ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.3),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                            "assets/Icons/no_data_blood_pressure.png",
+                            height: deviceHeight * 0.1
                         ),
-                      )
-                    ],
+                        Text(
+                          "No Record Found",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ConstColour.greyTextColor,
+                              fontFamily: ConstFont.regular
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
                   ),
                 )
                 : Loaders(
@@ -183,32 +196,28 @@ class _BloodPressureState extends State<BloodPressure> {
                   ),
                 )
                     : ListView.builder(
+                  reverse: false,
                   controller: ScrollController(),
                   shrinkWrap: true,
-                  itemCount:bloodSugarController.bloodSugarLists.length ,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemCount: bloodSugarController.filterLists.length,
+                  itemBuilder: (context, index) {
                     String prvIndexDate = "";
-                    String currentIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                    String currentIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
                     if(index > 0) {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[(index - 1)].dateTime.substring(3);
+                      prvIndexDate = bloodSugarController.filterLists[(index - 1)].dateTime.substring(3);
                     } else {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                      prvIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
                     }
-                    List<CategoryList> monthRecords = [];
                     String monthYear = "";
-                    if(currentIndexDate != prvIndexDate) {
-                      monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
-                      monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                    } else {
-                      if(index == 0) {
-                        monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
-                        monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                      }
-                    }
+                    bool isHeader = false;
+                    if(currentIndexDate != prvIndexDate || index == 0) {
+                      isHeader =true;
+                      monthYear = bloodSugarController.filterLists[index].dateTime.substring(3);
+                     }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        monthYear.isNotEmpty
+                        isHeader
                             ? Padding(
                           padding: EdgeInsets.only(
                               top: deviceHeight * 0.01,
@@ -218,301 +227,170 @@ class _BloodPressureState extends State<BloodPressure> {
                             style: TextStyle(
                                 fontSize: 25,
                                 color: ConstColour.buttonColor,
-                                fontFamily: ConstFont.bold),
+                                fontFamily: ConstFont.bold
+                            ),
                           ),
-                        ): SizedBox(),
-                        ListView.builder(
-                          reverse: false,
-                          controller: ScrollController(),
-                          shrinkWrap: true,
-                          itemCount: monthRecords.length,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              color: deleteController.selectedIndices.contains(index) ? ConstColour.buttonColor.withOpacity(0.5) : ConstColour.appColor,
-                              child: ListTile(
-                                onTap: () {
-                                  bloodPressureController.pressureId.value = monthRecords[index].id.toInt();
-                                  // bloodSugarController.getEditBloodSugarList(widget.id.toString());
+                        )
+                            : SizedBox(),
+                        GestureDetector(
+                          onLongPress: () {
+                            setState(() {
+                              if(deleteController.selectedIndices.isEmpty){
+                                deleteController.flag.value = false;
+                              }
+                              if (deleteController.selectedIndices.contains(index)) {
+                                deleteController.selectedIndices.remove(index);
+                                deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
+                                print("if");
+                              } else {
+                                deleteController.flag.value = true;
+                                deleteController.selectedIndices.add(index);
+                                deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
+                                print("else");
+                              }
+                            });
+                          },
+                          child: Container(
+                            color: deleteController.selectedIndices.contains(index)
+                                ? ConstColour.buttonColor.withOpacity(0.5)
+                                : ConstColour.appColor,
+                            child: ListTile(
+                              selected: deleteController.selectedIndices.contains(index),
+                              onTap: () {
+                                if(deleteController.selectedIndices.isEmpty){
+                                  deleteController.flag.value = false;
+                                }
+                                if( deleteController.flag.value == true){
+                                  if (deleteController.selectedIndices.contains(index)) {
+                                    deleteController.selectedIndices.remove(index);
+                                    deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
+                                    print("if");
+                                  } else {
+                                    deleteController.flag.value = true;
+                                    deleteController.selectedIndices.add(index);
+                                    deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
+                                    print("else");
+                                  }
+                                  setState(() {});
+                                }else{
+                                  bloodPressureController.pressureId.value = bloodSugarController.filterLists[index].id.toInt();
                                   Get.to(() => UpdateBloodPressureScreen(
-                                    catId: monthRecords[index].id.toString(),
+                                      catId: bloodSugarController.filterLists[index].id.toString()
                                   ));
-                                },
-                                onLongPress: () {
-                                  setState(() {
-                                    if (deleteController.selectedIndices.contains(index)) {
-                                      deleteController.selectedIndices.remove(index);
-                                      print("if");
-                                    } else {
-                                      deleteController.flag.value = true;
-                                      deleteController.selectedIndices.add(index);
-                                      print("else");
-                                    }
-                                  });
-                                },
-                                leading: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "assets/Icons/line.png",
-                                      ),
-                                      Container(
-                                        width: deviceWidth * 0.07,
-                                        height: deviceHeight * 0.02,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                              image: AssetImage(
-                                                "assets/Icons/circle.png",
-                                              ),)
-                                        ),
-                                      ),
-                                    ]
-                                ),
-                                title: Text(
-                                  monthRecords[index].hand == null
-                                      ? "No data"
-                                      : (monthRecords[index].hand == true ? "Left Hand" : "Right Hand"),
-                                  style: TextStyle(
-                                      fontSize: 20,
-                                      color: ConstColour.textColor,
-                                      fontFamily: ConstFont.regular
-                                  ),
-                                ),
-                                subtitle: Row(
+                                }
+                              },
+                              leading: Stack(
+                                  alignment: Alignment.center,
                                   children: [
-                                    Text(
-                                      monthRecords[index].dateTime,
+                                    Image.asset(
+                                      "assets/Icons/line.png",
+                                    ),
+                                    Container(
+                                      width: deviceWidth * 0.07,
+                                      height: deviceHeight * 0.02,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              "assets/Icons/circle.png",
+                                            ),)
+                                      ),
+                                    ),
+                                  ]
+                              ),
+                              title: Text(
+                                bloodSugarController.filterLists[index].hand == null
+                                    ? "No data"
+                                    : (bloodSugarController.filterLists[index].hand == true ? "Left Hand" : "Right Hand"),
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: ConstColour.textColor,
+                                    fontFamily: ConstFont.regular
+                                ),
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Text(
+                                    bloodSugarController.filterLists[index].dateTime,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: ConstColour.greyTextColor,
+                                        fontFamily: ConstFont.regular
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: deviceWidth * 0.03),
+                                    child: Text(
+                                      bloodSugarController.filterLists[index].time.toString(),
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: ConstColour.greyTextColor,
                                           fontFamily: ConstFont.regular
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: deviceWidth * 0.03),
-                                      child: Text(
-                                        monthRecords[index].time.toString(),
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: ConstColour.greyTextColor,
-                                            fontFamily: ConstFont.regular
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: Column(
-                                  children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: 'Diastolic  ',
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: monthRecords[index].diastolicPressure.toString(),
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: ConstColour.textColor,
-                                                fontFamily: ConstFont.bold
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: 'Systolic  ',
-                                            style: TextStyle(
-                                                fontSize: 15,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: monthRecords[index].systolicPressure.toString(),
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: ConstColour.textColor,
-                                                fontFamily: ConstFont.bold
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            );
-                          },
+                              trailing: Column(
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: 'Diastolic  ',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: bloodSugarController.filterLists[index].diastolicPressure.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              color: ConstColour.textColor,
+                                              fontFamily: ConstFont.bold
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: 'Systolic  ',
+                                          style: TextStyle(
+                                              fontSize: 15,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: bloodSugarController.filterLists[index].systolicPressure.toString(),
+                                          style: TextStyle(
+                                              fontSize: 22,
+                                              color: ConstColour.textColor,
+                                              fontFamily: ConstFont.bold
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
                       ],
                     );
                   },
-                    ),
+                ),
               ],
             ),
           ),
         ),
       )
-      // {
-      //   if(bloodSugarController.isLoading.value) {
-      //     return Center(
-      //       child: CircularProgressIndicator(
-      //         color: ConstColour.buttonColor,
-      //       ),
-      //     );
-      //   } else {
-      //     return RefreshIndicator(
-      //       color: ConstColour.buttonColor,
-      //       onRefresh: () async {
-      //         await bloodSugarController.getCategoryList();
-      //       },
-      //       child: SingleChildScrollView(
-      //         scrollDirection: Axis.vertical,
-      //         controller: ScrollController(),
-      //         child: Padding(
-      //           padding: const EdgeInsets.all(8.0),
-      //           child: Column(
-      //             children: [
-      //               Container(
-      //                 decoration: BoxDecoration(
-      //                     color: ConstColour.appColor
-      //                 ),
-      //                 child: bloodSugarController.bloodSugarLists.isEmpty
-      //                     ? Align(
-      //                   alignment: Alignment.center,
-      //                   child: Center(
-      //                     child: CircularProgressIndicator(
-      //                       color: ConstColour.buttonColor,
-      //                     ),
-      //                   ),
-      //                 )
-      //                     : ListView.builder(
-      //                   reverse: true,
-      //                   controller: ScrollController(),
-      //                   shrinkWrap: true,
-      //                   itemCount: bloodSugarController.bloodSugarLists.length,
-      //                   itemBuilder: (context, index) {
-      //                     return ListTile(
-      //                       onTap: () {
-      //                         bloodPressureController.pressureId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
-      //                         // bloodSugarController.getEditBloodSugarList(widget.id.toString());
-      //                         Get.to(() => UpdateBloodPressureScreen(
-      //                           catId: bloodSugarController.bloodSugarLists[index].id.toString(),
-      //                         ));
-      //                       },
-      //                       leading: Stack(
-      //                           alignment: Alignment.center,
-      //                           children: [
-      //                             Image.asset(
-      //                               "assets/Icons/line.png",
-      //                             ),
-      //                             Image.asset(
-      //                               "assets/Icons/circle.png",
-      //                               height: deviceHeight * 0.02,
-      //                             ),
-      //                           ]
-      //                       ),
-      //                       title: Text(
-      //                         bloodSugarController.bloodSugarLists[index].hand == null
-      //                             ? "No data"
-      //                             : (bloodSugarController.bloodSugarLists[index].hand == true ? "Left Hand" : "Right Hand"),
-      //                         style: TextStyle(
-      //                             fontSize: 20,
-      //                             color: ConstColour.textColor,
-      //                             fontFamily: ConstFont.regular
-      //                         ),
-      //                       ),
-      //                       subtitle: Row(
-      //                         children: [
-      //                           Text(
-      //                             bloodSugarController.bloodSugarLists[index].dateTime,
-      //                             style: TextStyle(
-      //                                 fontSize: 16,
-      //                                 color: ConstColour.greyTextColor,
-      //                                 fontFamily: ConstFont.regular
-      //                             ),
-      //                           ),
-      //                           Padding(
-      //                             padding: EdgeInsets.only(left: deviceWidth * 0.03),
-      //                             child: Text(
-      //                               bloodSugarController.bloodSugarLists[index].time.toString(),
-      //                               style: TextStyle(
-      //                                   fontSize: 16,
-      //                                   color: ConstColour.greyTextColor,
-      //                                   fontFamily: ConstFont.regular
-      //                               ),
-      //                             ),
-      //                           ),
-      //                         ],
-      //                       ),
-      //                       trailing: Column(
-      //                         children: [
-      //                           RichText(
-      //                             text: TextSpan(
-      //                               children: <TextSpan>[
-      //                                 TextSpan(
-      //                                   text: 'Diastolic  ',
-      //                                   style: TextStyle(
-      //                                       fontSize: 15,
-      //                                       color: ConstColour.greyTextColor,
-      //                                       fontFamily: ConstFont.regular
-      //                                   ),
-      //                                 ),
-      //                                 TextSpan(
-      //                                   text: bloodSugarController.bloodSugarLists[index].diastolicPressure.toString(),
-      //                                   style: TextStyle(
-      //                                       fontSize: 22,
-      //                                       color: ConstColour.textColor,
-      //                                       fontFamily: ConstFont.bold
-      //                                   ),
-      //                                 ),
-      //                               ],
-      //                             ),
-      //                           ),
-      //                           RichText(
-      //                             text: TextSpan(
-      //                               children: <TextSpan>[
-      //                                 TextSpan(
-      //                                   text: 'Systolic  ',
-      //                                   style: TextStyle(
-      //                                       fontSize: 15,
-      //                                       color: ConstColour.greyTextColor,
-      //                                       fontFamily: ConstFont.regular
-      //                                   ),
-      //                                 ),
-      //                                 TextSpan(
-      //                                   text: bloodSugarController.bloodSugarLists[index].systolicPressure.toString(),
-      //                                   style: TextStyle(
-      //                                       fontSize: 22,
-      //                                       color: ConstColour.textColor,
-      //                                       fontFamily: ConstFont.bold
-      //                                   ),
-      //                                 ),
-      //                               ],
-      //                             ),
-      //                           ),
-      //                         ],
-      //                       ),
-      //                     );
-      //                   },
-      //                 ),
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       ),
-      //     );
-      //   }
-      // }
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),

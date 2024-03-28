@@ -12,7 +12,7 @@ import '../ConstFile/constFonts.dart';
 import '../Controller/home_controller.dart';
 import 'Blood_Sugar/blood_sugar_screen.dart';
 import 'Hemoglobin/hemoglobin_screen.dart';
-import 'genrate_pdf.dart';
+import 'home/genrate_pdf.dart';
 import 'medication/medication_screen.dart';
 
 class HomeScreen extends StatefulWidget {

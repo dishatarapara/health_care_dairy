@@ -36,15 +36,12 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
       dateTimeController.selectedTime.toString();
       bloodSugarController.getUpdateBloodSugarList(widget.catId);
     });
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     var deviceHeight = MediaQuery.of(context).size.height;
     var deviceWidth = MediaQuery.of(context).size.width;
-
     return WillPopScope(
       onWillPop: () async {
         Get.back();
@@ -453,23 +450,29 @@ class _UpdateBloodSugarScreenState extends State<UpdateBloodSugarScreen> {
               controller: ScrollController(),
               itemCount: bloodSugarController.measuredTypes.length,
               itemBuilder: (context, index) {
-                return InkWell(
+                final bool isSelected = bloodSugarController.measuredType.value == bloodSugarController.measuredTypes[index].name;
+                return GestureDetector(
                   onTap: () {
                     bloodSugarController.measuredType.value = bloodSugarController.measuredTypes[index].name;
                     bloodSugarController.measuredId.value = bloodSugarController.measuredTypes[index].id;
                     Navigator.pop(context);
                   },
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                        horizontal: deviceWidth * 0.02,
-                        vertical: deviceHeight * 0.01
-                    ),
-                    child: Text(
-                        bloodSugarController.measuredTypes[index].name,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontFamily: ConstFont.regular,
-                          color: ConstColour.textColor
+                  child: Container(
+                    color: isSelected
+                        ? ConstColour.buttonColor.withOpacity(0.5)
+                        : Colors.transparent,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: deviceWidth * 0.02,
+                          vertical: deviceHeight * 0.01
+                      ),
+                      child: Text(
+                          bloodSugarController.measuredTypes[index].name,
+                        style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: ConstFont.regular,
+                            color: ConstColour.textColor
+                        ),
                       ),
                     ),
                   ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/date_time_controller.dart';
 import 'package:health_care_dairy/Controller/hemoglobin_controller.dart';
@@ -11,9 +12,9 @@ import '../../Controller/blood_sugar_controller.dart';
 import '../../Controller/delete_controller.dart';
 import '../../Controller/filter_controller.dart';
 import '../../model/get_category_model.dart';
-import '../discription_screen.dart';
+import '../home/discription_screen.dart';
 import '../home_screen.dart';
-import '../loader.dart';
+import '../../Common/loader.dart';
 import 'hemoglobin_second_screen.dart';
 
 class Hemoglobin extends StatefulWidget {
@@ -43,6 +44,9 @@ class _HemoglobinState extends State<Hemoglobin> {
     // setState(() {
     //   bloodSugarController.getCategoryList();
     // });
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      bloodSugarController.filterLists.clear();
+    });
     loadHemoglobinData();
   }
 
@@ -116,7 +120,7 @@ class _HemoglobinState extends State<Hemoglobin> {
                   : Image.asset(
                 "assets/Icons/filter.png",
                 width: deviceWidth * 0.07,
-                height: deviceHeight * 0.03,)
+                height: deviceHeight * 0.028,)
           ),
           )
         ],
@@ -134,20 +138,29 @@ class _HemoglobinState extends State<Hemoglobin> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
-                bloodSugarController.bloodSugarLists.isEmpty
+                bloodSugarController.filterLists.isEmpty
                     ? ((bloodSugarController.isLoading.value == true))
-                    ? Center(
-                  child: Column(
-                    children: [
-                      Text(
-                        "No Record Found",
-                        style: TextStyle(
-                            fontSize: 30,
-                            color: ConstColour.textColor,
-                            fontFamily: ConstFont.regular
+                    ? Padding(
+                  padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.3),
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Column(
+                      children: [
+                        Image.asset(
+                            "assets/Icons/no_data_hemoglobin.png",
+                            height: deviceHeight * 0.1
                         ),
-                      )
-                    ],
+                        Text(
+                          "No Record Found",
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: ConstColour.greyTextColor,
+                              fontFamily: ConstFont.regular
+                          ),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
                   ),
                 )
                     : Loaders(
@@ -185,32 +198,30 @@ class _HemoglobinState extends State<Hemoglobin> {
                     ),
                   ),
                 )
-                    : ListView.builder(controller: ScrollController(),
+                    : ListView.builder(
+                  reverse: false,
+                  controller: ScrollController(),
                   shrinkWrap: true,
-                  itemCount:bloodSugarController.bloodSugarLists.length ,
-                  itemBuilder: (BuildContext context, int index) {
+                  itemCount: bloodSugarController.filterLists.length,
+                  itemBuilder: (context, index) {
                     String prvIndexDate = "";
-                    String currentIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                    String currentIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
                     if(index > 0) {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[(index - 1)].dateTime.substring(3);
+                      prvIndexDate = bloodSugarController.filterLists[(index - 1)].dateTime.substring(3);
                     } else {
-                      prvIndexDate = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
+                      prvIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
                     }
-                    List<CategoryList> monthRecords = [];
+                    //  List<CategoryList> monthRecords = [];
                     String monthYear = "";
-                    if(currentIndexDate != prvIndexDate) {
-                      monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
-                      monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                    } else {
-                      if(index == 0) {
-                        monthYear = bloodSugarController.bloodSugarLists[index].dateTime.substring(3);
-                        monthRecords = bloodSugarController.bloodSugarLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
-                      }
+                    bool isHeader = false;
+                    if(currentIndexDate != prvIndexDate || index == 0) {
+                      isHeader =true;
+                      monthYear = bloodSugarController.filterLists[index].dateTime.substring(3);
                     }
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        monthYear.isNotEmpty
+                        isHeader
                             ? Padding(
                           padding: EdgeInsets.only(
                               top: deviceHeight * 0.01,
@@ -220,157 +231,361 @@ class _HemoglobinState extends State<Hemoglobin> {
                             style: TextStyle(
                                 fontSize: 25,
                                 color: ConstColour.buttonColor,
-                                fontFamily: ConstFont.bold),
+                                fontFamily: ConstFont.bold
+                            ),
                           ),
-                        ): SizedBox(),
-                        ListView.builder(
-                          reverse: false,
-                          controller: ScrollController(),
-                          shrinkWrap: true,
-                          itemCount: monthRecords.length,
-                          itemBuilder: (context, index) {
-                            return Container(
-                              color: deleteController.selectedIndices.contains(index)
-                                  ? ConstColour.buttonColor.withOpacity(0.5)
-                                  : ConstColour.appColor,
-                              child: ListTile(
-                                onTap: () {
-                                  a1cController.hemoglobinId.value = monthRecords[index].id.toInt();
-                                  // bloodSugarController.getEditBloodSugarList(widget.id.toString());
+                        )
+                            : SizedBox(),
+                        GestureDetector(
+                          onLongPress: () {
+                            setState(() {
+                              if(deleteController.selectedIndices.isEmpty){
+                                deleteController.flag.value = false;
+                              }
+                              if (deleteController.selectedIndices.contains(index)) {
+                                deleteController.selectedIndices.remove(index);
+                                deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
+                                print("if");
+                              } else {
+                                deleteController.flag.value = true;
+                                deleteController.selectedIndices.add(index);
+                                deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
+                                print("else");
+                              }
+                            });
+                          },
+                          child: Container(
+                            color: deleteController.selectedIndices.contains(index)
+                                ? ConstColour.buttonColor.withOpacity(0.5)
+                                : ConstColour.appColor,
+                            child: ListTile(
+                              selected: deleteController.selectedIndices.contains(index),
+                              onTap: () {
+                                if(deleteController.selectedIndices.isEmpty){
+                                  deleteController.flag.value = false;
+                                }
+                                if( deleteController.flag.value == true){
+                                  if (deleteController.selectedIndices.contains(index)) {
+                                    deleteController.selectedIndices.remove(index);
+                                    deleteController.deleteRecordList.remove(bloodSugarController.filterLists[index].id.toString());
+                                    print("if");
+                                  } else {
+                                    deleteController.flag.value = true;
+                                    deleteController.selectedIndices.add(index);
+                                    deleteController.deleteRecordList.add(bloodSugarController.filterLists[index].id);
+                                    print("else");
+                                  }
+                                  setState(() {});
+                                }else{
+                                  a1cController.hemoglobinId.value = bloodSugarController.filterLists[index].id.toInt();
                                   Get.to(() => UpdateHemoglobinScreen(
-                                    catId: monthRecords[index].id.toString(),
+                                      catId: bloodSugarController.filterLists[index].id.toString()
                                   ));
-                                },
-                                onLongPress: () {
-                                  setState(() {
-                                    if (deleteController.selectedIndices.contains(index)) {
-                                      deleteController.selectedIndices.remove(index);
-                                      print("if");
-                                    } else {
-                                      deleteController.flag.value = true;
-                                      deleteController.selectedIndices.add(index);
-                                      print("else");
-                                    }
-                                  });
-                                },
-                                leading: Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      Image.asset(
-                                        "assets/Icons/line.png",
-                                      ),
-                                      Container(
-                                        width: deviceWidth * 0.07,
-                                        height: deviceHeight * 0.02,
-                                        decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            image: DecorationImage(
-                                              image: AssetImage(
-                                                "assets/Icons/circle.png",
-                                              ),)
-                                        ),
-                                      ),
-                                    ]
-                                ),
-                                subtitle: Row(
+                                }
+                              },
+                              leading: Stack(
+                                  alignment: Alignment.center,
                                   children: [
-                                    Text(
-                                      monthRecords[index].dateTime,
+                                    Image.asset(
+                                      "assets/Icons/line.png",
+                                    ),
+                                    Container(
+                                      width: deviceWidth * 0.07,
+                                      height: deviceHeight * 0.02,
+                                      decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          image: DecorationImage(
+                                            image: AssetImage(
+                                              "assets/Icons/circle.png",
+                                            ),)
+                                      ),
+                                    ),
+                                  ]
+                              ),
+                              subtitle: Row(
+                                children: [
+                                  Text(
+                                    bloodSugarController.filterLists[index].dateTime,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: ConstColour.greyTextColor,
+                                        fontFamily: ConstFont.regular
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(left: deviceWidth * 0.02),
+                                    child: Text(
+                                      bloodSugarController.filterLists[index].time.toString(),
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: ConstColour.greyTextColor,
                                           fontFamily: ConstFont.regular
                                       ),
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: deviceWidth * 0.02),
-                                      child: Text(
-                                        monthRecords[index].time.toString(),
-                                        style: TextStyle(
-                                            fontSize: 16,
-                                            color: ConstColour.greyTextColor,
-                                            fontFamily: ConstFont.regular
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                trailing: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: "A1C  ",
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
+                                  ),
+                                ],
+                              ),
+                              trailing: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: "A1C  ",
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
                                           ),
-                                          TextSpan(
-                                            text: monthRecords[index].averageSugarConcentration.toString(),
-                                            style: TextStyle(
+                                        ),
+                                        TextSpan(
+                                          text: bloodSugarController.filterLists[index].averageSugarConcentration.toString(),
+                                          style: TextStyle(
+                                            fontSize: 22,
+                                            color: ConstColour.textColor,
+                                            fontFamily: ConstFont.bold,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: " %",
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  RichText(
+                                    text: TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: "eAG  ",
+                                          style: TextStyle(
+                                              fontSize: 13,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text: convertBloodSugarValue(
+                                            bloodSugarController.filterLists[index].averageSugarConcentration,
+                                            unitController.getGlucoseLevelPreference(),
+                                          ),
+                                          style: TextStyle(
                                               fontSize: 22,
                                               color: ConstColour.textColor,
-                                              fontFamily: ConstFont.bold,
-                                            ),
+                                              fontFamily: ConstFont.bold
                                           ),
-                                          TextSpan(
-                                            text: " %",
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
+                                        ),
+                                        TextSpan(
+                                          text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: ConstColour.greyTextColor,
+                                              fontFamily: ConstFont.regular
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                      ],
                                     ),
-                                    RichText(
-                                      text: TextSpan(
-                                        children: <TextSpan>[
-                                          TextSpan(
-                                            text: "eAG  ",
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: convertBloodSugarValue(
-                                              monthRecords[index].averageSugarConcentration,
-                                              unitController.getGlucoseLevelPreference(),
-                                            ),
-                                            style: TextStyle(
-                                                fontSize: 22,
-                                                color: ConstColour.textColor,
-                                                fontFamily: ConstFont.bold
-                                            ),
-                                          ),
-                                          TextSpan(
-                                            text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: ConstColour.greyTextColor,
-                                                fontFamily: ConstFont.regular
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       ],
                     );
                   },
                 ),
+                // ListView.builder(controller: ScrollController(),
+                //   shrinkWrap: true,
+                //   itemCount:bloodSugarController.filterLists.length ,
+                //   itemBuilder: (BuildContext context, int index) {
+                //     String prvIndexDate = "";
+                //     String currentIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
+                //     if(index > 0) {
+                //       prvIndexDate = bloodSugarController.filterLists[(index - 1)].dateTime.substring(3);
+                //     } else {
+                //       prvIndexDate = bloodSugarController.filterLists[index].dateTime.substring(3);
+                //     }
+                //     List<CategoryList> monthRecords = [];
+                //     String monthYear = "";
+                //     if(currentIndexDate != prvIndexDate) {
+                //       monthYear = bloodSugarController.filterLists[index].dateTime.substring(3);
+                //       monthRecords = bloodSugarController.filterLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                //     } else {
+                //       if(index == 0) {
+                //         monthYear = bloodSugarController.filterLists[index].dateTime.substring(3);
+                //         monthRecords = bloodSugarController.filterLists.where((record) => record.dateTime.substring(3) == monthYear).toList();
+                //       }
+                //     }
+                //     return Column(
+                //       crossAxisAlignment: CrossAxisAlignment.start,
+                //       children: [
+                //         monthYear.isNotEmpty
+                //             ? Padding(
+                //           padding: EdgeInsets.only(
+                //               top: deviceHeight * 0.01,
+                //               bottom: deviceHeight * 0.01),
+                //           child: Text(
+                //             bloodSugarController.formatDate(monthYear),
+                //             style: TextStyle(
+                //                 fontSize: 25,
+                //                 color: ConstColour.buttonColor,
+                //                 fontFamily: ConstFont.bold),
+                //           ),
+                //         ): SizedBox(),
+                //         ListView.builder(
+                //           reverse: false,
+                //           controller: ScrollController(),
+                //           shrinkWrap: true,
+                //           itemCount: monthRecords.length,
+                //           itemBuilder: (context, index) {
+                //             return Container(
+                //               color: deleteController.selectedIndices.contains(index)
+                //                   ? ConstColour.buttonColor.withOpacity(0.5)
+                //                   : ConstColour.appColor,
+                //               child: ListTile(
+                //                 onTap: () {
+                //                   a1cController.hemoglobinId.value = monthRecords[index].id.toInt();
+                //                   // bloodSugarController.getEditBloodSugarList(widget.id.toString());
+                //                   Get.to(() => UpdateHemoglobinScreen(
+                //                     catId: monthRecords[index].id.toString(),
+                //                   ));
+                //                 },
+                //                 onLongPress: () {
+                //                   setState(() {
+                //                     if (deleteController.selectedIndices.contains(index)) {
+                //                       deleteController.selectedIndices.remove(index);
+                //                       print("if");
+                //                     } else {
+                //                       deleteController.flag.value = true;
+                //                       deleteController.selectedIndices.add(index);
+                //                       print("else");
+                //                     }
+                //                   });
+                //                 },
+                //                 leading: Stack(
+                //                     alignment: Alignment.center,
+                //                     children: [
+                //                       Image.asset(
+                //                         "assets/Icons/line.png",
+                //                       ),
+                //                       Container(
+                //                         width: deviceWidth * 0.07,
+                //                         height: deviceHeight * 0.02,
+                //                         decoration: BoxDecoration(
+                //                             shape: BoxShape.circle,
+                //                             image: DecorationImage(
+                //                               image: AssetImage(
+                //                                 "assets/Icons/circle.png",
+                //                               ),)
+                //                         ),
+                //                       ),
+                //                     ]
+                //                 ),
+                //                 subtitle: Row(
+                //                   children: [
+                //                     Text(
+                //                       monthRecords[index].dateTime,
+                //                       style: TextStyle(
+                //                           fontSize: 16,
+                //                           color: ConstColour.greyTextColor,
+                //                           fontFamily: ConstFont.regular
+                //                       ),
+                //                     ),
+                //                     Padding(
+                //                       padding: EdgeInsets.only(left: deviceWidth * 0.02),
+                //                       child: Text(
+                //                         monthRecords[index].time.toString(),
+                //                         style: TextStyle(
+                //                             fontSize: 16,
+                //                             color: ConstColour.greyTextColor,
+                //                             fontFamily: ConstFont.regular
+                //                         ),
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //                 trailing: Column(
+                //                   crossAxisAlignment: CrossAxisAlignment.start,
+                //                   children: [
+                //                     RichText(
+                //                       text: TextSpan(
+                //                         children: <TextSpan>[
+                //                           TextSpan(
+                //                             text: "A1C  ",
+                //                             style: TextStyle(
+                //                                 fontSize: 13,
+                //                                 color: ConstColour.greyTextColor,
+                //                                 fontFamily: ConstFont.regular
+                //                             ),
+                //                           ),
+                //                           TextSpan(
+                //                             text: monthRecords[index].averageSugarConcentration.toString(),
+                //                             style: TextStyle(
+                //                               fontSize: 22,
+                //                               color: ConstColour.textColor,
+                //                               fontFamily: ConstFont.bold,
+                //                             ),
+                //                           ),
+                //                           TextSpan(
+                //                             text: " %",
+                //                             style: TextStyle(
+                //                                 fontSize: 12,
+                //                                 color: ConstColour.greyTextColor,
+                //                                 fontFamily: ConstFont.regular
+                //                             ),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                     RichText(
+                //                       text: TextSpan(
+                //                         children: <TextSpan>[
+                //                           TextSpan(
+                //                             text: "eAG  ",
+                //                             style: TextStyle(
+                //                                 fontSize: 13,
+                //                                 color: ConstColour.greyTextColor,
+                //                                 fontFamily: ConstFont.regular
+                //                             ),
+                //                           ),
+                //                           TextSpan(
+                //                             text: convertBloodSugarValue(
+                //                               monthRecords[index].averageSugarConcentration,
+                //                               unitController.getGlucoseLevelPreference(),
+                //                             ),
+                //                             style: TextStyle(
+                //                                 fontSize: 22,
+                //                                 color: ConstColour.textColor,
+                //                                 fontFamily: ConstFont.bold
+                //                             ),
+                //                           ),
+                //                           TextSpan(
+                //                             text: unitController.getGlucoseLevelPreference() ? ' mmol/L' : ' mg/dL',
+                //                             style: TextStyle(
+                //                                 fontSize: 12,
+                //                                 color: ConstColour.greyTextColor,
+                //                                 fontFamily: ConstFont.regular
+                //                             ),
+                //                           ),
+                //                         ],
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               ),
+                //             );
+                //           },
+                //         ),
+                //       ],
+                //     );
+                //   },
+                // ),
               ],
             ),
           ),
@@ -400,7 +615,7 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                 decoration: BoxDecoration(
       //                     color: ConstColour.appColor
       //                 ),
-      //                 child: bloodSugarController.bloodSugarLists.isEmpty
+      //                 child: bloodSugarController.filterLists.isEmpty
       //                     ? Align(
       //                   alignment: Alignment.center,
       //                       child: Center(
@@ -413,14 +628,14 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                   reverse: true,
       //                   controller: ScrollController(),
       //                   shrinkWrap: true,
-      //                   itemCount: bloodSugarController.bloodSugarLists.length,
+      //                   itemCount: bloodSugarController.filterLists.length,
       //                   itemBuilder: (context, index) {
       //                     return ListTile(
       //                       onTap: () {
-      //                         a1cController.hemoglobinId.value = bloodSugarController.bloodSugarLists[index].id.toInt();
+      //                         a1cController.hemoglobinId.value = bloodSugarController.filterLists[index].id.toInt();
       //                         // bloodSugarController.getEditBloodSugarList(widget.id.toString());
       //                         Get.to(() => UpdateHemoglobinScreen(
-      //                           catId: bloodSugarController.bloodSugarLists[index].id.toString(),
+      //                           catId: bloodSugarController.filterLists[index].id.toString(),
       //                         ));
       //                       },
       //                       leading: Stack(
@@ -438,7 +653,7 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                       subtitle: Row(
       //                         children: [
       //                           Text(
-      //                             bloodSugarController.bloodSugarLists[index].dateTime,
+      //                             bloodSugarController.filterLists[index].dateTime,
       //                             style: TextStyle(
       //                                 fontSize: 16,
       //                                 color: ConstColour.greyTextColor,
@@ -448,7 +663,7 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                           Padding(
       //                             padding: EdgeInsets.only(left: deviceWidth * 0.02),
       //                             child: Text(
-      //                               bloodSugarController.bloodSugarLists[index].time.toString(),
+      //                               bloodSugarController.filterLists[index].time.toString(),
       //                               style: TextStyle(
       //                                   fontSize: 16,
       //                                   color: ConstColour.greyTextColor,
@@ -472,7 +687,7 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                                   ),
       //                                 ),
       //                                 TextSpan(
-      //                                   text: bloodSugarController.bloodSugarLists[index].averageSugarConcentration.toString(),
+      //                                   text: bloodSugarController.filterLists[index].averageSugarConcentration.toString(),
       //                                   style: TextStyle(
       //                                     fontSize: 22,
       //                                     color: ConstColour.textColor,
@@ -503,7 +718,7 @@ class _HemoglobinState extends State<Hemoglobin> {
       //                                 ),
       //                                 TextSpan(
       //                                   text: convertBloodSugarValue(
-      //                                     bloodSugarController.bloodSugarLists[index].averageSugarConcentration,
+      //                                     bloodSugarController.filterLists[index].averageSugarConcentration,
       //                                     unitController.getGlucoseLevelPreference(),
       //                                   ),
       //                                   style: TextStyle(
@@ -563,12 +778,14 @@ class _HemoglobinState extends State<Hemoglobin> {
     Get.to(() => HemoglobinScreen());
   }
 
-  String convertBloodSugarValue(double value, bool glucoseLevel) {
-    if (glucoseLevel) {
-      double convertedValue = value / 18; // Convert mmol/L to mg/dL
+  String convertBloodSugarValue(double value, bool a1cLevel) {
+    if (a1cLevel) {
+      double convertedValue = (value * 28.7) - 46.7; // show mg/dL value
       return convertedValue.toStringAsFixed(1);
     } else {
       return value.toStringAsFixed(1);
+      // double convertedValue = value * 18;
+      // return convertedValue.toStringAsFixed(1);
     }
   }
 }

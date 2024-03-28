@@ -2,56 +2,71 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
+import 'package:health_care_dairy/Controller/medication_controller.dart';
+import 'package:health_care_dairy/Controller/notification_controller.dart';
 import 'package:health_care_dairy/model/get_category_model.dart';
 import 'package:http/http.dart' as http;
 
 import '../Common/bottom_button.dart';
-import '../Common/snackbar.dart';
 import '../ConstFile/constApi.dart';
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
-import '../model/delete_model.dart';
+import '../model/insert_category_detail_model.dart';
 
 class DeleteController extends GetxController {
-
+  MedicationController medicationController = Get.put(MedicationController());
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
+  NotificationController notificationController = Get.put(NotificationController());
+
   RxBool flag = false.obs;
   // int selectedIndex = -1;
 
   final selectedIndices = Set<int>().obs;
+  final deleteRecordList = Set<int>().obs;
+ // List<String> deleteRecordList = [];
 
-  // int? messageCode;
-  // Future<void> deleteApi() async {
-  //   final response = await http.post(Uri.parse(ConstApi.deleteList),
-  //       body: {
-  //         "Ids": "958"
-  //       });
-  //   var data = response.body;
-  //   debugPrint(data.toString());
-  //
-  //   if (response.statusCode == 200) {
-  //     final responseData = deleteFromJson(response.body);
-  //     debugPrint(responseData.toString());
-  //     messageCode = responseData.messageCode;
-  //     debugPrint(messageCode.toString());
-  //
-  //     if (messageCode == 1) {
-  //       selectedIndices.clear();
-  //       debugPrint("Deleted Successfully");
-  //       // Get.back();
-  //     } else {}
-  //   } else {}
-  // }
+  int? messageCode;
+  Future<void> deleteApi() async {
+    //deleteRecordList = selectedIndices.map((int value) => value.toString()).toList();
+    // String formattedString = deleteRecordList.map((int value) => '"$value"').join(',');
+    String stringWithCommas = deleteRecordList.join(',');
+    final response = await http.post(Uri.parse(ConstApi.deleteList),
+        body: {
+          "Ids": stringWithCommas.toString()
+        });
+    var data = response.body;
+    debugPrint(data.toString());
+
+    if (response.statusCode == 200) {
+      final responseData = deleteFromJson(response.body);
+      debugPrint(responseData.toString());
+      messageCode = responseData.messageCode;
+      debugPrint(messageCode.toString());
+
+      if (messageCode == 1) {
+        flag.value = false;
+        selectedIndices.clear();
+        deleteRecordList.clear();
+        // bloodSugarController.getCategoryList();
+        debugPrint("Deleted Successfully");
+        // Get.back();
+      } else {
+        debugPrint("Error");
+      }
+    } else {}
+  }
 
   void deleteSelected() {
+
     List<CategoryList> tempList = [];
 
-    for (int i = 0; i < bloodSugarController.bloodSugarLists.length; i++) {
+    for (int i = 0; i < bloodSugarController.filterLists.length; i++) {
       if (!selectedIndices.contains(i)) {
-        tempList.add(bloodSugarController.bloodSugarLists[i]);
+        tempList.add(bloodSugarController.filterLists[i]);
       }
     }
-    bloodSugarController.bloodSugarLists.assignAll(tempList);
+    bloodSugarController.filterLists.assignAll(tempList);
+    medicationController.bloodSugarLists.assignAll(tempList);
     selectedIndices.clear();
   }
 
@@ -140,7 +155,10 @@ class DeleteController extends GetxController {
                               if (selectedIndices.isEmpty) {
                                 Get.back();
                               } else {
-                                // deleteApi();
+                                // deleteApi(
+                                //   bloodSugarController.sugarId.value.toString(),
+                                // );
+                                deleteApi();
                                 deleteSelected();
                                 Get.back();
                               }

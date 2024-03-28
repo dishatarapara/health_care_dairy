@@ -205,85 +205,86 @@ class _SettingScreenState extends State<SettingScreen> {
                         //     ),
                         //   ),
                         // ),
-                        InkWell(
-                          onTap: () {
-                            settingScreenController.showDateFormat();
-                          },
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: ConstColour.settingIconColor,
-                              radius: 20,
-                              child: Image.asset(
-                                "assets/Images/date.png",
-                                fit: BoxFit.cover,
-                                height: deviceHeight * 0.02,
-                              ),
-                            ),
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    "Date Format",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: ConstFont.bold,
-                                    )
-                                ),
-                                Text(
-                                    " ",
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                    )
-                                ),
-                              ],
-                            ),
-                            trailing: Icon(
-                              Icons.arrow_forward_ios,
-                              size: 20,
-                              color: ConstColour.textColor,
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            settingScreenController.showTimeFormat();
-                          },
-                          child: ListTile(
-                            leading: CircleAvatar(
-                              backgroundColor: ConstColour.settingIconColor,
-                              radius: 20,
-                              child: Image.asset(
-                                "assets/Images/time.png",
-                                fit: BoxFit.cover,
-                                height: deviceHeight * 0.02,
-                              ),
-                            ),
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    "Time Format",
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontFamily: ConstFont.bold,
-                                    )
-                                ),
-                                Text(dateTimeController.formattedTime.value.isEmpty
-                                    ? formatter.format(current_Datetime)
-                                    : dateTimeController.formattedTime.value,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                    )
-                                ),
-                              ],
-                            ),
-                            trailing: Icon(
-                              Icons.arrow_forward_ios,
-                              size: 20,
-                              color: ConstColour.textColor,
-                            ),
-                          ),
-                        ),
+                        // InkWell(
+                        //   onTap: () {
+                        //     settingScreenController.showDateFormat();
+                        //   },
+                        //   child: ListTile(
+                        //     leading: CircleAvatar(
+                        //       backgroundColor: ConstColour.settingIconColor,
+                        //       radius: 20,
+                        //       child: Image.asset(
+                        //         "assets/Images/date.png",
+                        //         fit: BoxFit.cover,
+                        //         height: deviceHeight * 0.02,
+                        //       ),
+                        //     ),
+                        //     title: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         Text(
+                        //             "Date Format",
+                        //             style: TextStyle(
+                        //               fontSize: 20,
+                        //               fontFamily: ConstFont.bold,
+                        //             )
+                        //         ),
+                        //         Text(
+                        //             DateFormat('dd/MM/yyyy').format(
+                        //                 dateTimeController.selectedDate.value),
+                        //             style: TextStyle(
+                        //               fontSize: 15,
+                        //             )
+                        //         ),
+                        //       ],
+                        //     ),
+                        //     trailing: Icon(
+                        //       Icons.arrow_forward_ios,
+                        //       size: 20,
+                        //       color: ConstColour.textColor,
+                        //     ),
+                        //   ),
+                        // ),
+                        // InkWell(
+                        //   onTap: () {
+                        //     settingScreenController.showTimeFormat();
+                        //   },
+                        //   child: ListTile(
+                        //     leading: CircleAvatar(
+                        //       backgroundColor: ConstColour.settingIconColor,
+                        //       radius: 20,
+                        //       child: Image.asset(
+                        //         "assets/Images/time.png",
+                        //         fit: BoxFit.cover,
+                        //         height: deviceHeight * 0.02,
+                        //       ),
+                        //     ),
+                        //     title: Row(
+                        //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //       children: [
+                        //         Text(
+                        //             "Time Format",
+                        //             style: TextStyle(
+                        //               fontSize: 20,
+                        //               fontFamily: ConstFont.bold,
+                        //             )
+                        //         ),
+                        //         Text(dateTimeController.formattedTime.value.isEmpty
+                        //             ? formatter.format(current_Datetime)
+                        //             : dateTimeController.formattedTime.value,
+                        //             style: TextStyle(
+                        //               fontSize: 15,
+                        //             )
+                        //         ),
+                        //       ],
+                        //     ),
+                        //     trailing: Icon(
+                        //       Icons.arrow_forward_ios,
+                        //       size: 20,
+                        //       color: ConstColour.textColor,
+                        //     ),
+                        //   ),
+                        // ),
                         InkWell(
                           onTap: () {
                             Get.to(() => UnitSecondScreen());

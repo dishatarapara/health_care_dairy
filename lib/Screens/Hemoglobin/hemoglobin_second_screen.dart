@@ -281,9 +281,6 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                                 });
                               },
                             ),
-
-
-
                         ),
                         ],
                       ),
@@ -428,7 +425,6 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                     await a1cController.HemoglobinList(
                         date.toString(),
                         a1cController.averageSugarController.text,
-                        // bloodGlucose.toStringAsFixed(2),
                         a1cController.a1cCommentController.text,
                         time.toString());
                   } catch(e) {
