@@ -12,4 +12,3 @@ class ConstApi {
   static String selectDataType = '${baseUrl}Get_Select_Data_Type';
   static String deleteList = '${baseUrl}CategoryDetails_Deletes';
 }
-

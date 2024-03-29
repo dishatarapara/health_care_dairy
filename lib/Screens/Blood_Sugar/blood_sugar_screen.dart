@@ -258,7 +258,7 @@ class _BloodSugarState extends State<BloodSugar> {
                               onLongPress: () {
                                 setState(() {
                                   if (deleteController.selectedIndices.contains(index)) {
-                                    deleteController.selectedIndices.remove(index);
+                                    deleteController.Delete();
                                     print("if");
                                   } else {
                                     deleteController.flag.value = true;

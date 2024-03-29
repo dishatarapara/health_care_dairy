@@ -1,27 +1,27 @@
 // To parse this JSON data, do
 //
-//     final login = loginFromJson(jsonString);
+//     final delete = deleteFromJson(jsonString);
 
 import 'dart:convert';
 
-Login loginFromJson(String str) => Login.fromJson(json.decode(str));
+Delete deleteFromJson(String str) => Delete.fromJson(json.decode(str));
 
-String loginToJson(Login data) => json.encode(data.toJson());
+String deleteToJson(Delete data) => json.encode(data.toJson());
 
-class Login {
+class Delete {
   String message;
   int messageCode;
   String status;
   String data;
 
-  Login({
+  Delete({
     required this.message,
     required this.messageCode,
     required this.status,
     required this.data,
   });
 
-  factory Login.fromJson(Map<String, dynamic> json) => Login(
+  factory Delete.fromJson(Map<String, dynamic> json) => Delete(
     message: json["Message"],
     messageCode: json["MessageCode"],
     status: json["Status"],

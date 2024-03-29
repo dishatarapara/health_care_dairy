@@ -368,9 +368,9 @@ class _BloodSugarAddScreenState extends State<BloodSugarAddScreen> {
                 return InkWell(
                   onTap: () {
                     bloodSugarController.measuredType.value =
-                        bloodSugarController.measuredTypes[index].name;
+                    bloodSugarController.measuredTypes[index].name;
                     bloodSugarController.measuredId.value =
-                        bloodSugarController.measuredTypes[index].id;
+                    bloodSugarController.measuredTypes[index].id;
                     Navigator.pop(context);
                   },
                   child: Padding(

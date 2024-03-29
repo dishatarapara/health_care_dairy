@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -10,11 +12,16 @@ import '../Common/snackbar.dart';
 import '../ConstFile/constApi.dart';
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
+import '../model/delete_model.dart';
 
 class DeleteController extends GetxController {
 
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
+
   RxBool flag = false.obs;
+  int? messageCode;
+  var isLoading = false.obs;
+
   // int selectedIndex = -1;
 
   final selectedIndices = Set<int>().obs;
@@ -31,13 +38,60 @@ class DeleteController extends GetxController {
     selectedIndices.clear();
   }
 
+  Future<void> Delete() async {
+    try {
+      isLoading.value = true;
+      var body = jsonEncode({
+        "Ids": ""
+      });
+      var headers = {
+        'Content-Type': 'application/json',
+      };
+
+      var response = await http.post(Uri.parse(ConstApi.deleteList),
+        headers: headers,
+        body: body,
+      );
+      var data = response.body;
+      debugPrint(data.toString());
+
+      if (response.statusCode == 200) {
+        final responseData = deleteFromJson(response.body);
+        debugPrint(responseData.toString());
+        messageCode = responseData.messageCode;
+        debugPrint(messageCode.toString());
+
+        if (messageCode == 1) {
+          debugPrint("Delete Successfully");
+          Get.back();
+        } else {
+          debugPrint("Error");
+        }
+      } else {
+        debugPrint("API Error: ${response.statusCode}");
+      }
+    } catch (error) {
+      debugPrint("API Error: $error");
+    } finally {
+      isLoading.value = false;
+    }
+// isLoading.value = false;
+  }
+
+
   void deleteDialog(String title) {
     showDialog(
       barrierDismissible: false,
       context: Get.context!,
       builder: (context) {
-        var deviceHeight = MediaQuery.of(context).size.height;
-        var deviceWidth = MediaQuery.of(context).size.width;
+        var deviceHeight = MediaQuery
+            .of(context)
+            .size
+            .height;
+        var deviceWidth = MediaQuery
+            .of(context)
+            .size
+            .width;
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
@@ -109,28 +163,36 @@ class DeleteController extends GetxController {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: deviceHeight * 0.02),
-                          child: NextButton(
-                            onPressed: () {
-                              if (selectedIndices.isEmpty) {
-                                Get.back();
-                              } else {
-                                // deleteApi();
-                                deleteSelected();
-                                Get.back();
-                              }
-                            },
-                            btnName: "Yes, sure",
-                          ),
+                        NextButton(
+                          onPressed: () {
+                            Delete();
+                          },
                         ),
+
+                        // Padding(
+                        //   padding: EdgeInsets.only(top: deviceHeight * 0.02),
+                        //   child: NextButton(
+                        //     onPressed: () {
+                        //       if (selectedIndices.isEmpty) {
+                        //         Get.back();
+                        //       } else {
+                        //         // deleteApi();
+                        //        // deleteSelected();
+                        //         Delete();
+                        //         // Get.back();
+                        //       }
+                        //     },
+                        //     btnName: "Yes, sure",
+                        //   ),
+                        // ),
                         ElevatedButton(
                             style: ElevatedButton.styleFrom(
                                 elevation: 0.0,
                                 shape: RoundedRectangleBorder(
                                     side: BorderSide.none,
                                     borderRadius: BorderRadius.circular(50)),
-                                minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
+                                    minimumSize: Size(
+                                    deviceWidth * 0.9, deviceHeight * 0.06),
                                 backgroundColor: ConstColour.appColor
                             ),
                             onPressed: () {

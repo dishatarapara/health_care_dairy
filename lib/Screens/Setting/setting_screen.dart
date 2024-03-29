@@ -481,7 +481,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                   fontFamily: ConstFont.bold,
                                 )
                             ),
-                            trailing: Icon(
+                               trailing: Icon(
                               Icons.arrow_forward_ios,
                               size: 20,
                               color: ConstColour.textColor,
