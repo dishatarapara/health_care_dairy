@@ -418,6 +418,13 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                       Utils().snackBar('A1C', "Please Enter A1C");
                       return;
                     }
+                    // double a1cLevel = 0;
+                    // if(unitController.getGlucoseLevelPreference()) { // mg/dl
+                    //   a1cLevel = double.parse(a1cController.averageSugarController.text) * 18;
+                    // } else {
+                    //   a1cLevel = double.parse(a1cController.averageSugarController.text);
+                    // }
+
                     var date =  DateFormat('dd/MM/yyyy').format(dateTimeController.selectedDate.value);
                     var time = dateTimeController.formattedTime.value.isEmpty
                         ? formatter.format(current_Datetime)
@@ -425,6 +432,7 @@ class _HemoglobinScreenState extends State<HemoglobinScreen> {
                     await a1cController.HemoglobinList(
                         date.toString(),
                         a1cController.averageSugarController.text,
+                        // a1cLevel.toStringAsFixed(2),
                         a1cController.a1cCommentController.text,
                         time.toString());
                   } catch(e) {

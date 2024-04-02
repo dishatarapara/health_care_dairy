@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 import '../Common/bottom_button.dart';
 import '../ConstFile/constColors.dart';
 import '../ConstFile/constFonts.dart';
+import '../Screens/Setting/notification/service.dart';
 
 class NotificationController extends GetxController {
 
@@ -38,6 +39,14 @@ class NotificationController extends GetxController {
     debugPrint(selectedType.value.toString());
   }
 
+  String formatCurrentTime() {
+    DateTime currentTime = DateTime.now();
+    DateFormat formatter = DateFormat('h:mm a');
+    String formattedCurrentTime = formatter.format(currentTime);
+
+    return formattedCurrentTime;
+  }
+
   List<String> weekNames = <String>[
     "Sun",
     "Mon",
@@ -53,6 +62,7 @@ class NotificationController extends GetxController {
   // RxInt notificationId = 0.obs;
   // List<CategoryList> journals = [];
   // var journals = <Map<String, dynamic>>[].obs;
+
   RxList<Map<String, dynamic>> journals = <Map<String, dynamic>>[].obs;
 
   RxBool isLoading = true.obs;
@@ -99,6 +109,7 @@ class NotificationController extends GetxController {
   // }
 
   // Update an existing notification
+
   Future<void> updateItem(int id) async {
     String selectedValue;
 
@@ -111,15 +122,54 @@ class NotificationController extends GetxController {
     }
 
     final formatter = DateFormat('h:mm a');
+    String notificationTime;
+
+    String dateTimeString = '${DateTime.now().toString().substring(0, 10)} ${dateTimeController.formattedTime.value}';
+
+    try {
+      // Parse the concatenated date-time string
+      DateTime dateTime = DateTime.parse(dateTimeString);
+      // Format the parsed date-time with the desired format
+      notificationTime = formatter.format(dateTime);
+    } catch (e) {
+      print('Error parsing date-time: $e');
+      // Handle the error appropriately
+      return;
+    }
 
     await DbHelper.updateItem(
         id,
         notificationNameController.text,
         selectedValue,
-        dateTimeController.formattedTime.value.isEmpty
-            ? formatter.format(current_Datetime)
-            : dateTimeController.formattedTime.value);
+        notificationTime);
     refreshNotification();
+  }
+
+  Future<void> showNotification(int id) async {
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // final IOSInitializationSettings initializationSettingsIOS =  IOSInitializationSettings();
+    final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      // iOS: initializationSettingsIOS
+    );
+    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
+      'your_channel_id',
+      'your_channel_name',
+      importance: Importance.max,
+      priority: Priority.high,
+      // icon: '@mipmap/ic_launcher'
+      // largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
+    );
+    const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+      0,
+      notificationNameController.text,
+      'It\'s time to punch your record.',
+      platformChannelSpecifics,
+      payload: 'item id $id',
+    );
   }
 
   void showForm(int? id) async {
@@ -461,33 +511,6 @@ class NotificationController extends GetxController {
       // dateTimeController.selectedTime.value = dateTime;
       dateTimeController.selectedTime.value = dateTimeController.stringToTime(existingJournal['time'].toString());
       dateTimeController.formattedTime.value = existingJournal['time'].toString();
-    // }
-
-      // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-      // const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-      // // final IOSInitializationSettings initializationSettingsIOS =  IOSInitializationSettings();
-      // final InitializationSettings initializationSettings = InitializationSettings(
-      //   android: initializationSettingsAndroid,
-      //   // iOS: initializationSettingsIOS
-      // );
-      // await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-      //
-      // const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-      //   'your_channel_id',
-      //   'your_channel_name',
-      //   importance: Importance.max,
-      //   priority: Priority.high,
-      //     // icon: '@mipmap/ic_launcher'
-      //   // largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-      // );
-      // const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-      // await flutterLocalNotificationsPlugin.show(
-      //   0,
-      //   notificationNameController.text,
-      //   'It\'s time to punch your record.',
-      //   platformChannelSpecifics,
-      //   payload: 'item id $id',
-      // );
     }
 
     showDialog(
@@ -789,7 +812,7 @@ class NotificationController extends GetxController {
                             if(id != null) {
                               await updateItem(id);
                             }
-                            notificationNameController.text = '';
+                            // notificationNameController.text = '';
                             // selectedType.value == 1
                             //     ? "Everyday"
                             //     : selectedType.value == 2
@@ -1006,4 +1029,5 @@ void notificationDeleteDialog(int index) {
       }
     refreshNotification();
   }
+
 }

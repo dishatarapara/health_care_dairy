@@ -302,28 +302,31 @@ class _HemoglobinState extends State<Hemoglobin> {
                                     ),
                                   ]
                               ),
-                              subtitle: Row(
-                                children: [
-                                  Text(
-                                    bloodSugarController.filterLists[index].dateTime,
-                                    style: TextStyle(
-                                        fontSize: 16,
-                                        color: ConstColour.greyTextColor,
-                                        fontFamily: ConstFont.regular
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: deviceWidth * 0.02),
-                                    child: Text(
-                                      bloodSugarController.filterLists[index].time.toString(),
+                              title: Padding(
+                                padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.02),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      bloodSugarController.filterLists[index].dateTime,
                                       style: TextStyle(
                                           fontSize: 16,
                                           color: ConstColour.greyTextColor,
                                           fontFamily: ConstFont.regular
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    Padding(
+                                      padding: EdgeInsets.only(left: deviceWidth * 0.02),
+                                      child: Text(
+                                        bloodSugarController.filterLists[index].time.toString(),
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            color: ConstColour.greyTextColor,
+                                            fontFamily: ConstFont.regular
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                               trailing: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,6 +376,7 @@ class _HemoglobinState extends State<Hemoglobin> {
                                           text: convertBloodSugarValue(
                                             bloodSugarController.filterLists[index].averageSugarConcentration,
                                             unitController.getGlucoseLevelPreference(),
+                                            false
                                           ),
                                           style: TextStyle(
                                               fontSize: 22,
@@ -778,14 +782,39 @@ class _HemoglobinState extends State<Hemoglobin> {
     Get.to(() => HemoglobinScreen());
   }
 
-  String convertBloodSugarValue(double value, bool a1cLevel) {
+  // String convertBloodSugarValue(double value, bool a1cLevel) {
+  //   if (a1cLevel) {
+  //     // double convertedValue = value / 18;
+  //     double convertedValue = (value * 28.7) - 46.7; // show mg/dL value
+  //     // double convertedValue = (46.7 + value) / 28.7; // show mg/dL value
+  //     // double convertedValue = (value * 0.09) + 2.15; // show mol value
+  //     return convertedValue.toStringAsFixed(1);
+  //   } else {
+  //     return value.toStringAsFixed(1);
+  //     // double convertedValue = value * 18;
+  //     // return convertedValue.toStringAsFixed(1);
+  //   }
+  // }
+
+  String convertBloodSugarValue(double value, bool a1cLevel, bool mmol) {
     if (a1cLevel) {
-      double convertedValue = (value * 28.7) - 46.7; // show mg/dL value
-      return convertedValue.toStringAsFixed(1);
+      if (mmol) {
+        // Convert A1C (%) to A1C (mmol/mol)
+        double convertedValue = (value * 10.93) - 23.5; // Formula: A1c (mmol/mol) = A1c (%) × 10.93 - 23.5
+        return convertedValue.toStringAsFixed(1);
+      } else {
+        // Convert A1C (%) to Average Blood Sugar (mg/dL)
+        // mg/dL
+        // A1c = (46.7 + average_blood_glucose) / 28.7
+        double convertedValue = (value * 28.7) - 46.7; // Formula: Average Blood Sugar (mg/dL) = A1c (%) × 28.7 - 46.7
+        return convertedValue.toStringAsFixed(1);
+      }
     } else {
-      return value.toStringAsFixed(1);
-      // double convertedValue = value * 18;
-      // return convertedValue.toStringAsFixed(1);
+      // Convert A1C (mmol/mol) to A1C (%)
+      // mol
+      // A1c = (2.59 + average_blood_glucose) / 1.59
+      double convertedValue = (value * 0.09148) + 2.152; // Formula: A1c (%) = A1c (mmol/mol) × 0.09148 + 2.152
+      return convertedValue.toStringAsFixed(1);
     }
   }
 }

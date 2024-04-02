@@ -1,17 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/delete_controller.dart';
 import 'package:health_care_dairy/Controller/notification_controller.dart';
 import 'package:health_care_dairy/Common/loader.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:intl/intl.dart';
+import 'package:health_care_dairy/Screens/Setting/notification/service.dart';
 
 import '../../../ConstFile/constColors.dart';
 import '../../../ConstFile/constFonts.dart';
 import '../../../Controller/date_time_controller.dart';
-import 'notification_service.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -25,74 +23,43 @@ class _NotificationScreenState extends State<NotificationScreen> {
   DateTimeController dateTimeController = Get.put(DateTimeController());
   DeleteController deleteController = Get.put(DeleteController());
 
-  DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
-  DateFormat formatter = DateFormat('h:mm a');
-
-  // final _formKey = new GlobalKey<FormState>();
-
-  // final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  late final Timer timer;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // notificationController.showForm(null);
-    // initializeNotifications();
-    // tz.initializeTimeZones();
-    // NotificationService().showNotification();
-    // NotificationService().showDailyTimeNotification();
-    // NotificationService().initializeNotifications();
-    // tz.initializeTimeZones();
-    NotificationService().initializeNotifications();
+    timer = Timer.periodic(Duration(seconds: 30), (timer)  {
+      scheduledNotification();
+    });
     notificationController.refreshNotification();
     print("..number of items ${notificationController.journals.length}");
 
-    // checkAndDisplayNotifications();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   checkAndDisplayNotifications();
-    // });
   }
 
-  // Future<void> initializeNotifications() async {
-  //   const AndroidInitializationSettings initializationSettingsAndroid =
-  //   AndroidInitializationSettings('@mipmap/ic_launcher');
-  //
-  //   final InitializationSettings initializationSettings =
-  //   InitializationSettings(android: initializationSettingsAndroid);
-  //
-  //   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  // @override
+  // void dispose() {
+  //   // TODO: implement disposese
+  //   super.dispose();
+  //   timer.cancel();
   // }
-  //
-  // Future<void> displayLocalNotification() async {
-  //   const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-  //     'your_channel_id',
-  //     'your_channel_name',
-  //     importance: Importance.max,
-  //     priority: Priority.high,
-  //   );
-  //   const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-  //   await flutterLocalNotificationsPlugin.show(
-  //     0,
-  //     notificationController.notificationNameController.text,
-  //     'It\'s time to punch your record.',
-  //     platformChannelSpecifics,
-  //   );
-  // }
-  //
-  // Future<void> checkAndDisplayNotifications() async {
-  //   final String currentTime = formatter.format(current_Datetime);
-  //
-  //   print('Current Time: $currentTime');
-  //
-  //   for (var notification in notificationController.journals) {
-  //     final String notificationTime = notification['time'];
-  //     print('Notification Time: $notificationTime');
-  //     if (notificationTime == currentTime) {
-  //       print('Displaying notification for time: $currentTime');
-  //       await displayLocalNotification();
-  //     }
-  //   }
-  // }
+
+  void scheduledNotification() {
+    for(int i=0; i<notificationController.journals.length; i++) {
+      String formattedCurrentTime  = notificationController.formatCurrentTime();
+
+      if(formattedCurrentTime  == notificationController.journals[i]['time']) {
+        print(notificationController.journals[i]['time'] + "if");
+        print(formattedCurrentTime  + "time+++++");
+        notificationController.showNotification(i);
+        break;
+      } else {
+        print("No notification");
+        print(notificationController.journals[i]['time'] + "else");
+        print(formattedCurrentTime  + "else time");
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -272,37 +239,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                         }
                                         setState(() {});
                                       } else {
-                                        // notificationController.notificationId.value = notificationController.journals[index]['id'].toInt();
                                         notificationController.updateForm(
                                             notificationController.journals[index]['id']);
-                                        // NotificationService().showNotification();
-                                        // NotificationService().showDailyTimeNotification();
-                                        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-                                        const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
-                                        // final IOSInitializationSettings initializationSettingsIOS =  IOSInitializationSettings();
-                                        final InitializationSettings initializationSettings = InitializationSettings(
-                                          android: initializationSettingsAndroid,
-                                          // iOS: initializationSettingsIOS
-                                        );
-                                        await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
-                                        const AndroidNotificationDetails androidPlatformChannelSpecifics = AndroidNotificationDetails(
-                                          'your_channel_id',
-                                          'your_channel_name',
-                                          importance: Importance.max,
-                                          priority: Priority.high,
-                                            // icon: '@mipmap/ic_launcher'
-                                          // largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'),
-                                        );
-                                        const NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
-                                        await flutterLocalNotificationsPlugin.show(
-                                          0,
-                                          notificationController.notificationNameController.text,
-                                          'It\'s time to punch your record.',
-                                          platformChannelSpecifics,
-                                          payload: 'item id ${notificationController.journals[index]['id']}',
-                                        );
-                                        // notificationController.updateItem(index);
                                       }
                                     },
                                     leading: Padding(
@@ -338,6 +276,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     ),
                                     trailing: Text(
                                       notificationController.journals[index]['time'],
+                                      // notificationController.journals[index]['time'] ?? notificationController.formatCurrentDatetime(),
                                       // dateTimeController.formattedTime.value.isEmpty
                                       //     ? formatter.format(current_Datetime)
                                       //     : dateTimeController.formattedTime.value,
@@ -386,7 +325,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     String period = currentTime.period == DayPeriod.am ? 'AM' : 'PM';
     String formattedTime = '$formattedHour:$formattedMinute $period';
     dateTimeController.formattedTime.value = formattedTime;
-    notificationController.selectedType.value = 2;
+    notificationController.selectedType.value = 1;
     notificationController.notificationNameController.text = "";
 
     notificationController.showForm(null);

@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:health_care_dairy/Screens/Setting/notification/service.dart';
 import 'ConstFile/constColors.dart';
-import 'Screens/Setting/notification/notification_service.dart';
 import 'Screens/splash_screen.dart';
-import 'package:timezone/data/latest.dart' as tz;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await NotificationService().initializeNotifications();
-  tz.initializeTimeZones();
+  // await initializeService();
   runApp(const MyApp());
 }
 

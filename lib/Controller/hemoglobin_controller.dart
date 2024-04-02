@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/blood_sugar_controller.dart';
+import 'package:health_care_dairy/Controller/unit_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
@@ -16,6 +17,7 @@ import 'date_time_controller.dart';
 class A1CController extends GetxController {
 
   BloodSugarController bloodSugarController = Get.put(BloodSugarController());
+  UnitController unitController = Get.put(UnitController());
 
   TextEditingController averageSugarController = TextEditingController();
   TextEditingController a1cCommentController = TextEditingController();
@@ -117,6 +119,19 @@ class A1CController extends GetxController {
       int? categoryId =int.tryParse(catId.value);
       debugPrint("Category_Id " + catId.value);
 
+      // late String unitType;
+      // late String unitTypevalue;
+      //
+      // if(unitController.getGlucoseLevelPreference()) {
+      //   unitType = 'mmol/L';
+      //   A1c = (2.59 + average_blood_glucose) / 1.59
+      //   unitTypevalue =  ((double.parse(averageSugar)) * 18).toStringAsFixed(2);
+      // }else{
+      //   unitType =  'mg/dL';
+      //   unitTypevalue = averageSugar.toString();
+      //   A1c = (46.7 + average_blood_glucose) / 28.7
+      // }
+
       var body = jsonEncode({
         "Id" : id,
         "UserId" : userId,
@@ -131,6 +146,7 @@ class A1CController extends GetxController {
         "BodyTemperature" : "",
         "BloodOxygenSaturation" : 0,
         "MeasurementTypeId" : measurementId.value.toString(),
+        // "AverageSugarConcentration" : unitTypevalue,
         "AverageSugarConcentration" : averageSugar,
         "Weight" : "",
         "MedicationName" : "",
@@ -223,6 +239,18 @@ class A1CController extends GetxController {
         dateTimeController.selectedDate.value = dateTime;
         dateTimeController.selectedTime.value = dateTimeController.stringToTime(updateHemoglobinList[0].time.toString());
         dateTimeController.formattedTime.value = updateHemoglobinList[0].time.toString();
+        // String unitType;
+        // String unitTypeValue;
+        //
+        // if( unitController.getGlucoseLevelPreference()) {
+        //   unitType = 'mmol/L';
+        //   unitTypeValue =  ((updateHemoglobinList[0].averageSugarConcentration) / 18).toStringAsFixed(2);
+        // }else{
+        //   unitType =  'mg/dL';
+        //   unitTypeValue = updateHemoglobinList[0].averageSugarConcentration.toString();
+        // }
+        //
+        // averageSugarController.text = unitTypeValue;
         averageSugarController.text = updateHemoglobinList[0].averageSugarConcentration.toString();
         a1cCommentController.text = updateHemoglobinList[0].comments.toString();
         // selectedMeasurementType!.value = updateHemoglobinList[0].measurementTypeName.toString();
