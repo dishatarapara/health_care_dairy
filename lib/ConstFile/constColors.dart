@@ -23,6 +23,5 @@ class ConstColour {
 
   // text color
   static const Color textColor = Colors.black;
-  // static const Color greyTextColor = Colors.grey;
   static const Color greyTextColor = Color(0xff737373);
 }

@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:health_care_dairy/Screens/Setting/notification/service.dart';
 import 'ConstFile/constColors.dart';
 import 'Screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await initializeService();
   runApp(const MyApp());
 }
 
@@ -30,10 +28,6 @@ class MyApp extends StatelessWidget {
           ),
           useMaterial3: false),
       home: const SplashScreen(),
-      // home: NotificationHelper(),
-      // home:  MyAppsss(),
-      // home:  MultiSelectionDeleteDemo(),
-      // home: const HomeScreen(),
     );
   }
 }

@@ -303,7 +303,7 @@ class _HemoglobinState extends State<Hemoglobin> {
                                   ]
                               ),
                               title: Padding(
-                                padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.02),
+                                padding: EdgeInsets.symmetric(vertical: deviceHeight * 0.03),
                                 child: Row(
                                   children: [
                                     Text(

@@ -20,7 +20,6 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   NotificationController notificationController = Get.put(NotificationController());
-  DateTimeController dateTimeController = Get.put(DateTimeController());
   DeleteController deleteController = Get.put(DeleteController());
 
   late final Timer timer;
@@ -276,10 +275,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     ),
                                     trailing: Text(
                                       notificationController.journals[index]['time'],
-                                      // notificationController.journals[index]['time'] ?? notificationController.formatCurrentDatetime(),
-                                      // dateTimeController.formattedTime.value.isEmpty
-                                      //     ? formatter.format(current_Datetime)
-                                      //     : dateTimeController.formattedTime.value,
+                          // ?? notificationController.formatCurrentTime(),
                                       style: TextStyle(
                                           fontSize: 25,
                                           color: ConstColour.textColor,
@@ -319,13 +315,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> navigateToAddPage() async {
     TimeOfDay currentTime = TimeOfDay.now();
-    dateTimeController.selectedTime.value = currentTime;
+    notificationController.selectedTime.value = currentTime;
     String formattedHour = currentTime.hourOfPeriod.toString();
     String formattedMinute = currentTime.minute.toString().padLeft(2, '0');
     String period = currentTime.period == DayPeriod.am ? 'AM' : 'PM';
     String formattedTime = '$formattedHour:$formattedMinute $period';
-    dateTimeController.formattedTime.value = formattedTime;
+    notificationController.formattedTime.value = formattedTime;
     notificationController.selectedType.value = 1;
+    notificationController.weekNameType.value = false;
     notificationController.notificationNameController.text = "";
 
     notificationController.showForm(null);

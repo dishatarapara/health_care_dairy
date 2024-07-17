@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,7 +7,13 @@ import '../ConstFile/constPreferences.dart';
 
 class ProfileController extends GetxController{
 
+  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+
   RxString imagePath = ''.obs;
+
+  // var Username = "Username";
+  // var Email = "Email";
 
   void getImageGallery() async {
     final picker = ImagePicker();
@@ -40,6 +47,26 @@ class ProfileController extends GetxController{
     SharedPreferences preferences = await SharedPreferences.getInstance();
       imagePath.value = preferences.getString("imagepath") ?? "";
   }
-}
+
+  // void saveStringTo(String? username, String? email) async {
+  //   SharedPreferences preferences = await SharedPreferences.getInstance();
+  //   preferences.setString('Username', username ?? '');
+  //   preferences.setString('Email', email ?? '');
+  // }
+  //
+  // void getStringTo() async  {
+  //   var sharedPref = await SharedPreferences.getInstance();
+  //   Username = sharedPref.getString('Username') ?? '';
+  //   Email = sharedPref.getString('Email') ?? '';
+  // }
+
+    // String username = profileController.emailController.text;
+    // String email = profileController.emailController.text;
+    //
+    // profileController.saveImage(profileController.imagePath.value);
+    // var sharedPref = await SharedPreferences.getInstance();
+    // sharedPref.setString('Username', username);
+    // sharedPref.setString('Email', email);
+  }
 
 

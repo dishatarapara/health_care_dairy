@@ -8,15 +8,6 @@ class ConstPreferences {
   var BodyTemperature = "BodyTemperature";
   var Hand = "Hand";
 
-  // Future<void> saveUnitName(String value) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setString(NAME, value);
-  // }
-  // Future<String?> getUnitName() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   return prefs.getString(NAME);
-  // }
-
   Future<void> setIntroScreenFlag(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(key, value);
@@ -37,7 +28,7 @@ class ConstPreferences {
     return prefs.getInt(key);
   }
 
-  Future<void> saveCategoryId(String key, int value) async {
+/*  Future<void> saveCategoryId(String key, int value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(key, value);
   }
@@ -45,17 +36,7 @@ class ConstPreferences {
   Future<int?> getCategoryId(String key) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getInt(key);
-  }
-
-  // Future<void> saveGlucoseLevel(bool value) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   await prefs.setBool(BloodGlucoseLevel, value);
-  // }
-  //
-  // Future<bool?> getGlucoseLevel() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   return prefs.getBool(BloodGlucoseLevel);
-  // }
+  }*/
 
   Future<void> saveOtherUnit(bool value) async {
     final prefs = await SharedPreferences.getInstance();
@@ -101,5 +82,4 @@ class ConstPreferences {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.clear();
   }
-
 }

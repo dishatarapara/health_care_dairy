@@ -62,7 +62,7 @@ class DbHelper {
     final data = {
       'title': title,
       'description': description,
-      'time': DateTime.now().toString()
+      'time': time
     };
 
     final result = await db.update('items', data, where: "id = ?", whereArgs: [id]);

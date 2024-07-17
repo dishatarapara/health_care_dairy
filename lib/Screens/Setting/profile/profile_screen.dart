@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:health_care_dairy/Controller/profile_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 import '../../../ConstFile/constColors.dart';
@@ -22,6 +23,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     profileController.loadImage();
+    // profileController.getStringTo();
   }
 
   // String? _imagepath;
@@ -202,6 +204,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.05),
                     child: TextFormField(
+                      controller: profileController.nameController,
                       cursorColor: ConstColour.textColor,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       keyboardType: TextInputType.text,
@@ -244,6 +247,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Padding(
                     padding: EdgeInsets.only(top: deviceHeight * 0.02),
                     child: TextFormField(
+                      controller: profileController.emailController,
                       keyboardType: TextInputType.emailAddress,
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       cursorColor: ConstColour.textColor,
@@ -300,8 +304,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               minimumSize: Size(deviceWidth * 0.9, deviceHeight * 0.06),
                               backgroundColor: ConstColour.buttonColor
                           ),
-                          onPressed: () {
+                          onPressed: () async {
                             profileController.saveImage(profileController.imagePath.value);
+                            // profileController.saveStringTo(profileController.nameController.text.toString(), profileController.emailController.text.toString());
                             Get.back();
                           })
                   )

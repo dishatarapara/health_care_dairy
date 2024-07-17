@@ -157,8 +157,7 @@ class _SplashSecondScreenState extends State<SplashSecondScreen> {
                       TextButton(
                           onPressed: () {
                             _currentPage + 1 == splashScreenController.contents.length
-                                ?
-                            Navigator.push(
+                                ? Navigator.push(
                                 context, MaterialPageRoute(
                               builder: (context) =>  id != null ? HomeScreen() : LoginScreen()
                             ))

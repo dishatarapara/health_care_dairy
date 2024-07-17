@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:health_care_dairy/Controller/date_time_controller.dart';
 import 'package:health_care_dairy/DatabaseHandler/dbhelper.dart';
 import 'package:intl/intl.dart';
 
@@ -20,12 +19,12 @@ class NotificationController extends GetxController {
     refreshNotification();
   }
 
-  DateTimeController dateTimeController = Get.put(DateTimeController());
   TextEditingController notificationNameController = TextEditingController();
 
-  DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
-  DateFormat formatter = DateFormat('h:mm a');
+ // DateTime current_Datetime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, DateTime.now().hour, DateTime.now().minute);
 
+  DateFormat formatter = DateFormat('h:mm a');
+  DateTime current_Datetime =  DateTime.now();
   RxInt selectedType = 1.obs;
   RxBool weekNameType = false.obs;
 
@@ -47,6 +46,65 @@ class NotificationController extends GetxController {
     return formattedCurrentTime;
   }
 
+  final Rx<TimeOfDay> selectedTime = TimeOfDay.now().obs;
+  final RxString formattedTime = ''.obs;
+
+  Future<void> pickTime() async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: Get.context!,
+      initialTime: selectedTime.value,
+      initialEntryMode: TimePickerEntryMode.dial,
+      helpText: ' ',
+      errorInvalidText: 'Provide valid time',
+      hourLabelText: 'Hour',
+      minuteLabelText: 'Minute',
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+              alwaysUse24HourFormat: false
+          ),
+          child:Theme(
+              data: ThemeData.dark().copyWith(
+                  colorScheme: ColorScheme.dark(
+                    primary: ConstColour.buttonColor,
+                    onPrimary: Colors.white,
+                    surface: ConstColour.appColor,
+                    onSurface: ConstColour.textColor,
+                  ),
+                  dialogBackgroundColor: ConstColour.buttonColor
+              ),
+              child: child!
+          ),
+        );
+      },
+    );
+    if(pickedTime != null && pickedTime != selectedTime.value) {
+      formattedTime.value = formatTimeOfDay(pickedTime);
+      // bloodSugarController.setSelectedTime(pickedTime);
+      print("time" + formattedTime.value.toString());
+    }
+  }
+  String formatTimeOfDay(TimeOfDay timeOfDay) {
+    final now = DateTime.now();
+    final TimeOfDay datetime = timeOfDay;
+    String customFormattedTimeOfDay = '${timeOfDay.hourOfPeriod}:${timeOfDay.minute.toString().padLeft(2, '0')} ${timeOfDay.period == DayPeriod.am ? 'AM' : 'PM'}';
+
+  //  final TimeOfDay formatter = TimeOfDay('h:mm a');
+    return customFormattedTimeOfDay;
+  }
+
+  TimeOfDay stringToTime(String timeOfDay) {
+    try {
+      final DateFormat formatter = DateFormat('h:mm a');
+      final DateTime dateTime = formatter.parse(timeOfDay);
+      return TimeOfDay(hour: dateTime.hour, minute: dateTime.minute);
+    } catch (e) {
+      print('Error parsing time: $e');
+      // Return a default time (e.g., 12:00 AM) if parsing fails
+      return TimeOfDay(hour: 0, minute: 0);
+    }
+  }
+
   List<String> weekNames = <String>[
     "Sun",
     "Mon",
@@ -56,15 +114,8 @@ class NotificationController extends GetxController {
     "Fri",
     "Sat"
   ];
-
   Set<int> selected = {};
-
-  // RxInt notificationId = 0.obs;
-  // List<CategoryList> journals = [];
-  // var journals = <Map<String, dynamic>>[].obs;
-
   RxList<Map<String, dynamic>> journals = <Map<String, dynamic>>[].obs;
-
   RxBool isLoading = true.obs;
 
   void refreshNotification() async {
@@ -92,9 +143,9 @@ class NotificationController extends GetxController {
     await DbHelper.createItem(
       notificationNameController.text,
       selectedValue,
-      dateTimeController.formattedTime.value.isEmpty
+      formattedTime.value.isEmpty
           ? formatter.format(current_Datetime)
-          : dateTimeController.formattedTime.value,
+          : formattedTime.value,
     );
     refreshNotification();
   }
@@ -124,13 +175,11 @@ class NotificationController extends GetxController {
     final formatter = DateFormat('h:mm a');
     String notificationTime;
 
-    String dateTimeString = '${DateTime.now().toString().substring(0, 10)} ${dateTimeController.formattedTime.value}';
-
     try {
-      // Parse the concatenated date-time string
-      DateTime dateTime = DateTime.parse(dateTimeString);
-      // Format the parsed date-time with the desired format
-      notificationTime = formatter.format(dateTime);
+      notificationTime = formattedTime.value.isEmpty
+          ? formatter.format(current_Datetime)
+          : formattedTime.value;
+      // notificationTime = formatter.format(current_Datetime);
     } catch (e) {
       print('Error parsing date-time: $e');
       // Handle the error appropriately
@@ -141,9 +190,32 @@ class NotificationController extends GetxController {
         id,
         notificationNameController.text,
         selectedValue,
-        notificationTime);
+        notificationTime
+    );
     refreshNotification();
   }
+
+  // Future<void> updateList(int id) async {
+  //   String selectedValue;
+  //
+  //   if (selectedType.value == 1 && selected.isEmpty) {
+  //     selectedValue = "Everyday";
+  //   } else if (selectedType.value == 2 && selected.isNotEmpty) {
+  //     selectedValue = selected.map((index) => weekNames[index]).join(", ");
+  //   } else {
+  //     selectedValue = "Everyday";
+  //   }
+  //
+  //   await DbHelper.updateItem(
+  //     id,
+  //     notificationNameController.text,
+  //     selectedValue,
+  //     formattedTime.value.isEmpty
+  //         ? formatter.format(current_Datetime)
+  //         : formattedTime.value,
+  //   );
+  //   refreshNotification();
+  // }
 
   Future<void> showNotification(int id) async {
     FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
@@ -184,7 +256,7 @@ class NotificationController extends GetxController {
       } else {
         weekNameType.value = false; // or true, depending on your logic
       }
-      dateTimeController.formattedTime.value = existingJournal['time'];
+      formattedTime.value = existingJournal['time'];
       }
 
     // void showForm(int? id) async {
@@ -288,10 +360,10 @@ class NotificationController extends GetxController {
                       Padding(
                         padding: EdgeInsets.only(top: deviceHeight * 0.01),
                         child: InkWell(
-                          onTap: () => dateTimeController.pickTime(),
-                          child: Text(dateTimeController.formattedTime.value.isEmpty
+                          onTap: () => pickTime(),
+                          child: Text(formattedTime.value.isEmpty
                               ? formatter.format(current_Datetime)
-                              : dateTimeController.formattedTime.value,
+                              : formattedTime.value,
                             style: TextStyle(
                                 fontSize: 35,
                                 fontFamily: ConstFont.bold,
@@ -493,24 +565,24 @@ class NotificationController extends GetxController {
       final existingJournal =
       journals.firstWhere((element) => element['id'] == id);
       notificationNameController.text = existingJournal['title'];
-      // String selectedValue;
-      //
-      // if (selectedType.value == 1 && selected.isEmpty) {
-      //   selectedValue = "Everyday";
-      // } else if (selectedType.value == 2 && selected.isNotEmpty) {
-      //   selectedValue = selected.map((index) => weekNames[index]).join(", ");
-      // } else {
-      //   selectedValue = "Everyday";
-      // }
-      if (existingJournal['description'] != null && existingJournal['description'].isNotEmpty) {
-        weekNameType.value = true;
+      String selectedValue;
+
+      if (selectedType.value == 1 && selected.isEmpty) {
+        selectedValue = "Everyday";
+      } else if (selectedType.value == 2 && selected.isNotEmpty) {
+        selectedValue = selected.map((index) => weekNames[index]).join(", ");
       } else {
-        weekNameType.value = false;
+        selectedValue = "Everyday";
       }
+      // if (existingJournal['description'] != null && existingJournal['description'].isNotEmpty) {
+      //   weekNameType.value = true;
+      // } else {
+      //   weekNameType.value = false;
+      // }
       // var dateTime = dateTimeController.stringToTime(existingJournal['time'].toString());
       // dateTimeController.selectedTime.value = dateTime;
-      dateTimeController.selectedTime.value = dateTimeController.stringToTime(existingJournal['time'].toString());
-      dateTimeController.formattedTime.value = existingJournal['time'].toString();
+      selectedTime.value = stringToTime(existingJournal['time'].toString());
+      formattedTime.value = existingJournal['time'].toString();
     }
 
     showDialog(
@@ -601,17 +673,21 @@ class NotificationController extends GetxController {
                           ),
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(top: deviceHeight * 0.01),
-                        child: InkWell(
-                          onTap: () => dateTimeController.pickTime(),
-                          child: Text(dateTimeController.formattedTime.value.isEmpty
-                              ? formatter.format(current_Datetime)
-                              : dateTimeController.formattedTime.value,
-                            style: TextStyle(
-                                fontSize: 35,
-                                fontFamily: ConstFont.bold,
-                                color: ConstColour.buttonColor
+                      Obx(
+                        () =>  Padding(
+                          padding: EdgeInsets.only(top: deviceHeight * 0.01),
+                          child: InkWell(
+                            onTap: () {
+                              pickTime();
+                            },
+                            child: Text(formattedTime.value.isEmpty
+                                ? formatter.format(current_Datetime)
+                                : formattedTime.value,
+                              style: TextStyle(
+                                  fontSize: 35,
+                                  fontFamily: ConstFont.bold,
+                                  color: ConstColour.buttonColor
+                              ),
                             ),
                           ),
                         ),
@@ -645,6 +721,7 @@ class NotificationController extends GetxController {
                           ),
                         ),
                       ),
+
                       Obx(() => Padding(
                         padding: EdgeInsets.only(top: deviceHeight * 0.01),
                         child: Row(
@@ -696,8 +773,7 @@ class NotificationController extends GetxController {
                             ),
                           ],
                         ),
-                      ),
-                      ),
+                      ),),
                       Obx(() => Visibility(
                         visible: weekNameType.value,
                         child: Container(
@@ -811,16 +887,17 @@ class NotificationController extends GetxController {
                           onPressed: () async {
                             if(id != null) {
                               await updateItem(id);
+                              // await updateList(id);
                             }
-                            // notificationNameController.text = '';
+                            notificationNameController.text = '';
                             // selectedType.value == 1
                             //     ? "Everyday"
                             //     : selectedType.value == 2
                             //     ? weekNames.toString()
                             //     : " ";
-                            // dateTimeController.formattedTime.value.isEmpty
+                            // formattedTime.value.isEmpty
                             //     ? formatter.format(current_Datetime)
-                            //     : dateTimeController.formattedTime.value;
+                            //     : formattedTime.value;
                             Get.back();
                             // Navigator.pop(context);
                           },

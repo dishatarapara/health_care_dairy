@@ -43,13 +43,6 @@ class BloodSugarController extends GetxController {
     return formattedDate;
   }
 
-  // RxInt selectedSheetRadio = 5.obs;
-  //
-  // setSelectedSheetRadio(value) {
-  //   selectedSheetRadio.value = value;
-  //   print(selectedSheetRadio.value.toString());
-  // }
-
   RxList<CategoryList> bloodSugarLists = <CategoryList>[].obs;
   RxList<CategoryList> filterLists = <CategoryList>[].obs;
   RxList<CategoryList> updateBloodSugarList = <CategoryList>[].obs;

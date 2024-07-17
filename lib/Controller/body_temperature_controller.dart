@@ -237,5 +237,4 @@ class BodyTemperatureController extends GetxController {
       }
     } else {}
   }
-
 }
